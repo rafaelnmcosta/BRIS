@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ReCAPTCHA from "react-google-recaptcha";
+import { Link } from 'react-router-dom';
 import Checkbox from './Checkbox';
 import '../App.css';
 import './FormLogin.css';
@@ -8,14 +8,9 @@ import './FormLogin.css';
 import { ReactComponent as IconPessoa } from '../assets/icones/user-svgrepo-com.svg';
 import { ReactComponent as IconSenha } from '../assets/icones/lock-svgrepo-com.svg';
 
-const Form_login = ({ onLogin, onShowForgotPasswordForm }) => {
+const FormLogin = ({ onLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
-  
-    const handleCaptchaChange = (value) => {
-      setIsCaptchaVerified(true);
-    };
   
     const handleSubmit = (e) => {
       e.preventDefault();
@@ -55,16 +50,16 @@ const Form_login = ({ onLogin, onShowForgotPasswordForm }) => {
         />
         <Checkbox texto="Lembrar-me" className="checkbox"/>
         <button className='button-primario' type="submit">ENTRAR</button>
-        <a>Esqueceu a senha?</a>
+        <Link to='/recurar-senha'>Esqueceu a senha?</Link>
         <br/>
         <p>Ainda não possui uma conta?</p>
         <div className='lado-a-lado'>
-          <p>Cadastre-se </p>
-          <a className='aqui'>aqui!</a>
-          </div>
+          <p>Cadastre-se</p>
+          <Link className='aqui' to='/cadastro'>aqui!</Link>
+        </div>
       </form>
     );
   };
   
-  export default Form_login;
+  export default FormLogin;
   

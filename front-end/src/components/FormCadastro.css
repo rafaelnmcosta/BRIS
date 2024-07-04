@@ -6,16 +6,24 @@
     --verde-escuro: #138442;
 }
 
-.form-login {
+.form-cadastro {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 20rem;
-    margin: 0 100px auto 50px;
+    margin: auto auto 100px auto;
     padding: 30px 50px;
     background-color: var(--cinza-background);
     border-radius: 30px;
     box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
+}
+
+.texto-cadastro {
+    margin: 0px;
+}
+
+.titulo-cadastro {
+    margin: 0px auto 15px auto;
 }
 
 .input-form {
@@ -23,24 +31,10 @@
     background-color: var(--cinza-background);
     width: 100%; /* Define a largura como 100% */
     padding: 8px; /* Adiciona preenchimento interno de 8px */
-    margin-bottom: 5px;
+    margin-bottom: 10px;
     border: 0px;
     border-bottom: 2px solid var(--verde-escuro);
     box-sizing: border-box; /* Adapta o tamanho da caixa de acordo com a borda e o preenchimento */
-}
-
-.text-button {
-    background-color: transparent;
-    border: none;
-    color: var(--verde-escuro);
-    cursor: pointer;
-    text-align: left;
-    font-weight: bold;
-    margin: 0.5rem 0;
-    &:hover {
-        color: var(--verde-realce);
-        text-decoration: underline;
-    }
 }
 
 .aqui {
