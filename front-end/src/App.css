@@ -1,38 +1,117 @@
+:root {
+  --cinza-background: #F7F7F7;
+  --verde-fraco: #BFDAAA;
+  --verde-realce: #21BA45;
+  --verde-medio: #24B866;
+  --verde-escuro: #138442;
+}
+
 .App {
-  text-align: center;
+  background-color: var(--verde-fraco);
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Estilo para o elemento com a classe body */
+body {
+  font-family: "PT Sans";
+  font-optical-sizing: auto; /* Define o ajuste óptico da fonte como automático */
+  font-weight: auto; /* Define o peso da fonte como automático */
+  font-style: normal; /* Define o estilo da fonte como normal */
+  background-color: var(--verde-fraco);
+  margin: 0; /* Conteúdo sem margem */ 
+  padding-top: 100px; /* Espaço para a headbar */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/* Estilo para o elemento <h1> */
+h1 {
+  color: var(--verde-escuro); /* Define a cor do texto como verde escuro */
+}
+
+h2 {
+  font-weight: bold;
+  color: var(--verde-escuro); /* Define a cor do texto como verde escuro */
+}
+
+/* Estilo para o elemento <label> */
+label {
+  display: block; /* Define o tipo de exibição como bloco */
+  width: 100%; /* Define a largura como 100%*/
+  text-align: left; /* Alinha o texto à esquerda */
+  font-weight: bold;
+  color: var(--verde-escuro);
+  margin-bottom: 4px;
+}
+
+select {
+  padding: 3px;
+  margin-left: 4px;
+  margin-bottom: 10px;
+  border: 1px solid #cccccc; /* Define a borda como cinza claro */
+  border-radius: 8px; /* Adiciona cantos arredondados */
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--verde-medio);
+  outline: none;
+}
+
+.button-primario {
+  width: 10rem;
+  padding: 1rem 3rem;
+  font-weight: bold;
+  background-color: var(--verde-realce); /* Define a cor de fundo como verde escuro */
+  margin-bottom: 5px;
+  color: var(--cinza-background);
+  border: none;
+  border-radius: 3rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  cursor: pointer; /* Define o cursor como ponteiro */
+  
+  &:hover {
+    background-color: var(--verde-escuro);
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+p {
+  color: var(--verde-escuro);
+  margin: 0 0 0 0;
+}
+
+a {
+  color: var(--verde-escuro); /* Define a cor do texto dos links e botões do menu como verde escuro */
+  text-decoration: none; /* Remove a decoração do texto (sublinhado) dos links do menu */
+  background: none; /* Remove o fundo dos botões do menu */
+  border: none; /* Remove a borda dos botões do menu */ 
+  cursor: pointer;
+  text-align: left;
+  font-weight: bold;
+  margin: 0.5rem 0;
+
+  &:hover {
+      color: var(--verde-realce);
+      text-decoration: underline;
+  }
+}
+
+.checkbox {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  align-items: center;
+  max-height: 40px;
+  white-space: nowrap;
+  margin: 10px 0;
 }
 
-.App-link {
-  color: #61dafb;
+.icone {
+  fill: var(--verde-escuro);
+  color: var(--verde-escuro);
+  height: 1.3rem;
+  width: 1.3rem;
+  margin: 0 0.25rem;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.lado-a-lado {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }

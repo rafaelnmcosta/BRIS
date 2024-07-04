@@ -1,0 +1,31 @@
+:root {
+    --cinza-background: #F7F7F7;
+    --verde-fraco: #BFDAAA;
+    --verde-realce: #21BA45;
+    --verde-medio: #24B866;
+    --verde-escuro: #138442;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    height: auto; /* Ajuste a altura conforme necessário */
+    padding: 20px;
+}
+
+.text-section {
+    height: 100vh;
+    flex: 1;
+    margin: 0 50px 0 100px;
+}
+
+.texto {
+    color: var(--verde-escuro);
+}
+
+.logo {
+    margin-top: 30px;
+    height: 70px;
+}
