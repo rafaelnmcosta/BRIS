@@ -6,24 +6,17 @@ import HeadbarSistema from '../components/HeadbarSistema';
 const ListaAnimais = () => {
   const [animais, setAnimais] = useState([]);
 
-  const AnimaisTeste = [
-    { id: 1, info: 'Bobby'},
-    { id: 2, info: 'Luna'},
-    { id: 3, info: 'Max'},
-    { id: 4, info: 'Bombom'},
-  ];
-
   useEffect(() => {
-    /*
-    axios.get('https://api.exemplo.com/animais')
-      .then(response => {
+    const fetchAnimais = async () => {
+      try {
+        const response = await axios.get('http://localhost:5206/api/Porcos');
         setAnimais(response.data);
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Erro ao buscar os dados dos animais:', error);
-      });
-    */
-   setAnimais(AnimaisTeste);
+      }
+    };
+
+    fetchAnimais();
   }, []);
 
   const handleEdit = (animalId) => {
