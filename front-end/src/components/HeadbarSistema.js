@@ -14,7 +14,7 @@ function HeadbarSistema() {
             <div className='navbar-menu'>
                 <Link to="/">Página inicial</Link>
                 <p>|</p>
-                <Link to="/configuracoes">Configurações</Link>
+                <Link to="/perfil">Perfil</Link>
                 <p>|</p>
                 <Link to="/login">Sair</Link>
             </div>

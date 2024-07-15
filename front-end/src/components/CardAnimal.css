@@ -8,4 +8,6 @@
 
 .card {
     background-color: var(--cinza-background);
+    margin: 0.5rem 0.25rem;
+    border-radius: 0.5rem;
 }
