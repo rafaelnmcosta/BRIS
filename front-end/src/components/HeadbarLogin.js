@@ -12,11 +12,11 @@ function HeadbarLogin() {
                 <img src={logo} alt="Logo" style={{ width: '200px', height: 'auto' }} />
             </div>
             <div className='navbar-menu'>
-                <Link to="/Sobre">Sobre</Link>
+                <Link to="/sobre">Sobre</Link>
                 <p>|</p>
-                <Link to="/Cadastro">Cadastro</Link>
+                <Link to="/cadastro">Cadastro</Link>
                 <p>|</p>
-                <Link to="/">Login</Link>
+                <Link to="/login">Login</Link>
             </div>
             </div>
         </nav>

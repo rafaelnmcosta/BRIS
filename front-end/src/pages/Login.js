@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 import '../App.css';
 import './Login.css';
@@ -14,23 +15,28 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  const navigate = useNavigate();
+
   const handleLogin = async () => {
       try {
+          /*
           const response = await axios.post('https://yourapi.com/api/auth/login', {
               username,
               password
           });
           const { token } = response.data;
           localStorage.setItem('token', token);
+          */
+          navigate('/');
       } catch (error) {
-          console.error('Login failed', error);
+          console.error('Falha no login', error);
       }
   };
 
   return (
     <div>
       <HeadbarLogin/>
-      <div className='main-content'> 
+      <div className='page-content main-content'> 
         <div className='text-section'>
           <h2>Boar Reproductive Identifier Software</h2>
           <p>Lorem ipsum dolor sit amet. Est quia ducimus aut pariatur praesentium et sunt voluptas et aliquam quod et praesentium praesentium. Vel maiores galisum est eaque reprehenderit aut fugit natus ut nulla voluptatem ex doloribus eveniet qui quidem facilis et explicabo rerum. Et nesciunt dolorum aut excepturi omnis ut possimus eligendi aut ullam aspernatur 33 quidem ipsum et saepe reiciendis At cumque nihil. Est quam itaque hic omnis blanditiis et dignissimos quod et corporis obcaecati. </p>
@@ -41,9 +47,7 @@ const Login = () => {
             <img className='logo' src={logoInf} alt=''/>
           </div>
         </div>
-        <FormLogin>
-          onLogin={handleLogin}
-        </FormLogin>
+        <FormLogin onLogin={handleLogin} />
       </div>
     </div>
   );

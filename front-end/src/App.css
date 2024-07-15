@@ -18,7 +18,11 @@ body {
   font-style: normal; /* Define o estilo da fonte como normal */
   background-color: var(--verde-fraco);
   margin: 0; /* Conteúdo sem margem */ 
-  padding-top: 100px; /* Espaço para a headbar */
+  padding-top: 6.5rem; /* Espaço para a headbar */
+}
+
+.page-content {
+  padding: 0 6.25rem 5rem 6.25rem;
 }
 
 /* Estilo para o elemento <h1> */
@@ -41,14 +45,6 @@ label {
   margin-bottom: 4px;
 }
 
-select {
-  padding: 3px;
-  margin-left: 4px;
-  margin-bottom: 10px;
-  border: 1px solid #cccccc; /* Define a borda como cinza claro */
-  border-radius: 8px; /* Adiciona cantos arredondados */
-}
-
 input:focus, textarea:focus, select:focus {
   border-color: var(--verde-medio);
   outline: none;
@@ -64,7 +60,7 @@ input:focus, textarea:focus, select:focus {
   border: none;
   border-radius: 3rem;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  cursor: pointer; /* Define o cursor como ponteiro */
+  cursor: pointer;
   
   &:hover {
     background-color: var(--verde-escuro);

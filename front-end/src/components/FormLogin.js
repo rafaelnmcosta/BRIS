@@ -9,7 +9,7 @@ import { ReactComponent as IconPessoa } from '../assets/icones/user-svgrepo-com.
 import { ReactComponent as IconSenha } from '../assets/icones/lock-svgrepo-com.svg';
 
 const FormLogin = ({ onLogin }) => {
-    const [email, setEmail] = useState('');
+    const [usuario, setUsuario] = useState('');
     const [password, setPassword] = useState('');
   
     const handleSubmit = (e) => {
@@ -18,7 +18,7 @@ const FormLogin = ({ onLogin }) => {
         alert('Por favor, verifique o Captcha');
         return;
       }*/
-      onLogin(email, password);
+      onLogin(usuario, password);
     };
   
     return (
@@ -30,10 +30,10 @@ const FormLogin = ({ onLogin }) => {
         </div>
         <input
           className='input-form'
-          type="email"
+          type="text"
           placeholder="Seu nome de usuário"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={usuario}
+          onChange={(e) => setUsuario(e.target.value)}
           required
         />
         <div className='lado-a-lado'>

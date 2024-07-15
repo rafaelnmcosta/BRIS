@@ -1,0 +1,23 @@
+:root {
+    --cinza-background: #F7F7F7;
+    --verde-fraco: #BFDAAA;
+    --verde-realce: #21BA45;
+    --verde-medio: #24B866;
+    --verde-escuro: #138442;
+}
+
+.button-menu {
+    font-weight: bold;
+    background-color: var(--verde-escuro);
+    color: var(--cinza-background);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border-radius: 1rem;
+    border: none;
+    min-height: 5rem;
+    min-width: 100%;
+    cursor: pointer;
+
+    &:hover {
+        background-color: var(--verde-realce);
+    }
+}

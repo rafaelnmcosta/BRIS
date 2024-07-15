@@ -25,7 +25,7 @@ const FormCadastro = () => {
         <p className='texto-cadastro'>Já possui cadastro?</p>
         <div className='lado-a-lado'>
           <p>Pode entrar no sistema clicando</p>
-          <Link className='aqui' to='/'>aqui!</Link>
+          <Link className='aqui' to='/login'>aqui!</Link>
         </div>
         <br/>
         <div className='lado-a-lado'>
@@ -58,7 +58,7 @@ const FormCadastro = () => {
         </div>
         <input
           className='input-form'
-          type="text"
+          type="email"
           placeholder="Seu e-mail"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
