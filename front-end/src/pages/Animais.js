@@ -38,7 +38,7 @@ const ListaAnimais = () => {
             <a href='/'> {'< '} Voltar</a>
             <h2>Lista de animais</h2>
             {animais.map(animal => (
-                <div key={animal.id} style={{ marginBottom: 16 }}>
+                <div key={animal.id}>
                     <CardAnimal
                     id={animal.id}
                     info={animal.info}

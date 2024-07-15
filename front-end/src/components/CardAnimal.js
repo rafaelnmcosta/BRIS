@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from 'antd';
-import './CardAnimal.css'
+import './CardListagem.css'
 
 const CardAnimal = ({ id, info, onEdit }) => {
   return (
