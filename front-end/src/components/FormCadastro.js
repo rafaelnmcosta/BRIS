@@ -11,7 +11,6 @@ import { ReactComponent as IconEmail } from '../assets/icones/mail-svgrepo-com.s
 
 const FormCadastro = () => {
     const [nome, setNome] = useState('');
-    const [usuario, setUsuario] = useState('');
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
 
@@ -38,18 +37,6 @@ const FormCadastro = () => {
           placeholder="Seu nome completo"
           value={nome}
           onChange={(e) => setNome(e.target.value)}
-          required
-        />
-        <div className='lado-a-lado'>
-          <IconUsuario className='icone' />
-          <label>Nome de usuario</label>
-        </div>
-        <input
-          className='input-form'
-          type="text"
-          placeholder="Seu nome de usuário no sistema"
-          value={usuario}
-          onChange={(e) => setUsuario(e.target.value)}
           required
         />
         <div className='lado-a-lado'>

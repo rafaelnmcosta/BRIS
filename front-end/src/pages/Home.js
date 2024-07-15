@@ -17,7 +17,7 @@ const Home = () => {
         <h2>Bem-vindo ao BRIS!</h2>
         <Row gutter={24} style={{ marginTop: 20 }}>
           <Col span={6}>
-            <button className='button-menu' onClick={()=> navigate('/nova-amostra')}>Cadastrar nova amostra</button>
+            <button className='button-menu' onClick={()=> navigate('/nova-dose')}>Cadastrar nova amostra</button>
           </Col>
           <Col span={6}>
             <button className='button-menu' onClick={()=> navigate('/animais')}>Gerenciar animais</button>

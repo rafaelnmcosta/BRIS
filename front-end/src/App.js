@@ -5,9 +5,16 @@ import Home from './pages/Home';
 import Sobre from './pages/Sobre';
 import Login from './pages/Login';
 import Cadastro from './pages/Cadastro';
-import NovaAmostra from './pages/NovaAmostra';
-import ListaAnimais from './pages/Animais';
-import ListaUsuarios from './pages/Usuarios';
+import NovaDose from './pages/NovaDose';
+import ListaAnimais from './pages/ListaAnimais';
+import Animal from './pages/Animal';
+import EditarAnimal from './pages/EditarAnimal';
+import Amostra from './pages/Amostra';
+import ListaUsuarios from './pages/ListaUsuarios';
+import Usuario from './pages/Usuario';
+import EditarUsuario from './pages/EditarUsuario';
+import Perfil from './pages/Perfil';
+import EditarPerfil from './pages/EditarPerfil';
 //import ListaGranjas from './pages/Granjas';
 
 const App = () => {
@@ -18,9 +25,16 @@ const App = () => {
           <Route path="/sobre" Component={Sobre} />
           <Route path="/login" Component={Login} />
           <Route path="/cadastro" Component={Cadastro} />
+          <Route path="/nova-dose" Component={NovaDose} />
           <Route path="/animais" Component={ListaAnimais} />
-          <Route path="/nova-amostra" Component={NovaAmostra} />
+          <Route path="/animais/:id" Component={Animal} />
+          <Route path="/animais/:id/editar" Component={EditarAnimal} />
+          <Route path="/animais/:id/amostra" Component={Amostra} />
           <Route path="/usuarios" Component={ListaUsuarios} />
+          <Route path="/usuarios/:id" Component={Usuario} />
+          <Route path="/usuarios/:id/editar" Component={EditarUsuario} />
+          <Route path="/usuarios/perfil/:id" Component={Perfil} />
+          <Route path="/usuarios/perfil/:id/editar" Component={EditarPerfil} />
           {/*
           <Route path="/granjas" Component={ListaGranjas} />
           */}

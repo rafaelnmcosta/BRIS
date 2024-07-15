@@ -6,9 +6,9 @@ import CardAnimal from '../components/CardAnimal';
 import HeadbarSistema from '../components/HeadbarSistema';
 
 import '../App.css';
-import './NovaAmostra.css';
+import './NovaDose.css';
 
-const NovaAmostra = () => {
+const NovaDose = () => {
   const [animais, setAnimais] = useState([]);
 
   const AnimaisTeste = [
@@ -36,9 +36,9 @@ const NovaAmostra = () => {
     console.log('Editar dados do animal com ID:', animalId);
   };
 
-  const handleNovaAmostra = (animalId) => {
+  const handleNovaDose = (animalId) => {
     // Lógica para cadastrar nova amostra para o animal selecionado
-    console.log('Nova amostra para o animal com ID:', animalId);
+    console.log('Nova dose para o animal com ID:', animalId);
   };
 
   return (
@@ -50,7 +50,7 @@ const NovaAmostra = () => {
             {animais.map(animal => (
                 <Row key={animal.id}>
                     <Col flex='none'>
-                        <button className='button-nova-dose' onClick={() => handleNovaAmostra(animal.id)}>
+                        <button className='button-nova-dose' onClick={() => handleNovaDose(animal.id)}>
                             Nova Dose
                         </button>
                     </Col>
@@ -68,4 +68,4 @@ const NovaAmostra = () => {
   );
 };
 
-export default NovaAmostra;
+export default NovaDose;
