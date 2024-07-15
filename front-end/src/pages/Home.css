@@ -21,3 +21,13 @@
         background-color: var(--verde-realce);
     }
 }
+
+.button-desativado {
+    cursor: not-allowed;
+    background-color: gray;
+    color: var(--verde-fraco);
+
+    &:hover {
+        background-color: gray;
+    }
+  }

@@ -12,6 +12,8 @@ function HeadbarSistema() {
                 <img src={logo} alt="Logo" style={{ width: '200px', height: 'auto' }} />
             </div>
             <div className='navbar-menu'>
+                <Link to="/">Página inicial</Link>
+                <p>|</p>
                 <Link to="/configuracoes">Configurações</Link>
                 <p>|</p>
                 <Link to="/login">Sair</Link>

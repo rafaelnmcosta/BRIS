@@ -31,6 +31,7 @@ h1 {
 }
 
 h2 {
+  margin: 0 0 1rem 0;
   font-weight: bold;
   color: var(--verde-escuro); /* Define a cor do texto como verde escuro */
 }

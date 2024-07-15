@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Button } from 'antd';
+import { Row, Col } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import '../App.css';
@@ -17,7 +17,7 @@ const Home = () => {
         <h2>Bem-vindo ao BRIS!</h2>
         <Row gutter={24} style={{ marginTop: 20 }}>
           <Col span={6}>
-            <button className='button-menu' onClick={()=> navigate('/nova-dose')}>Cadastrar nova dose</button>
+            <button className='button-menu' onClick={()=> navigate('/nova-amostra')}>Cadastrar nova amostra</button>
           </Col>
           <Col span={6}>
             <button className='button-menu' onClick={()=> navigate('/animais')}>Gerenciar animais</button>
@@ -26,7 +26,7 @@ const Home = () => {
             <button className='button-menu' onClick={()=> navigate('/usuarios')}>Gerenciar usuários</button>
           </Col>
           <Col span={6}>
-            <button className='button-menu' onClick={()=> navigate('/granjas')}>Gerenciar granjas</button>
+            <button className='button-menu button-desativado' disabled={true} onClick={()=> navigate('/granjas')}>Gerenciar granjas</button>
           </Col>
         </Row>
       </div>
