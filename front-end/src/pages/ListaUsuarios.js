@@ -39,7 +39,7 @@ const ListaUsuarios = () => {
             <div className='lado-a-lado'>
               <h2 className='title'>Lista de usuários</h2>
               <div className='button-bar'>
-                <button className='button-com-icone'>
+                <button onClick={() => navigate('/usuarios/cadastrar')}className='button-com-icone'>
                   <IconCadastro className='icone-botao'/>
                   Cadastrar novo usuário
                 </button>

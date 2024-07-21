@@ -42,6 +42,7 @@ const CardUsuarioPendente = ({ id, nome, email }) => {
       </Card>
       <Modal
         title="Selecionar Tipo de Usuário"
+        visible={visible}
         onOk={handleOk}
         onCancel={handleCancel}
         okText="Confirmar"

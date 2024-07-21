@@ -12,7 +12,7 @@ const CardAnimal = ({ id, info }) => {
   
   return (
     <Card size="small" title={<Link to={`/animais/${id}`}>Animal de id: {id}</Link>} className='card' extra={<Link to={`/animais/${id}/editar`}>Editar</Link>}>
-      <p>Nome: {info}</p>
+      <p>{info}</p>
       <button className='button-secundario' onClick={() => handleAcessar(id)}>Acessar</button>
     </Card>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 import CardAnimal from '../components/CardAnimal';
 import HeadbarSistema from '../components/HeadbarSistema';
 
@@ -9,11 +10,12 @@ import { ReactComponent as IconCadastro } from '../assets/icones/plus-add-cross-
 
 const ListaAnimais = () => {
   const [animais, setAnimais] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAnimais = async () => {
       try {
-        const response = await axios.get('http://localhost:5206/api/Animais');
+        const response = await api.get('http://localhost:5206/api/Animais');
         setAnimais(response.data);
       } catch (error) {
         console.error('Erro ao buscar os dados dos animais:', error);
@@ -27,7 +29,6 @@ const ListaAnimais = () => {
     // Lógica para editar os dados do animal com o ID fornecido
     console.log('Editar dados do animal com ID:', animalId);
   };
-
   return (
     <div>
         <HeadbarSistema />
@@ -36,7 +37,7 @@ const ListaAnimais = () => {
             <div className='lado-a-lado'>
               <h2 className='title'>Lista de animais</h2>
               <div className='button-bar'>
-                <button className='button-com-icone'>
+                <button onClick={() => navigate('/animais/cadastrar')} className='button-com-icone'>
                   <IconCadastro className='icone-botao'/>
                   Cadastrar novo animal
                 </button>
