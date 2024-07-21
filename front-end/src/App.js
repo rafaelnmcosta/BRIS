@@ -14,6 +14,7 @@ import EditarAnimal from './pages/EditarAnimal';
 import CadastrarAnimal from './pages/CadastrarAnimal';
 import Amostra from './pages/NovaAmostra';
 import ListaUsuarios from './pages/ListaUsuarios';
+import ListaUsuariosPendentes from './pages/ListaUsuariosPendentes';
 import Usuario from './pages/Usuario';
 import EditarUsuario from './pages/EditarUsuario';
 import Perfil from './pages/Perfil';
@@ -36,6 +37,7 @@ const App = () => {
           <Route path="/animais/:id/editar" element={<ProtectedRoute element={<EditarAnimal />} />} />
           <Route path="/animais/:id/nova-dose" element={<ProtectedRoute element={<Amostra />} />} />
           <Route path="/usuarios" element={<ProtectedRoute element={<ListaUsuarios />} />} />
+          <Route path="/usuarios/ativar" element={<ProtectedRoute element={<ListaUsuariosPendentes />} />} />
           <Route path="/usuarios/cadastrar" element={<ProtectedRoute element={<CadastrarUsuario />} />} />
           <Route path="/usuarios/:id" element={<ProtectedRoute element={<Usuario />} />} />
           <Route path="/usuarios/:id/editar" element={<ProtectedRoute element={<EditarUsuario />} />} />

@@ -65,10 +65,6 @@ namespace bris_API.Controllers
                 .Include(u => u.TipoUsuario)
                 .FirstOrDefaultAsync(u => u.Email == modelLogin.Email);
 
-            Console.WriteLine("CHEGOU AQUI ----------------------------------------------------");
-            Console.WriteLine(modelLogin.Email);
-            Console.WriteLine(modelLogin.Senha);
-            Console.WriteLine(usuario.TipoUsuario.Nome);
             
             if (usuario == null || !PasswordService.VerifyPassword(modelLogin.Senha, usuario.Senha.Salt, usuario.Senha.SenhaHash))
             {
@@ -135,8 +131,21 @@ namespace bris_API.Controllers
         }
 
         [Authorize(Roles = "Admin,Gerente")]
-        [HttpPost("usuarios/{id}/ativar")]
-        public async Task<IActionResult> AtivarUsuario(int id, [FromBody] int tipoUsuarioId)
+        [HttpGet("usuarios/ativar")]
+        public async Task<IActionResult> GetUsuariosNaoAtivados()
+        {
+            // Buscar todos os usuários com TipoUsuarioId igual a 0
+            var usuariosNaoAtivados = await _context.Usuarios
+                .Where(u => u.TipoUsuarioId == 0)
+                .ToListAsync();
+
+            return Ok(usuariosNaoAtivados);
+        }
+
+
+        [Authorize(Roles = "Admin,Gerente")]
+        [HttpPost("usuarios/ativar/{id}")]
+        public async Task<IActionResult> AtivarUsuario(int id, [FromBody] AtivarDto ativar)
         {
             var usuario = await _context.Usuarios.FindAsync(id);
 
@@ -145,7 +154,10 @@ namespace bris_API.Controllers
                 return NotFound();
             }
 
-            usuario.TipoUsuarioId = tipoUsuarioId;
+            Console.WriteLine(ativar.TipoUsuario);
+            Console.WriteLine(usuario.Nome);
+
+            usuario.TipoUsuarioId = ativar.TipoUsuario;
             await _context.SaveChangesAsync();
 
             return Ok(usuario);
@@ -236,5 +248,9 @@ namespace bris_API.Controllers
     {
         public string Email { get; set; }
         public string Senha { get; set; }
+    }
+    public class AtivarDto
+    {
+        public int TipoUsuario { get; set; }
     }
 }

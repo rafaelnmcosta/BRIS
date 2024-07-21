@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import CardUsuario from '../components/CardUsuario';
 import HeadbarSistema from '../components/HeadbarSistema';
+import api from '../services/api';
 
 import './Listas.css';
 
@@ -10,25 +11,19 @@ import { ReactComponent as IconGerenciar } from '../assets/icones/users-button-o
 
 const ListaUsuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
-
-  const usuariosTeste = [
-    { id: 1, nome: 'João', email: 'joao@email.com', tipo: '2'},
-    { id: 2, nome: 'Maria', email: 'maria@email.com', tipo: '1'},
-    { id: 3, nome: 'Pedro', email: 'pedro@email.com', tipo: '1'},
-    { id: 4, nome: 'Jorge', email: 'jorge@email.com', tipo: '3'},
-  ];
+  const navigate = useNavigate();
 
   useEffect(() => {
-    /*
-    axios.get('https://api.exemplo.com/usuarios')
-      .then(response => {
+    const fetchUsuarios = async () => {
+      try {
+        const response = await api.get('http://localhost:5206/api/Usuarios/usuarios');
         setUsuarios(response.data);
-      })
-      .catch(error => {
-        console.error('Erro ao buscar os dados dos usuarios:', error);
-      });
-    */
-   setUsuarios(usuariosTeste);
+      } catch (error) {
+        console.error('Erro ao buscar os Usuarios:', error);
+      }
+    };
+
+    fetchUsuarios();
   }, []);
 
   const handleEdit = (usuarioId) => {
@@ -48,7 +43,7 @@ const ListaUsuarios = () => {
                   <IconCadastro className='icone-botao'/>
                   Cadastrar novo usuário
                 </button>
-                <button className='button-com-icone'>
+                <button onClick={() => navigate('/usuarios/ativar')} className='button-com-icone'>
                   <IconGerenciar className='icone-botao'/>
                   Ativar usuários
                 </button>
