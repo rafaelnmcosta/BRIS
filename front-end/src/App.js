@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
+import ProtectedRoute from './components/ProtectedRoute';
+
 import Home from './pages/Home';
 import Sobre from './pages/Sobre';
 import Login from './pages/Login';
@@ -17,31 +19,29 @@ import EditarUsuario from './pages/EditarUsuario';
 import Perfil from './pages/Perfil';
 import EditarPerfil from './pages/EditarPerfil';
 import CadastrarUsuario from './pages/CadastrarUsuario';
-//import ListaGranjas from './pages/Granjas';
+// import ListaGranjas from './pages/Granjas';
 
 const App = () => {
   return (
     <BrowserRouter>
         <Routes>
-          <Route exact path="/" Component={Home} />
-          <Route path="/sobre" Component={Sobre} />
-          <Route path="/login" Component={Login} />
-          <Route path="/cadastro" Component={Cadastro} />
-          <Route path="/nova-dose" Component={NovaDose} />
-          <Route path="/animais" Component={ListaAnimais} />
-          <Route path="/animais/cadastrar" Component={CadastrarAnimal} />
-          <Route path="/animais/:id" Component={Animal} />
-          <Route path="/animais/:id/editar" Component={EditarAnimal} />
-          <Route path="/animais/:id/nova-dose" Component={Amostra} />
-          <Route path="/usuarios" Component={ListaUsuarios} />
-          <Route path="/usuarios/cadastrar" Component={CadastrarUsuario} />
-          <Route path="/usuarios/:id" Component={Usuario} />
-          <Route path="/usuarios/:id/editar" Component={EditarUsuario} />
-          <Route path="/perfil/:id" Component={Perfil} />
-          <Route path="/perfil/:id/editar" Component={EditarPerfil} />
-          {/*
-          <Route path="/granjas" Component={ListaGranjas} />
-          */}
+          <Route path="/" element={<ProtectedRoute element={<Home />} />} />
+          <Route path="/sobre" element={<Sobre />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/cadastro" element={<Cadastro />} />
+          <Route path="/nova-dose" element={<ProtectedRoute element={<NovaDose />} />} />
+          <Route path="/animais" element={<ProtectedRoute element={<ListaAnimais />} />} />
+          <Route path="/animais/cadastrar" element={<ProtectedRoute element={<CadastrarAnimal />} />} />
+          <Route path="/animais/:id" element={<ProtectedRoute element={<Animal />} />} />
+          <Route path="/animais/:id/editar" element={<ProtectedRoute element={<EditarAnimal />} />} />
+          <Route path="/animais/:id/nova-dose" element={<ProtectedRoute element={<Amostra />} />} />
+          <Route path="/usuarios" element={<ProtectedRoute element={<ListaUsuarios />} />} />
+          <Route path="/usuarios/cadastrar" element={<ProtectedRoute element={<CadastrarUsuario />} />} />
+          <Route path="/usuarios/:id" element={<ProtectedRoute element={<Usuario />} />} />
+          <Route path="/usuarios/:id/editar" element={<ProtectedRoute element={<EditarUsuario />} />} />
+          <Route path="/perfil/:id" element={<ProtectedRoute element={<Perfil />} />} />
+          <Route path="/perfil/:id/editar" element={<ProtectedRoute element={<EditarPerfil />} />} />
+          {/* <Route path="/granjas" element={<ListaGranjas />} /> */}
         </Routes>
     </BrowserRouter>
   );

@@ -12,23 +12,21 @@ import FormLogin from '../components/FormLogin';
 import HeadbarLogin from '../components/HeadbarLogin';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
 
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-      try {
-          const response = await axios.post('http://localhost:5206/api/Usuarios/login', {
-              email,
-              senha
-          });
-          const { token } = response.data;
-          localStorage.setItem('token', token);
-          navigate('/');
-      } catch (error) {
-          console.error('Falha no login', error);
-      }
+  const handleLogin = async (email, senha) => {
+    try {
+        const response = await axios.post('http://localhost:5206/api/Usuarios/login', {
+            email,
+            senha
+        });
+        const { token } = response.data;
+        localStorage.setItem('jwtToken', token);
+        navigate('/');
+    } catch (error) {
+        console.error('Falha no login', error);
+    }
   };
 
   return (

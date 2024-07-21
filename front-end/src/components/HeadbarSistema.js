@@ -5,6 +5,10 @@ import './HeadbarSistema.css';
 import logo from '../assets/BRIS-logo-horizontal.png'
 
 function HeadbarSistema() {
+    const handleLogout = async () => {
+        localStorage.removeItem('jwtToken');
+    }
+    
     return (
         <nav className='navbar'>
             <div className='container'>
@@ -16,7 +20,7 @@ function HeadbarSistema() {
                 <p>|</p>
                 <Link to="/perfil">Perfil</Link>
                 <p>|</p>
-                <Link to="/login">Sair</Link>
+                <Link onClick={handleLogout} to="/login">Sair</Link>
             </div>
             </div>
         </nav>
