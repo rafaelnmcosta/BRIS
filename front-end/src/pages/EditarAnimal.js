@@ -7,23 +7,18 @@ const EditarAnimal = () => {
   const [animal, setAnimal] = useState(null);
   const [formData, setFormData] = useState({ info: animal.info});
 
-  const AnimalTeste = { id: 1, info: 'Bobby'};
-
   useEffect(() => {
-    /*
-    axios.get(`/api/animais/${id}`)
+    axios.get(`/api/Animais/${id}`)
       .then(response => {
         setAnimal(response.data);
         setFormData({ nome: response.data.nome, idade: response.data.idade, raca: response.data.raca });
       })
       .catch(error => console.error('Erro ao buscar animal:', error));
-    */
-    setAnimal(AnimalTeste);
   }, [id]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    axios.put(`/api/animais/${id}`, formData)
+    axios.put(`/api/Animais/${id}`, formData)
       .then(response => {
         setAnimal(response.data);
         alert('Animal atualizado com sucesso!');

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
-const Amostra = () => {
+const NovaAmostra = () => {
   const { id } = useParams();
   const [formData, setFormData] = useState({ dose: '', data: '' });
 
@@ -37,4 +37,4 @@ const Amostra = () => {
   );
 };
 
-export default Amostra;
+export default NovaAmostra;

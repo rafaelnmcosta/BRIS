@@ -10,15 +10,11 @@ import { ReactComponent as IconSenha } from '../assets/icones/lock-svgrepo-com.s
 
 const FormLogin = ({ onLogin }) => {
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [senha, setSenha] = useState('');
   
     const handleSubmit = (e) => {
       e.preventDefault();
-      /*if (!isCaptchaVerified) {
-        alert('Por favor, verifique o Captcha');
-        return;
-      }*/
-      onLogin(email, password);
+      onLogin(email, senha);
     };
   
     return (
@@ -44,8 +40,8 @@ const FormLogin = ({ onLogin }) => {
           className='input-form'
           type="password"
           placeholder="Sua senha"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
           required
         />
         <Checkbox texto="Lembrar-me" className="checkbox"/>

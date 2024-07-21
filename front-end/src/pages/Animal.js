@@ -6,15 +6,10 @@ const Animal = () => {
   const { id } = useParams();
   const [animal, setAnimal] = useState(null);
 
-  const AnimalTeste = { id: 1, info: 'Bobby'};
-
   useEffect(() => {
-    /*
-    axios.get(`/api/animais/${id}`)
+    axios.get(`http://localhost:5206/api/Animais/${id}`)
       .then(response => setAnimal(response.data))
       .catch(error => console.error('Erro ao buscar animal:', error));
-    */
-   setAnimal(AnimalTeste);
   }, [id]);
 
   if (!animal) {

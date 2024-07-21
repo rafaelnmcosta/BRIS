@@ -6,15 +6,10 @@ const Usuario = () => {
   const { id } = useParams();
   const [usuario, setUsuario] = useState(null);
 
-  const UsuarioTeste = { id: 1, nome: 'João', email: 'joao@email.com', tipo: '2'};
-
   useEffect(() => {
-    /*
-    axios.get(`/api/usuarios/${id}`)
+    axios.get(`http://localhost:5206/api/usuarios/${id}`)
       .then(response => setUsuario(response.data))
       .catch(error => console.error('Erro ao buscar Usuario:', error));
-    */
-   setUsuario(UsuarioTeste);
   }, [id]);
 
   if (!usuario) {

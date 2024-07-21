@@ -6,18 +6,23 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace bris_API.Migrations
 {
     /// <inheritdoc />
-    public partial class AddEntidadesERelacoes : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "Info",
-                table: "Porcos",
-                type: "text",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "text");
+            migrationBuilder.CreateTable(
+                name: "Animais",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Info = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Animais", x => x.Id);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Permissoes",
@@ -31,26 +36,6 @@ namespace bris_API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Permissoes", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ResultadosFinais",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    PorcoId = table.Column<int>(type: "integer", nullable: false),
-                    Aprovado = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ResultadosFinais", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ResultadosFinais_Porcos_PorcoId",
-                        column: x => x.PorcoId,
-                        principalTable: "Porcos",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -81,6 +66,26 @@ namespace bris_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ResultadosFinais",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    AnimalId = table.Column<int>(type: "integer", nullable: false),
+                    Aprovado = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ResultadosFinais", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ResultadosFinais_Animais_AnimalId",
+                        column: x => x.AnimalId,
+                        principalTable: "Animais",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Amostras",
                 columns: table => new
                 {
@@ -88,16 +93,16 @@ namespace bris_API.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     NSemana = table.Column<int>(type: "integer", nullable: false),
                     Resultado = table.Column<string>(type: "text", nullable: true),
-                    PorcoId = table.Column<int>(type: "integer", nullable: false),
+                    AnimalId = table.Column<int>(type: "integer", nullable: false),
                     SemanaId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Amostras", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Amostras_Porcos_PorcoId",
-                        column: x => x.PorcoId,
-                        principalTable: "Porcos",
+                        name: "FK_Amostras_Animais_AnimalId",
+                        column: x => x.AnimalId,
+                        principalTable: "Animais",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -175,9 +180,9 @@ namespace bris_API.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Amostras_PorcoId",
+                name: "IX_Amostras_AnimalId",
                 table: "Amostras",
-                column: "PorcoId");
+                column: "AnimalId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Amostras_SemanaId",
@@ -185,9 +190,9 @@ namespace bris_API.Migrations
                 column: "SemanaId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ResultadosFinais_PorcoId",
+                name: "IX_ResultadosFinais_AnimalId",
                 table: "ResultadosFinais",
-                column: "PorcoId",
+                column: "AnimalId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -226,6 +231,9 @@ namespace bris_API.Migrations
                 name: "Semanas");
 
             migrationBuilder.DropTable(
+                name: "Animais");
+
+            migrationBuilder.DropTable(
                 name: "Permissoes");
 
             migrationBuilder.DropTable(
@@ -233,16 +241,6 @@ namespace bris_API.Migrations
 
             migrationBuilder.DropTable(
                 name: "TiposUsuario");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Info",
-                table: "Porcos",
-                type: "text",
-                nullable: false,
-                defaultValue: "",
-                oldClrType: typeof(string),
-                oldType: "text",
-                oldNullable: true);
         }
     }
 }

@@ -6,8 +6,8 @@ namespace bris_API.Models
         public string Nome { get; set; }
         public string Email { get; set; }
         public int TipoUsuarioId { get; set; }
-        public TipoUsuario TipoUsuario { get; set; }
-        public Senha Senha { get; set; }
-        public ICollection<UsuarioPermissao> UsuarioPermissoes { get; set; }
+        public TipoUsuario? TipoUsuario { get; set; }
+        public Senha? Senha { get; set; }
+        public ICollection<UsuarioPermissao>? UsuarioPermissoes { get; set; }
     }
 }

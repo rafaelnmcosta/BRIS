@@ -68,6 +68,22 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
+.button-secundario {
+  min-width: none;
+  padding: 0.25rem 1rem;
+  background-color: var(--verde-medio); /* Define a cor de fundo como verde escuro */
+  margin:0.5rem 0;
+  color: var(--cinza-background);
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  
+  &:hover {
+    background-color: var(--verde-escuro);
+  }
+}
+
 p {
   color: var(--verde-escuro);
   margin: 0 0 0 0;
@@ -99,10 +115,15 @@ a {
 }
 
 .icone {
-  fill: var(--verde-escuro);
-  color: var(--verde-escuro);
   height: 1.3rem;
   width: 1.3rem;
+  margin: 0 0.25rem;
+}
+
+.icone-botao {
+  fill: var(--cinza-background);
+  max-height: 0.9rem;
+  max-width: 0.9rem;
   margin: 0 0.25rem;
 }
 

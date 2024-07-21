@@ -5,7 +5,7 @@ namespace bris_API.Data
 {
     public class AppDbContext : DbContext
     {
-        public DbSet<Porco> Porcos { get; set; }
+        public DbSet<Animal> Animais { get; set; }
         public DbSet<Amostra> Amostras { get; set; }
         public DbSet<ResultadoFinal> ResultadosFinais { get; set; }
         public DbSet<Semana> Semanas { get; set; }
@@ -20,11 +20,11 @@ namespace bris_API.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Relação N-1 amostra-porco
+            // Relação N-1 amostra-Animal
             modelBuilder.Entity<Amostra>()
-                .HasOne(a => a.Porco)
+                .HasOne(a => a.Animal)
                 .WithMany(p => p.Amostras)
-                .HasForeignKey(a => a.PorcoId);
+                .HasForeignKey(a => a.AnimalId);
 
             // Relação N-1 amostra-semana
             modelBuilder.Entity<Amostra>()
@@ -32,11 +32,11 @@ namespace bris_API.Data
                 .WithMany(s => s.Amostras)
                 .HasForeignKey(a => a.SemanaId);
 
-            // Relação 1-1 resultado-porco
+            // Relação 1-1 resultado-Animal
             modelBuilder.Entity<ResultadoFinal>()
-                .HasOne(r => r.Porco)
+                .HasOne(r => r.Animal)
                 .WithOne(p => p.ResultadoFinal)
-                .HasForeignKey<ResultadoFinal>(r => r.PorcoId);
+                .HasForeignKey<ResultadoFinal>(r => r.AnimalId);
             
             // Relação N-N usuario-permissao (tabela UsuarioPermissao)
             modelBuilder.Entity<UsuarioPermissao>()

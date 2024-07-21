@@ -3,6 +3,11 @@ import axios from 'axios';
 import CardUsuario from '../components/CardUsuario';
 import HeadbarSistema from '../components/HeadbarSistema';
 
+import './Listas.css';
+
+import { ReactComponent as IconCadastro } from '../assets/icones/plus-add-cross-outline-svgrepo-com.svg';
+import { ReactComponent as IconGerenciar } from '../assets/icones/users-button-outline-svgrepo-com.svg';
+
 const ListaUsuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
 
@@ -36,7 +41,19 @@ const ListaUsuarios = () => {
         <HeadbarSistema />
         <div className='page-content'>
             <a href='/'> {'< '} Voltar</a>
-            <h2>Lista de usuários</h2>
+            <div className='lado-a-lado'>
+              <h2 className='title'>Lista de usuários</h2>
+              <div className='button-bar'>
+                <button className='button-com-icone'>
+                  <IconCadastro className='icone-botao'/>
+                  Cadastrar novo usuário
+                </button>
+                <button className='button-com-icone'>
+                  <IconGerenciar className='icone-botao'/>
+                  Ativar usuários
+                </button>
+              </div>
+            </div>
             {usuarios.map(usuario => (
                 <div key={usuario.id} style={{ marginBottom: 16 }}>
                     <CardUsuario

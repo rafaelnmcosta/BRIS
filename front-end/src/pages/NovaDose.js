@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { Row, Col } from 'antd';
 
-import CardAnimal from '../components/CardAnimal';
+import CardAnimalDose from '../components/CardAnimalDose';
 import HeadbarSistema from '../components/HeadbarSistema';
 
 import '../App.css';
@@ -10,35 +11,20 @@ import './NovaDose.css';
 
 const NovaDose = () => {
   const [animais, setAnimais] = useState([]);
-
-  const AnimaisTeste = [
-    { id: 1, info: 'Bobby'},
-    { id: 2, info: 'Luna'},
-    { id: 3, info: 'Max'},
-    { id: 4, info: 'Bombom'},
-  ];
+  const navigate = useNavigate();
 
   useEffect(() => {
-    /*
-    axios.get('https://api.exemplo.com/animais')
+    axios.get(`http://localhost:5206/api/Animais/`)
       .then(response => {
         setAnimais(response.data);
       })
       .catch(error => {
         console.error('Erro ao buscar os dados dos animais:', error);
       });
-    */
-   setAnimais(AnimaisTeste);
   }, []);
 
-  const handleEdit = (animalId) => {
-    // Lógica para editar os dados do animal com o ID fornecido
-    console.log('Editar dados do animal com ID:', animalId);
-  };
-
-  const handleNovaDose = (animalId) => {
-    // Lógica para cadastrar nova amostra para o animal selecionado
-    console.log('Nova dose para o animal com ID:', animalId);
+  const handleNovaDose = (id) => {
+    navigate(`/animais/${id}/nova-dose`);
   };
 
   return (
@@ -55,10 +41,9 @@ const NovaDose = () => {
                         </button>
                     </Col>
                     <Col flex='auto'>
-                        <CardAnimal
+                        <CardAnimalDose
                         id={animal.id}
                         info={animal.info}
-                        onEdit={() => handleEdit(animal.id)}
                         />
                     </Col>
                 </Row>

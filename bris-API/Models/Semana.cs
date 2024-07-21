@@ -4,6 +4,6 @@ namespace bris_API.Models
     {
         public int Id { get; set; }
         public int NSemana { get; set; }
-        public ICollection<Amostra> Amostras { get; set; }
+        public ICollection<Amostra>? Amostras { get; set; }
     }
 }

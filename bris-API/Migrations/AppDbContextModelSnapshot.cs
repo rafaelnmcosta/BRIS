@@ -29,10 +29,10 @@ namespace bris_API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("NSemana")
+                    b.Property<int>("AnimalId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("PorcoId")
+                    b.Property<int>("NSemana")
                         .HasColumnType("integer");
 
                     b.Property<string>("Resultado")
@@ -43,11 +43,27 @@ namespace bris_API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PorcoId");
+                    b.HasIndex("AnimalId");
 
                     b.HasIndex("SemanaId");
 
                     b.ToTable("Amostras");
+                });
+
+            modelBuilder.Entity("bris_API.Models.Animal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Info")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Animais");
                 });
 
             modelBuilder.Entity("bris_API.Models.Permissao", b =>
@@ -71,22 +87,6 @@ namespace bris_API.Migrations
                     b.ToTable("Permissoes");
                 });
 
-            modelBuilder.Entity("bris_API.Models.Porco", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Info")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Porcos");
-                });
-
             modelBuilder.Entity("bris_API.Models.ResultadoFinal", b =>
                 {
                     b.Property<int>("Id")
@@ -95,15 +95,15 @@ namespace bris_API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AnimalId")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("Aprovado")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("PorcoId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("PorcoId")
+                    b.HasIndex("AnimalId")
                         .IsUnique();
 
                     b.ToTable("ResultadosFinais");
@@ -216,9 +216,9 @@ namespace bris_API.Migrations
 
             modelBuilder.Entity("bris_API.Models.Amostra", b =>
                 {
-                    b.HasOne("bris_API.Models.Porco", "Porco")
+                    b.HasOne("bris_API.Models.Animal", "Animal")
                         .WithMany("Amostras")
-                        .HasForeignKey("PorcoId")
+                        .HasForeignKey("AnimalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -228,20 +228,20 @@ namespace bris_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Porco");
+                    b.Navigation("Animal");
 
                     b.Navigation("Semana");
                 });
 
             modelBuilder.Entity("bris_API.Models.ResultadoFinal", b =>
                 {
-                    b.HasOne("bris_API.Models.Porco", "Porco")
+                    b.HasOne("bris_API.Models.Animal", "Animal")
                         .WithOne("ResultadoFinal")
-                        .HasForeignKey("bris_API.Models.ResultadoFinal", "PorcoId")
+                        .HasForeignKey("bris_API.Models.ResultadoFinal", "AnimalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Porco");
+                    b.Navigation("Animal");
                 });
 
             modelBuilder.Entity("bris_API.Models.Senha", b =>
@@ -285,17 +285,16 @@ namespace bris_API.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("bris_API.Models.Permissao", b =>
-                {
-                    b.Navigation("UsuarioPermissoes");
-                });
-
-            modelBuilder.Entity("bris_API.Models.Porco", b =>
+            modelBuilder.Entity("bris_API.Models.Animal", b =>
                 {
                     b.Navigation("Amostras");
 
-                    b.Navigation("ResultadoFinal")
-                        .IsRequired();
+                    b.Navigation("ResultadoFinal");
+                });
+
+            modelBuilder.Entity("bris_API.Models.Permissao", b =>
+                {
+                    b.Navigation("UsuarioPermissoes");
                 });
 
             modelBuilder.Entity("bris_API.Models.Semana", b =>
@@ -310,8 +309,7 @@ namespace bris_API.Migrations
 
             modelBuilder.Entity("bris_API.Models.Usuario", b =>
                 {
-                    b.Navigation("Senha")
-                        .IsRequired();
+                    b.Navigation("Senha");
 
                     b.Navigation("UsuarioPermissoes");
                 });

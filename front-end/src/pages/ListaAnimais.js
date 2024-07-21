@@ -3,13 +3,17 @@ import axios from 'axios';
 import CardAnimal from '../components/CardAnimal';
 import HeadbarSistema from '../components/HeadbarSistema';
 
+import './Listas.css';
+
+import { ReactComponent as IconCadastro } from '../assets/icones/plus-add-cross-outline-svgrepo-com.svg';
+
 const ListaAnimais = () => {
   const [animais, setAnimais] = useState([]);
 
   useEffect(() => {
     const fetchAnimais = async () => {
       try {
-        const response = await axios.get('http://localhost:5206/api/Porcos');
+        const response = await axios.get('http://localhost:5206/api/Animais');
         setAnimais(response.data);
       } catch (error) {
         console.error('Erro ao buscar os dados dos animais:', error);
@@ -29,7 +33,15 @@ const ListaAnimais = () => {
         <HeadbarSistema />
         <div className='page-content'>
             <a href='/'> {'< '} Voltar</a>
-            <h2>Lista de animais</h2>
+            <div className='lado-a-lado'>
+              <h2 className='title'>Lista de animais</h2>
+              <div className='button-bar'>
+                <button className='button-com-icone'>
+                  <IconCadastro className='icone-botao'/>
+                  Cadastrar novo animal
+                </button>
+              </div>
+            </div>
             {animais.map(animal => (
                 <div key={animal.id}>
                     <CardAnimal
