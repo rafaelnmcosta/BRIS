@@ -12,8 +12,8 @@ using bris_API.Data;
 namespace bris_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240827211248_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240827221246_SeedInitialData")]
+    partial class SeedInitialData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,6 +45,15 @@ namespace bris_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Agroindustrias");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CNPJAgroindustria = "00.000.000/0001-00",
+                            NomeFantasia = "Agroindustria Teste",
+                            RazaoSocial = "Razao Agroindustria"
+                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Animal", b =>
@@ -166,6 +175,16 @@ namespace bris_API.Migrations
                     b.HasIndex("AgroindustriaId");
 
                     b.ToTable("Granjas");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AgroindustriaId = 1,
+                            CNPJ = "99.999.999/0001-99",
+                            Endereco = "Rua teste",
+                            Nome_propriedade = "Granja Teste"
+                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Granja_Usuario_Tipo", b =>
@@ -238,6 +257,15 @@ namespace bris_API.Migrations
                         .IsUnique();
 
                     b.ToTable("Senhas");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Salt = "2J/aVC/AktJDFZ/M1ndoOQ==",
+                            SenhaHash = "Ndikw+ijLMszmgb0QbkbCoBcUlffCT9syBF9xI6wVzw=",
+                            UsuarioId = 1
+                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.TipoUsuario", b =>
@@ -257,6 +285,50 @@ namespace bris_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TiposUsuario");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Descricao = "Administrador do sistema",
+                            Tipo = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Descricao = "Gestor de granjas",
+                            Tipo = "GESTOR GRANJA"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Descricao = "Gestor de agroindústrias",
+                            Tipo = "GESTOR AGRO"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Descricao = "Técnico de campo",
+                            Tipo = "TECNICO"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Descricao = "Usuário com acesso somente leitura",
+                            Tipo = "VISUALIZADOR"
+                        },
+                        new
+                        {
+                            Id = 98,
+                            Descricao = "Usuário pendente de ativação",
+                            Tipo = "PENDENTE"
+                        },
+                        new
+                        {
+                            Id = 99,
+                            Descricao = "Usuário inativo",
+                            Tipo = "INATIVO"
+                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Usuario", b =>
@@ -281,6 +353,15 @@ namespace bris_API.Migrations
                     b.HasIndex("TipoUsuarioId");
 
                     b.ToTable("Usuarios");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "admin@gmail.com",
+                            Nome = "Admin",
+                            TipoUsuarioId = 1
+                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Animal", b =>
