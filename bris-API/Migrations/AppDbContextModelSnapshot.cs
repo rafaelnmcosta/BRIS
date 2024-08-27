@@ -186,25 +186,39 @@ namespace bris_API.Migrations
 
             modelBuilder.Entity("bris_API.Models.Granja_Usuario_Tipo", b =>
                 {
-                    b.Property<int>("GranjaId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    b.Property<int>("UsuarioId")
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GranjaId")
                         .HasColumnType("integer");
 
                     b.Property<int>("TipoUsuarioId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Id")
+                    b.Property<int>("UsuarioId")
                         .HasColumnType("integer");
 
-                    b.HasKey("GranjaId", "UsuarioId", "TipoUsuarioId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("GranjaId");
 
                     b.HasIndex("TipoUsuarioId");
 
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("Granjas_Usuarios_Tipos");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            GranjaId = 1,
+                            TipoUsuarioId = 1,
+                            UsuarioId = 1
+                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Semana", b =>
@@ -259,8 +273,8 @@ namespace bris_API.Migrations
                         new
                         {
                             Id = 1,
-                            Salt = "2J/aVC/AktJDFZ/M1ndoOQ==",
-                            SenhaHash = "Ndikw+ijLMszmgb0QbkbCoBcUlffCT9syBF9xI6wVzw=",
+                            Salt = "TB+yey2pFxr+UXRe9EmyMg==",
+                            SenhaHash = "44nGqQYy7DxWI0wpM7ujF2q4M0q/COs8gh4ekW+a7Jc=",
                             UsuarioId = 1
                         });
                 });

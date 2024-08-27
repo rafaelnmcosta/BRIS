@@ -7,7 +7,7 @@
 namespace bris_API.Migrations
 {
     /// <inheritdoc />
-    public partial class SeedInitialData : Migration
+    public partial class AdicionaDadosIniciais : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -42,16 +42,21 @@ namespace bris_API.Migrations
                 values: new object[] { 1, "admin@gmail.com", "Admin", 1 });
 
             migrationBuilder.InsertData(
+                table: "Granjas_Usuarios_Tipos",
+                columns: new[] { "Id", "GranjaId", "TipoUsuarioId", "UsuarioId" },
+                values: new object[] { 1, 1, 1, 1 });
+
+            migrationBuilder.InsertData(
                 table: "Senhas",
                 columns: new[] { "Id", "Salt", "SenhaHash", "UsuarioId" },
-                values: new object[] { 1, "2J/aVC/AktJDFZ/M1ndoOQ==", "Ndikw+ijLMszmgb0QbkbCoBcUlffCT9syBF9xI6wVzw=", 1 });
+                values: new object[] { 1, "TB+yey2pFxr+UXRe9EmyMg==", "44nGqQYy7DxWI0wpM7ujF2q4M0q/COs8gh4ekW+a7Jc=", 1 });
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DeleteData(
-                table: "Granjas",
+                table: "Granjas_Usuarios_Tipos",
                 keyColumn: "Id",
                 keyValue: 1);
 
@@ -91,12 +96,17 @@ namespace bris_API.Migrations
                 keyValue: 99);
 
             migrationBuilder.DeleteData(
-                table: "Agroindustrias",
+                table: "Granjas",
                 keyColumn: "Id",
                 keyValue: 1);
 
             migrationBuilder.DeleteData(
                 table: "Usuarios",
+                keyColumn: "Id",
+                keyValue: 1);
+
+            migrationBuilder.DeleteData(
+                table: "Agroindustrias",
                 keyColumn: "Id",
                 keyValue: 1);
 

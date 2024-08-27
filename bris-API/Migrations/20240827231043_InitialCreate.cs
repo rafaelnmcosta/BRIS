@@ -118,14 +118,15 @@ namespace bris_API.Migrations
                 name: "Granjas_Usuarios_Tipos",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UsuarioId = table.Column<int>(type: "integer", nullable: false),
                     GranjaId = table.Column<int>(type: "integer", nullable: false),
-                    TipoUsuarioId = table.Column<int>(type: "integer", nullable: false),
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    TipoUsuarioId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Granjas_Usuarios_Tipos", x => new { x.GranjaId, x.UsuarioId, x.TipoUsuarioId });
+                    table.PrimaryKey("PK_Granjas_Usuarios_Tipos", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Granjas_Usuarios_Tipos_Granjas_GranjaId",
                         column: x => x.GranjaId,
@@ -268,6 +269,11 @@ namespace bris_API.Migrations
                 name: "IX_Granjas_AgroindustriaId",
                 table: "Granjas",
                 column: "AgroindustriaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Granjas_Usuarios_Tipos_GranjaId",
+                table: "Granjas_Usuarios_Tipos",
+                column: "GranjaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Granjas_Usuarios_Tipos_TipoUsuarioId",

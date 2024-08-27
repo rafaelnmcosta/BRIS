@@ -71,9 +71,6 @@ namespace bris_API.Data
 
             // Relação N-N Granja_Usuario_Tipo
             modelBuilder.Entity<Granja_Usuario_Tipo>()
-                .HasKey(gut => new { gut.GranjaId, gut.UsuarioId, gut.TipoUsuarioId });
-
-            modelBuilder.Entity<Granja_Usuario_Tipo>()
                 .HasOne(gut => gut.Granja)
                 .WithMany(g => g.Granjas_Usuarios_Tipos)
                 .HasForeignKey(gut => gut.GranjaId);
@@ -120,6 +117,11 @@ namespace bris_API.Data
             // Dados da senha para o Admin
             modelBuilder.Entity<Senha>().HasData(
                 new Senha { Id = 1, UsuarioId = 1, SenhaHash = hash, Salt = salt }
+            );
+
+            // Linka todos os Dados na tabela de relação
+            modelBuilder.Entity<Granja_Usuario_Tipo>().HasData(
+                new Granja_Usuario_Tipo { Id = 1, UsuarioId = 1, GranjaId = 1, TipoUsuarioId = 1 }
             );
 
             // Aplica as configurações

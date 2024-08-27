@@ -12,8 +12,8 @@ using bris_API.Data;
 namespace bris_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240827221040_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240827231117_AdicionaDadosIniciais")]
+    partial class AdicionaDadosIniciais
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,6 +45,15 @@ namespace bris_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Agroindustrias");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CNPJAgroindustria = "00.000.000/0001-00",
+                            NomeFantasia = "Agroindustria Teste",
+                            RazaoSocial = "Razao Agroindustria"
+                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Animal", b =>
@@ -166,29 +175,53 @@ namespace bris_API.Migrations
                     b.HasIndex("AgroindustriaId");
 
                     b.ToTable("Granjas");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AgroindustriaId = 1,
+                            CNPJ = "99.999.999/0001-99",
+                            Endereco = "Rua teste",
+                            Nome_propriedade = "Granja Teste"
+                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Granja_Usuario_Tipo", b =>
                 {
-                    b.Property<int>("GranjaId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    b.Property<int>("UsuarioId")
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GranjaId")
                         .HasColumnType("integer");
 
                     b.Property<int>("TipoUsuarioId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Id")
+                    b.Property<int>("UsuarioId")
                         .HasColumnType("integer");
 
-                    b.HasKey("GranjaId", "UsuarioId", "TipoUsuarioId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("GranjaId");
 
                     b.HasIndex("TipoUsuarioId");
 
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("Granjas_Usuarios_Tipos");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            GranjaId = 1,
+                            TipoUsuarioId = 1,
+                            UsuarioId = 1
+                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Semana", b =>
@@ -238,6 +271,15 @@ namespace bris_API.Migrations
                         .IsUnique();
 
                     b.ToTable("Senhas");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Salt = "TB+yey2pFxr+UXRe9EmyMg==",
+                            SenhaHash = "44nGqQYy7DxWI0wpM7ujF2q4M0q/COs8gh4ekW+a7Jc=",
+                            UsuarioId = 1
+                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.TipoUsuario", b =>
@@ -257,6 +299,50 @@ namespace bris_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TiposUsuario");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Descricao = "Administrador do sistema",
+                            Tipo = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Descricao = "Gestor de granjas",
+                            Tipo = "GESTOR GRANJA"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Descricao = "Gestor de agroindústrias",
+                            Tipo = "GESTOR AGRO"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Descricao = "Técnico de campo",
+                            Tipo = "TECNICO"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Descricao = "Usuário com acesso somente leitura",
+                            Tipo = "VISUALIZADOR"
+                        },
+                        new
+                        {
+                            Id = 98,
+                            Descricao = "Usuário pendente de ativação",
+                            Tipo = "PENDENTE"
+                        },
+                        new
+                        {
+                            Id = 99,
+                            Descricao = "Usuário inativo",
+                            Tipo = "INATIVO"
+                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Usuario", b =>
@@ -281,6 +367,15 @@ namespace bris_API.Migrations
                     b.HasIndex("TipoUsuarioId");
 
                     b.ToTable("Usuarios");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "admin@gmail.com",
+                            Nome = "Admin",
+                            TipoUsuarioId = 1
+                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Animal", b =>
