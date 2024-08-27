@@ -1,6 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -52,9 +50,13 @@ builder.Services.AddAuthentication(options =>
 // Configuração da Autorização
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("Gerente", policy => policy.RequireRole("Gerente"));
-    options.AddPolicy("Tecnico", policy => policy.RequireRole("Tecnico"));
+    options.AddPolicy("Admin", policy => policy.RequireRole("ADMIN"));
+    options.AddPolicy("GestorGranja", policy => policy.RequireRole("GESTOR GRANJA"));
+    options.AddPolicy("GestorAgro", policy => policy.RequireRole("GESTOR AGRO"));
+    options.AddPolicy("Tecnico", policy => policy.RequireRole("TECNICO"));
+    options.AddPolicy("Visualizador", policy => policy.RequireRole("VISUALIZADOR"));
+    options.AddPolicy("Pendente", policy => policy.RequireRole("PENDENTE"));
+    options.AddPolicy("Inativo", policy => policy.RequireRole("INATIVO"));
 });
 
 // Adicionando os serviços e configurações restantes

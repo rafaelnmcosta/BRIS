@@ -10,6 +10,6 @@ namespace bris_API.Models
         public Senha? Senha { get; set; }
         public ICollection<Dose>? Doses { get; set; }
         public ICollection<Animal>? Animais { get; set; }
-        public ICollection<Granja_Usuario_Tipo>? Granjas_Usuario_Tipos { get; set; }
+        public ICollection<Granja_Usuario_Tipo>? Granjas_Usuarios_Tipos { get; set; }
     }
 }

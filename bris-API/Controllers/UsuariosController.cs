@@ -1,13 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
 using bris_API.Data;
 using bris_API.Models;
 using bris_API.Services;
+using bris_API.DTOs;
 
 namespace bris_API.Controllers
 {
@@ -72,18 +71,18 @@ namespace bris_API.Controllers
             }
 
 
-            var token = _tokenService.GenerateToken(usuario.Id.ToString(), usuario.Email, usuario.TipoUsuario.Nome);
+            var token = _tokenService.GenerateToken(usuario.Id.ToString(), usuario.Email, usuario.TipoUsuario.Tipo);
             return Ok(new { token });
         }
 
-        [Authorize(Roles = "Admin,Gerente")]
+        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
         [HttpGet("usuarios")]
         public async Task<IActionResult> GetUsuarios()
         {
             return Ok(await _context.Usuarios.ToListAsync());
         }
 
-        [Authorize(Roles = "Admin,Gerente")]
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
         [HttpPost("usuarios/cadastrar")]
         public async Task<IActionResult> CadastrarUsuario([FromBody] CadastroCompletoDto modelUsuario)
         {
@@ -116,7 +115,7 @@ namespace bris_API.Controllers
             return Ok(new { message = "Usuário registrado com sucesso!" });
         }
 
-        [Authorize(Roles = "Admin,Gerente")]
+        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
         [HttpGet("usuarios/{id}")]
         public async Task<IActionResult> GetUsuario(int id)
         {
@@ -130,7 +129,7 @@ namespace bris_API.Controllers
             return Ok(usuario);
         }
 
-        [Authorize(Roles = "Admin,Gerente")]
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
         [HttpGet("usuarios/ativar")]
         public async Task<IActionResult> GetUsuariosNaoAtivados()
         {
@@ -143,7 +142,7 @@ namespace bris_API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin,Gerente")]
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
         [HttpPost("usuarios/ativar/{id}")]
         public async Task<IActionResult> AtivarUsuario(int id, [FromBody] AtivarDto ativar)
         {
@@ -163,7 +162,7 @@ namespace bris_API.Controllers
             return Ok(usuario);
         }
 
-        [Authorize(Roles = "Admin,Gerente")]
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
         [HttpPut("usuarios/{id}/editar")]
         public async Task<IActionResult> EditarUsuario(int id, [FromBody] Usuario usuarioEditado)
         {
@@ -183,6 +182,7 @@ namespace bris_API.Controllers
             return Ok(usuario);
         }
 
+        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
         [HttpGet("perfil/{id}")]
         public async Task<IActionResult> GetPerfil(int id)
         {
@@ -203,6 +203,7 @@ namespace bris_API.Controllers
             return Ok(usuario);
         }
 
+        [Authorize (Roles = PoliticasDeAcesso.GerenciaAgro)]
         [HttpPut("perfil/{id}/editar")]
         public async Task<IActionResult> EditarPerfil(int id, [FromBody] Usuario usuarioEditado)
         {
@@ -227,30 +228,5 @@ namespace bris_API.Controllers
 
             return Ok(usuario);
         }
-    }
-
-    public class CadastroDto
-    {
-        public string Nome { get; set; }
-        public string Email { get; set; }
-        public string Senha { get; set; }
-    }
-
-    public class CadastroCompletoDto
-    {
-        public string Nome { get; set; }
-        public string Email { get; set; }
-        public int TipoUsuario { get; set; }
-        public string Senha { get; set; }
-    }
-
-    public class LoginDto
-    {
-        public string Email { get; set; }
-        public string Senha { get; set; }
-    }
-    public class AtivarDto
-    {
-        public int TipoUsuario { get; set; }
     }
 }
