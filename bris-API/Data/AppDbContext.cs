@@ -104,17 +104,17 @@ namespace bris_API.Data
 
             // Dados iniciais para Agroindustria
             modelBuilder.Entity<Agroindustria>().HasData(
-                new Agroindustria { Id = 1, NomeFantasia = "Agroindustria Teste", RazaoSocial = "Razao Agroindustria", CNPJAgroindustria = "00.000.000/0001-00" }
+                new Agroindustria { Id = 1, NomeFantasia = "Agroindustria Teste", RazaoSocial = "Razao Agroindustria", CNPJ = "00000000000100", Ativo = true}
             );
 
             // Dados iniciais para Granja
             modelBuilder.Entity<Granja>().HasData(
-                new Granja { Id = 1, NomePropriedade = "Granja Teste", AgroindustriaId = 1, Endereco = "Rua teste", CNPJ = "99.999.999/0001-99" }
+                new Granja { Id = 1, NomePropriedade = "Granja Teste", AgroindustriaId = 1, Endereco = "Rua teste", CNPJ = "99999999000199", Ativo = true }
             );
 
             // Dados iniciais para o Admin
             modelBuilder.Entity<Usuario>().HasData(
-                new Usuario { Id = 1, Nome = "Admin", Email = "admin@gmail.com", CPF = "000.000.000-00", AgroindustriaId = 1 }
+                new Usuario { Id = 1, Nome = "Admin", Email = "admin@gmail.com", CPF = "00000000000", AgroindustriaId = 1 }
             );
 
             var salt = PasswordService.GenerateSalt();

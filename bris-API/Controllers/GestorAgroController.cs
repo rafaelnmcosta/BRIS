@@ -5,8 +5,8 @@ using System.Security.Claims;
 
 using bris_API.Data;
 using bris_API.Models;
-using bris_API.Services;
 using bris_API.DTOs;
+using bris_API.Services;
 
 namespace bris_API.Controllers
 {
@@ -16,9 +16,187 @@ namespace bris_API.Controllers
     {
         private readonly AppDbContext _context;
 
-        public GestorAgroController(AppDbContext context, ITokenService tokenService)
+        public GestorAgroController(AppDbContext context)
         {
             _context = context;
+        }
+
+        // GET: api/ga/usuarios
+        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [HttpGet("usuarios")]
+        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
+        {
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            var usuarios = await _context.Usuarios
+                .Where(u => u.AgroindustriaId == agroindustriaId)
+                .ToListAsync();
+
+            return Ok(usuarios);
+        }
+
+        // GET: api/ga/usuarios/{id}
+        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [HttpGet("usuarios/{id}")]
+        public async Task<ActionResult<Usuario>> GetUsuario(int id)
+        {
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            var usuario = await _context.Usuarios
+                .Include(u => u.GranjasUsuariosTipos)
+                .FirstOrDefaultAsync(u => u.Id == id && u.AgroindustriaId == agroindustriaId);
+
+            if (usuario == null)
+            {
+                return NotFound("Usuário não encontrado ou não pertence à sua agroindústria.");
+            }
+
+            return Ok(usuario);
+        }
+
+        // PUT: api/ga/usuarios/{id}/editar
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [HttpPut("usuarios/{id}/editar")]
+        public async Task<IActionResult> EditarUsuario(int id, [FromBody] EditarGestorAgroDto modelUsuario)
+        {
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            var usuario = await _context.Usuarios
+                .Include(u => u.GranjasUsuariosTipos)
+                .FirstOrDefaultAsync(u => u.Id == id && u.AgroindustriaId == agroindustriaId);
+
+            if (usuario == null)
+            {
+                return NotFound("Usuário não encontrado ou não pertence à sua agroindústria.");
+            }
+
+            // Atualiza as informações do usuário
+            usuario.Nome = modelUsuario.Nome;
+            usuario.Email = modelUsuario.Email;
+            usuario.CPF = modelUsuario.CPF;
+
+            // Atualiza a senha
+            var senha = await _context.Senhas.FirstOrDefaultAsync(s => s.UsuarioId == id);
+            if (senha != null)
+            {
+                var salt = PasswordService.GenerateSalt();
+                senha.SenhaHash = PasswordService.HashPassword(modelUsuario.Senha, salt);
+                senha.Salt = salt;
+            }
+
+            // Atualiza ou adiciona os registros em GranjasUsuariosTipos
+            foreach (var nivelAcesso in modelUsuario.NiveisAcesso)
+            {
+                var registro = await _context.GranjasUsuariosTipos
+                    .FirstOrDefaultAsync(gut => gut.Id == nivelAcesso.Id && gut.UsuarioId == id);
+
+                if (registro != null)
+                {
+                    registro.TipoUsuarioId = nivelAcesso.TipoUsuarioId;
+                    registro.GranjaId = nivelAcesso.GranjaId ?? registro.GranjaId;
+                }
+                else
+                {
+                    // Lógica para adicionar um novo registro, se necessário
+                    var novoRegistro = new GranjaUsuarioTipo
+                    {
+                        UsuarioId = id,
+                        TipoUsuarioId = nivelAcesso.TipoUsuarioId,
+                        GranjaId = nivelAcesso.GranjaId ?? default(int)
+                    };
+                    _context.GranjasUsuariosTipos.Add(novoRegistro);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Usuário e níveis de acesso atualizados com sucesso!" });
+        }
+
+        // POST: api/ga/cadastrar
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [HttpPost("cadastrar")]
+        public async Task<IActionResult> CadastrarUsuario([FromBody] CadastroGestorAgroDto modelUsuario)
+        {
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            var novoUsuario = new Usuario
+            {
+                Nome = modelUsuario.Nome,
+                Email = modelUsuario.Email,
+                CPF = modelUsuario.CPF,
+                AgroindustriaId = agroindustriaId,
+            };
+            _context.Usuarios.Add(novoUsuario);
+            await _context.SaveChangesAsync();
+
+            // Lógica para armazenar a senha
+            var salt = PasswordService.GenerateSalt();
+            var hash = PasswordService.HashPassword(modelUsuario.Senha, salt);
+
+            var senha = new Senha
+            {
+                UsuarioId = novoUsuario.Id,
+                SenhaHash = hash,
+                Salt = salt
+            };
+
+            _context.Senhas.Add(senha);
+            await _context.SaveChangesAsync();
+
+            // Cria registro em GranjasUsuariosTipos
+            var granjaUsuarioTipo = new GranjaUsuarioTipo
+            {
+                UsuarioId = novoUsuario.Id,
+                GranjaId = modelUsuario.GranjaId,
+                TipoUsuarioId = modelUsuario.TipoUsuarioId
+            };
+
+            _context.GranjasUsuariosTipos.Add(granjaUsuarioTipo);
+            await _context.SaveChangesAsync();
+
+
+            return Ok(new { message = "Usuário registrado com sucesso!" });
+        }
+
+        // GET: api/ga/ativar
+        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [HttpGet("ativar")]
+        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuariosParaAtivar()
+        {
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            var usuarios = await _context.Usuarios
+                .Where(u => u.AgroindustriaId == agroindustriaId)
+                .Where(u => u.GranjasUsuariosTipos.Any(gut => gut.TipoUsuarioId == 98 || gut.TipoUsuarioId == 99))
+                .ToListAsync();
+
+            return Ok(usuarios);
+        }
+
+
+        // POST: api/ga/ativar/{id}
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [HttpPost("ativar/{id}")]
+        public async Task<IActionResult> AtivarUsuario(int id, [FromBody] AtivarDto ativarDTO)
+        {
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            var granjaUsuarioTipo = await _context.GranjasUsuariosTipos
+                .Include(gut => gut.Usuario)
+                .FirstOrDefaultAsync(gut => gut.UsuarioId == id && (gut.TipoUsuarioId == 98 || gut.TipoUsuarioId == 99) && gut.Usuario.AgroindustriaId == agroindustriaId);
+
+            if (granjaUsuarioTipo == null)
+            {
+                return NotFound("Registro de ativação não encontrado ou não pertence à sua agroindústria.");
+            }
+
+            granjaUsuarioTipo.TipoUsuarioId = ativarDTO.TipoUsuario;
+            granjaUsuarioTipo.GranjaId = ativarDTO.GranjaId;
+
+            _context.Entry(granjaUsuarioTipo).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Usuário ativado com sucesso!" });
         }
     }
 }

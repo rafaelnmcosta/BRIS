@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 using bris_API.Data;
 using bris_API.Models;
 using bris_API.DTOs;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 namespace bris_API.Controllers
 {
@@ -20,104 +20,193 @@ namespace bris_API.Controllers
             _context = context;
         }
 
-        // GET: api/Animais
+        // GET: api/animais
+        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Animal>>> GetAnimais()
         {
-            // Obter o ID da Agroindústria do usuário autenticado
-            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
 
-            // Filtrar animais pela Agroindústria do usuário
-            return await _context.Animais
-                                .Include(a => a.Granja) // Inclua a Granja para acessar a FK
-                                .Where(a => a.Granja.AgroindustriaId == agroindustriaId)
-                                .ToListAsync();
+            var granjaId = await _context.GranjasUsuariosTipos
+                .Where(gut => gut.Id == granjaUsuarioTipoId)
+                .Select(gut => gut.GranjaId)
+                .FirstOrDefaultAsync();
+
+            var animais = await _context.Animais
+                .Where(a => a.GranjaId == granjaId && a.Ativo)
+                .ToListAsync();
+
+            return Ok(animais);
         }
 
-
-        // GET: api/Animais/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Animal>> GetAnimal(int id)
+        // GET: api/animais/inativas
+        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [HttpGet("ativar")]
+        public async Task<ActionResult<IEnumerable<Animal>>> GetAnimaisInativos()
         {
-            var animal = await _context.Animais.FindAsync(id);
+            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
+
+            var granjaId = await _context.GranjasUsuariosTipos
+                .Where(gut => gut.Id == granjaUsuarioTipoId)
+                .Select(gut => gut.GranjaId)
+                .FirstOrDefaultAsync();
+
+            var animais = await _context.Animais
+                .Where(a => a.GranjaId == granjaId && !a.Ativo)
+                .ToListAsync();
+
+            return Ok(animais);
+        }
+
+        // PUT: api/animais/ativar/{id}
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [HttpPut("ativar/{id}")]
+        public async Task<IActionResult> AtivarAnimal(int id)
+        {
+            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
+
+            var granjaId = await _context.GranjasUsuariosTipos
+                .Where(gut => gut.Id == granjaUsuarioTipoId)
+                .Select(gut => gut.GranjaId)
+                .FirstOrDefaultAsync();
+
+            var animal = await _context.Animais
+                .Where(a => a.Id == id && a.GranjaId == granjaId)
+                .FirstOrDefaultAsync();
 
             if (animal == null)
             {
-                return NotFound();
+                return NotFound("Animal não encontrado ou não pertence à sua granja.");
             }
 
-            return animal;
-        }
-
-        // POST: api/Animais
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAnimais)]
-        [HttpPost]
-        public async Task<IActionResult> CadastrarAnimal([FromBody] CadastroAnimalDto animalDTO)
-        {
-            // Obter o ID do usuário autenticado
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var granjaId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userId))
+            if (animal.Ativo)
             {
-                return Unauthorized();
+                return BadRequest("Animal já está ativo.");
             }
 
-            // Realizar a busca pelo usuário e a granja associada
-            var usuarioResponsavel = await _context.Usuarios.FindAsync(int.Parse(userId));
-            var granjaAssociada = await _context.Granjas.FindAsync(int.Parse(granjaId));
-
-            if (usuarioResponsavel == null || granjaAssociada == null)
-            {
-                return NotFound("Usuário ou granja não encontrados.");
-            }
-
-            // Criar o objeto Animal
-            var animal = new Animal
-            {
-                Linhagem = animalDTO.Linhagem,
-                Idade = animalDTO.Idade,
-                Peso = animalDTO.Peso,
-                Usuario = usuarioResponsavel,
-                Granja = granjaAssociada
-            };
-
-            // Salvar no banco de dados
-            _context.Animais.Add(animal);
-            await _context.SaveChangesAsync();
-
-            return Ok(animal);
-        }
-
-        // PUT: api/Animais/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAnimal(int id, Animal animal)
-        {
-            if (id != animal.Id)
-            {
-                return BadRequest();
-            }
+            animal.Ativo = true;
 
             _context.Entry(animal).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new { message = "Animal ativado com sucesso!" });
         }
 
-        // DELETE: api/Animais/5
+        // GET: api/animais/{id}
+        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Animal>> GetAnimal(int id)
+        {
+            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
+
+            var granjaId = await _context.GranjasUsuariosTipos
+                .Where(gut => gut.Id == granjaUsuarioTipoId)
+                .Select(gut => gut.GranjaId)
+                .FirstOrDefaultAsync();
+
+            var animal = await _context.Animais
+                .Where(a => a.Id == id && a.GranjaId == granjaId)
+                .FirstOrDefaultAsync();
+
+            if (animal == null)
+            {
+                return NotFound("Animal não encontrado ou não pertence à sua granja.");
+            }
+
+            return Ok(animal);
+        }
+
+        // PUT: api/animais/{id}
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutAnimal(int id, [FromBody] AnimalDto modelAnimal)
+        {
+            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
+
+            var granjaId = await _context.GranjasUsuariosTipos
+                .Where(gut => gut.Id == granjaUsuarioTipoId)
+                .Select(gut => gut.GranjaId)
+                .FirstOrDefaultAsync();
+
+            var animal = await _context.Animais
+                .Where(a => a.Id == id && a.GranjaId == granjaId)
+                .FirstOrDefaultAsync();
+
+            if (animal == null)
+            {
+                return NotFound("Animal não encontrado ou não pertence à sua granja.");
+            }
+
+            // Atualiza os campos do animal
+            animal.Linhagem = modelAnimal.Linhagem;
+            animal.Idade = modelAnimal.Idade;
+            animal.Peso = modelAnimal.Peso;
+            animal.Status = modelAnimal.status;
+            animal.UsuarioResponsavelId = modelAnimal.UsuarioResponsavelIdId;
+            animal.Ativo = modelAnimal.Ativo;
+
+            _context.Entry(animal).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Animal atualizado com sucesso!" });
+        }
+
+        // POST: api/animais
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [HttpPost]
+        public async Task<IActionResult> PostAnimal([FromBody] AnimalDto modelAnimal)
+        {
+            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
+
+            var granjaId = await _context.GranjasUsuariosTipos
+                .Where(gut => gut.Id == granjaUsuarioTipoId)
+                .Select(gut => gut.GranjaId)
+                .FirstOrDefaultAsync();
+
+            var novoAnimal = new Animal
+            {
+                Linhagem = modelAnimal.Linhagem,
+                Idade = modelAnimal.Idade,
+                Peso = modelAnimal.Peso,
+                Status = modelAnimal.status,
+                UsuarioResponsavelId = modelAnimal.UsuarioResponsavelIdId,
+                Ativo = modelAnimal.Ativo,
+                GranjaId = granjaId
+            };
+
+            _context.Animais.Add(novoAnimal);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Animal cadastrado com sucesso!" });
+        }
+
+        // DELETE: api/animais/{id}
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAnimal(int id)
         {
-            var animal = await _context.Animais.FindAsync(id);
+            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
+
+            var granjaId = await _context.GranjasUsuariosTipos
+                .Where(gut => gut.Id == granjaUsuarioTipoId)
+                .Select(gut => gut.GranjaId)
+                .FirstOrDefaultAsync();
+
+            var animal = await _context.Animais
+                .Where(a => a.Id == id && a.GranjaId == granjaId)
+                .FirstOrDefaultAsync();
+
             if (animal == null)
             {
-                return NotFound();
+                return NotFound("Animal não encontrado ou não pertence à sua granja.");
             }
 
-            _context.Animais.Remove(animal);
+            animal.Ativo = false;
+
+            _context.Entry(animal).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new { message = "Animal desativado com sucesso!" });
         }
     }
 }

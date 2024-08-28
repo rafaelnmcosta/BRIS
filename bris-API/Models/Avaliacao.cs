@@ -9,5 +9,6 @@ namespace bris_API.Models
         public int StatusAvaliacao { get; set; }
         public bool ResultadoFinal { get; set; }
         public ICollection<Semana>? Semanas { get; set; }
+        public bool Ativo { get; set; }
     }
 }

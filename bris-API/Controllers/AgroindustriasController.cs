@@ -1,12 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+
 using bris_API.Data;
 using bris_API.Models;
+using bris_API.DTOs;
 
 namespace bris_API.Controllers
 {
@@ -21,14 +20,53 @@ namespace bris_API.Controllers
             _context = context;
         }
 
-        // GET: api/Agroindustrias
+        // GET: api/agroindustrias
+        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoTotal)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Agroindustria>>> GetAgroindustrias()
         {
-            return await _context.Agroindustrias.ToListAsync();
+            var agroindustrias = await _context.Agroindustrias.ToListAsync();
+            return Ok(agroindustrias);
         }
 
-        // GET: api/Agroindustrias/5
+        // GET: api/agroindustrias/ativar
+        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoTotal)]
+        [HttpGet("ativar")]
+        public async Task<ActionResult<IEnumerable<Agroindustria>>> GetAgroindustriasInativas()
+        {
+            var agroindustriasInativas = await _context.Agroindustrias
+                .Where(a => !a.Ativo)
+                .ToListAsync();
+            return Ok(agroindustriasInativas);
+        }
+        
+        // PUT: api/agroindustrias/ativar/{id}
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaTotal)]
+        [HttpPut("ativar/{id}")]
+        public async Task<IActionResult> AtivarAgroindustria(int id)
+        {
+            var agroindustria = await _context.Agroindustrias.FindAsync(id);
+
+            if (agroindustria == null)
+            {
+                return NotFound("Agroindústria não encontrada.");
+            }
+
+            if (agroindustria.Ativo)
+            {
+                return BadRequest("Agroindústria já está ativa.");
+            }
+
+            agroindustria.Ativo = true;
+
+            _context.Entry(agroindustria).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Agroindústria ativada com sucesso!" });
+        }
+
+        // GET: api/agroindustrias/{id}
+        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoTotal)]
         [HttpGet("{id}")]
         public async Task<ActionResult<Agroindustria>> GetAgroindustria(int id)
         {
@@ -36,73 +74,77 @@ namespace bris_API.Controllers
 
             if (agroindustria == null)
             {
-                return NotFound();
+                return NotFound("Agroindústria não encontrada.");
             }
 
-            return agroindustria;
+            return Ok(agroindustria);
         }
 
-        // PUT: api/Agroindustrias/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // PUT: api/agroindustrias/{id}
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaTotal)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAgroindustria(int id, Agroindustria agroindustria)
+        public async Task<IActionResult> PutAgroindustria(int id, [FromBody] AgroindustriaDTO modelAgroindustria)
         {
-            if (id != agroindustria.Id)
+            if (id <= 0)
             {
-                return BadRequest();
+                return BadRequest("ID inválido.");
             }
+
+            var agroindustria = await _context.Agroindustrias.FindAsync(id);
+
+            if (agroindustria == null)
+            {
+                return NotFound("Agroindústria não encontrada.");
+            }
+
+            agroindustria.NomeFantasia = modelAgroindustria.NomeFantasia;
+            agroindustria.RazaoSocial = modelAgroindustria.RazaoSocial;
+            agroindustria.CNPJ = modelAgroindustria.CNPJ;
+            agroindustria.Ativo = modelAgroindustria.Ativo;
 
             _context.Entry(agroindustria).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AgroindustriaExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return Ok(new { message = "Agroindústria atualizada com sucesso!" });
         }
 
-        // POST: api/Agroindustrias
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // POST: api/agroindustrias
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaTotal)]
         [HttpPost]
-        public async Task<ActionResult<Agroindustria>> PostAgroindustria(Agroindustria agroindustria)
+        public async Task<ActionResult<Agroindustria>> PostAgroindustria([FromBody] AgroindustriaDTO modelAgroindustria)
         {
+            var agroindustria = new Agroindustria
+            {
+                NomeFantasia = modelAgroindustria.NomeFantasia,
+                RazaoSocial = modelAgroindustria.RazaoSocial,
+                CNPJ = modelAgroindustria.CNPJ,
+                Ativo = modelAgroindustria.Ativo
+            };
+
             _context.Agroindustrias.Add(agroindustria);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetAgroindustria", new { id = agroindustria.Id }, agroindustria);
+            return CreatedAtAction(nameof(GetAgroindustria), new { id = agroindustria.Id }, agroindustria);
         }
 
-        // DELETE: api/Agroindustrias/5
+        // DELETE: api/agroindustrias/{id}
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaTotal)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAgroindustria(int id)
         {
             var agroindustria = await _context.Agroindustrias.FindAsync(id);
+
             if (agroindustria == null)
             {
-                return NotFound();
+                return NotFound("Agroindústria não encontrada.");
             }
 
-            _context.Agroindustrias.Remove(agroindustria);
+            agroindustria.Ativo = false;
+
+            _context.Entry(agroindustria).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
-        }
-
-        private bool AgroindustriaExists(int id)
-        {
-            return _context.Agroindustrias.Any(e => e.Id == id);
+            return Ok(new { message = "Agroindústria desativada com sucesso!" });
         }
     }
 }

@@ -8,5 +8,6 @@ namespace bris_API.Models {
         public string? Endereco { get; set; }
         public string? CNPJ { get; set; }
         public ICollection<GranjaUsuarioTipo>? GranjasUsuariosTipos { get; set; }
+        public bool Ativo { get; set; }
     }
 }
