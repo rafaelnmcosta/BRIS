@@ -10,7 +10,7 @@ using bris_API.Models;
 
 namespace bris_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/granjas")]
     [ApiController]
     public class GranjasController : ControllerBase
     {

@@ -7,7 +7,7 @@ namespace bris_API.Services
 {
     public interface ITokenService
     {
-        string GenerateToken(string UsuarioId, string UsuarioEmail, string TipoUsuario, string GranjaId);
+        string GenerateToken(string granjaUsuarioTipoId);
     }
 
     public class TokenService : ITokenService
@@ -19,7 +19,7 @@ namespace bris_API.Services
             _configuration = configuration;
         }
 
-        public string GenerateToken(string UsuarioId, string UsuarioEmail, string TipoUsuario, string GranjaId)
+        public string GenerateToken(string granjaUsuarioTipoId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
@@ -29,10 +29,7 @@ namespace bris_API.Services
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(JwtRegisteredClaimNames.Sub, UsuarioId),
-                    new Claim(JwtRegisteredClaimNames.Email, UsuarioEmail),
-                    new Claim(ClaimTypes.Role, TipoUsuario),
-                    new Claim("GranjaID", GranjaId) // Adicionando a informação da GranjaID
+                    new Claim("GranjaUsuarioTipoId", granjaUsuarioTipoId)
                 }),
                 Expires = now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpiresInMinutes"])),
                 NotBefore = now,
@@ -40,8 +37,10 @@ namespace bris_API.Services
                 Audience = _configuration["Jwt:Audience"],
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
+
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+
     }
 }

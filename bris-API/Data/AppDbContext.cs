@@ -11,7 +11,7 @@ namespace bris_API.Data
         public DbSet<Avaliacao> Avaliacoes { get; set; }
         public DbSet<Dose> Doses { get; set; }
         public DbSet<Granja> Granjas { get; set; }
-        public DbSet<Granja_Usuario_Tipo> Granjas_Usuarios_Tipos { get; set; }
+        public DbSet<GranjaUsuarioTipo> GranjasUsuariosTipos { get; set; }
         public DbSet<Semana> Semanas { get; set; }
         public DbSet<Senha> Senhas { get; set; }
         public DbSet<TipoUsuario> TiposUsuario { get; set; }
@@ -70,19 +70,19 @@ namespace bris_API.Data
                 .HasForeignKey(d => d.UsuarioId);
 
             // Relação N-N Granja_Usuario_Tipo
-            modelBuilder.Entity<Granja_Usuario_Tipo>()
+            modelBuilder.Entity<GranjaUsuarioTipo>()
                 .HasOne(gut => gut.Granja)
-                .WithMany(g => g.Granjas_Usuarios_Tipos)
+                .WithMany(g => g.GranjasUsuariosTipos)
                 .HasForeignKey(gut => gut.GranjaId);
 
-            modelBuilder.Entity<Granja_Usuario_Tipo>()
+            modelBuilder.Entity<GranjaUsuarioTipo>()
                 .HasOne(gut => gut.Usuario)
-                .WithMany(u => u.Granjas_Usuarios_Tipos)
+                .WithMany(u => u.GranjasUsuariosTipos)
                 .HasForeignKey(gut => gut.UsuarioId);
 
-            modelBuilder.Entity<Granja_Usuario_Tipo>()
+            modelBuilder.Entity<GranjaUsuarioTipo>()
                 .HasOne(gut => gut.TipoUsuario)
-                .WithMany(t => t.Granjas_Usuarios_Tipos)
+                .WithMany(t => t.GranjasUsuariosTipos)
                 .HasForeignKey(gut => gut.TipoUsuarioId);
 
             // Inserção de dados iniciais para a tabela TiposUsuario
@@ -103,12 +103,12 @@ namespace bris_API.Data
 
             // Dados iniciais para Granja
             modelBuilder.Entity<Granja>().HasData(
-                new Granja { Id = 1, Nome_propriedade = "Granja Teste", AgroindustriaId = 1, Endereco = "Rua teste", CNPJ = "99.999.999/0001-99" }
+                new Granja { Id = 1, NomePropriedade = "Granja Teste", AgroindustriaId = 1, Endereco = "Rua teste", CNPJ = "99.999.999/0001-99" }
             );
 
             // Dados iniciais para o Admin
             modelBuilder.Entity<Usuario>().HasData(
-                new Usuario { Id = 1, Nome = "Admin", Email = "admin@gmail.com", TipoUsuarioId = 1 }
+                new Usuario { Id = 1, Nome = "Admin", Email = "admin@gmail.com", CPF = "000.000.000-00" }
             );
 
             var salt = PasswordService.GenerateSalt();
@@ -120,8 +120,8 @@ namespace bris_API.Data
             );
 
             // Linka todos os Dados na tabela de relação
-            modelBuilder.Entity<Granja_Usuario_Tipo>().HasData(
-                new Granja_Usuario_Tipo { Id = 1, UsuarioId = 1, GranjaId = 1, TipoUsuarioId = 1 }
+            modelBuilder.Entity<GranjaUsuarioTipo>().HasData(
+                new GranjaUsuarioTipo { Id = 1, UsuarioId = 1, GranjaId = 1, TipoUsuarioId = 1 }
             );
 
             // Aplica as configurações

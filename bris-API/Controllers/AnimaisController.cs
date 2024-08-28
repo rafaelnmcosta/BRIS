@@ -9,7 +9,7 @@ using System.Security.Claims;
 
 namespace bris_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/animais")]
     [ApiController]
     public class AnimaisController : ControllerBase
     {

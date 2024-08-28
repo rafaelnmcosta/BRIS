@@ -6,10 +6,10 @@ namespace bris_API.DTOs
     {
         [Required(ErrorMessage = "O email é obrigatório.")]
         [EmailAddress(ErrorMessage = "O email informado não é válido.")]
-        public string? Email { get; set; }
+        public required string Email { get; set; }
 
         [Required(ErrorMessage = "A senha é obrigatória.")]
         [StringLength(100, MinimumLength = 5, ErrorMessage = "A senha deve ter entre 5 e 100 caracteres.")]
-        public string? Senha { get; set; }
+        public required string Senha { get; set; }
     }
 }

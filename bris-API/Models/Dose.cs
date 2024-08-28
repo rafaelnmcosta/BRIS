@@ -9,7 +9,7 @@ namespace bris_API.Models
         public Semana? Semana { get; set; }
         public int UsuarioId { get; set; }
         public Usuario? Usuario { get; set; }
-        public DateTime DataResgistro { get; set; } = DateTime.UtcNow;
+        public DateTime DataRegistro { get; set; } = DateTime.UtcNow;
         public float ValorRegistrado { get; set; }
         public int Ordem { get; set; }
         /* Valores para ordem:

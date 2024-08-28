@@ -10,5 +10,6 @@ namespace bris_API.Controllers
         public const string GerenciaAgro = "Admin,GestorAgro"; // gerencia a agroindindustria atual: usuarios e granjas
         public const string GerenciaGranja = "Admin,GestorGranja"; // gerencia a granja atual: usuarios e animais
         public const string GerenciaAnimais = "Admin,GestorGranja,Tecnico"; // gerencia apenas animais 
+        public const string TodosUsuarios = "Admin,GestorAgro,GestorGranja,Visualizador,Tecnico"; // Todos usuarios podem ver ou gerenciar isso
     }
 }
