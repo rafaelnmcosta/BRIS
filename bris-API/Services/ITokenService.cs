@@ -3,11 +3,13 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
+
+
 namespace bris_API.Services
 {
     public interface ITokenService
     {
-        string GenerateToken(string granjaUsuarioTipoId);
+        string GenerateToken(string granjaUsuarioTipoId, string agroindustriaId);
     }
 
     public class TokenService : ITokenService
@@ -19,7 +21,7 @@ namespace bris_API.Services
             _configuration = configuration;
         }
 
-        public string GenerateToken(string granjaUsuarioTipoId)
+        public string GenerateToken(string granjaUsuarioTipoId, string agroindustriaId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
@@ -29,7 +31,8 @@ namespace bris_API.Services
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim("GranjaUsuarioTipoId", granjaUsuarioTipoId)
+                    new Claim("GranjaUsuarioTipoId", granjaUsuarioTipoId),
+                    new Claim("AgroindustriaId", agroindustriaId)
                 }),
                 Expires = now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpiresInMinutes"])),
                 NotBefore = now,

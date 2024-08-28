@@ -24,8 +24,16 @@ namespace bris_API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Animal>>> GetAnimais()
         {
-            return await _context.Animais.ToListAsync();
+            // Obter o ID da Agroindústria do usuário autenticado
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            // Filtrar animais pela Agroindústria do usuário
+            return await _context.Animais
+                                .Include(a => a.Granja) // Inclua a Granja para acessar a FK
+                                .Where(a => a.Granja.AgroindustriaId == agroindustriaId)
+                                .ToListAsync();
         }
+
 
         // GET: api/Animais/5
         [HttpGet("{id}")]

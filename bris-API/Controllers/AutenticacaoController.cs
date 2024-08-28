@@ -32,6 +32,7 @@ namespace bris_API.Controllers
             {
                 Nome = modelUsuario.Nome,
                 Email = modelUsuario.Email,
+                AgroindustriaId = modelUsuario.AgroindustriaId
             };
 
             _context.Usuarios.Add(usuario);
@@ -101,10 +102,16 @@ namespace bris_API.Controllers
         }
 
         [HttpPost("registros/token/{id}/")]
-        public IActionResult GenerateToken(int id)
+        public async Task<IActionResult> GenerateToken(int id)
         {
+            var granjaUsuarioTipo = await _context.GranjasUsuariosTipos
+                .Include(gut => gut.Usuario)
+                .FirstOrDefaultAsync(gut => gut.Id == id);
+            
+            var agroindustriaId = granjaUsuarioTipo.Usuario.AgroindustriaId;
+
             // Gerar o token JWT com o ID do Registro
-            var token = _tokenService.GenerateToken(id.ToString());
+            var token = _tokenService.GenerateToken(id.ToString(), agroindustriaId.ToString());
 
             return Ok(new { token });
         }

@@ -5,5 +5,6 @@ namespace bris_API.Models {
         public string? RazaoSocial { get; set; }
         public string? CNPJAgroindustria { get; set; }
         public ICollection<Granja>? Granjas { get; set; }
+        public ICollection<Usuario>? Usuarios { get; set; }
     }    
 }

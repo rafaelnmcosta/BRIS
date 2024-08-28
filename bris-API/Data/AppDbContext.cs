@@ -26,6 +26,12 @@ namespace bris_API.Data
                 .HasOne(u => u.Senha)
                 .WithOne(s => s.Usuario)
                 .HasForeignKey<Senha>(s => s.UsuarioId);
+            
+            // Relação 1-N Agroindustria-Usuario
+            modelBuilder.Entity<Usuario>()
+                .HasOne(u => u.Agroindustria)
+                .WithMany(a => a.Usuarios)
+                .HasForeignKey(u => u.AgroindustriaId);
 
             // Relação 1-N Agroindustria-Granja
             modelBuilder.Entity<Granja>()
@@ -108,7 +114,7 @@ namespace bris_API.Data
 
             // Dados iniciais para o Admin
             modelBuilder.Entity<Usuario>().HasData(
-                new Usuario { Id = 1, Nome = "Admin", Email = "admin@gmail.com", CPF = "000.000.000-00" }
+                new Usuario { Id = 1, Nome = "Admin", Email = "admin@gmail.com", CPF = "000.000.000-00", AgroindustriaId = 1 }
             );
 
             var salt = PasswordService.GenerateSalt();

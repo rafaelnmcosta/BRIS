@@ -39,7 +39,8 @@ namespace bris_API.Controllers
             {
                 Nome = modelUsuario.Nome,
                 Email = modelUsuario.Email,
-                CPF = modelUsuario.CPF
+                CPF = modelUsuario.CPF,
+                AgroindustriaId = modelUsuario.AgroindustriaId
             };
 
             _context.Usuarios.Add(usuario);
@@ -162,6 +163,7 @@ namespace bris_API.Controllers
             usuario.Nome = modelUsuario.Nome;
             usuario.Email = modelUsuario.Email;
             usuario.CPF = modelUsuario.CPF;
+            usuario.AgroindustriaId = modelUsuario.AgroindustriaId;
 
             // Atualiza a senha
             var senha = await _context.Senhas.FirstOrDefaultAsync(s => s.UsuarioId == id);
