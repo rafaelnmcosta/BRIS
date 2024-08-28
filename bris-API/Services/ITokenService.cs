@@ -7,7 +7,7 @@ namespace bris_API.Services
 {
     public interface ITokenService
     {
-        string GenerateToken(string UsuarioId, string UsuarioEmail, string TipoUsuario);
+        string GenerateToken(string UsuarioId, string UsuarioEmail, string TipoUsuario, string GranjaId);
     }
 
     public class TokenService : ITokenService
@@ -19,7 +19,7 @@ namespace bris_API.Services
             _configuration = configuration;
         }
 
-        public string GenerateToken(string UsuarioId, string UsuarioEmail, string TipoUsuario)
+        public string GenerateToken(string UsuarioId, string UsuarioEmail, string TipoUsuario, string GranjaId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
@@ -31,10 +31,11 @@ namespace bris_API.Services
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, UsuarioId),
                     new Claim(JwtRegisteredClaimNames.Email, UsuarioEmail),
-                    new Claim(ClaimTypes.Role, TipoUsuario)
+                    new Claim(ClaimTypes.Role, TipoUsuario),
+                    new Claim("GranjaID", GranjaId) // Adicionando a informação da GranjaID
                 }),
                 Expires = now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpiresInMinutes"])),
-                NotBefore = now, // Token é válido a partir de agora
+                NotBefore = now,
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"],
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

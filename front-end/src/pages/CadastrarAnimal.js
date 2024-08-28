@@ -4,26 +4,26 @@ import api from '../services/api';
 import HeadbarSistema from '../components/HeadbarSistema';
 
 import { ReactComponent as IconInfo } from '../assets/icones/information-letter-outline-svgrepo-com.svg';
-import { ReactComponent as IconId } from '../assets/icones/notebook-with-text-lines-outline-svgrepo-com.svg';
 
 import './Cadastrar.css';
 
-const CadastrarUsuario = () => {
-    const [id, setId] = useState('');
-    const [info, setInfo] = useState('');
+const CadastrarAnimal = () => {
+    const [animal, setAnimal] = useState('');
     const [erro, setErro] = useState('');
     const navigate = useNavigate();
+    const token = localStorage.getItem('jwtToken');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         try {
-            const response = await api.post('http://localhost:5206/api/Animais', {
-                id,
-                info,
+            const response = await api.post('http://localhost:5206/api/Animais', animal, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
             alert('Cadastro realizado com sucesso!');
             navigate('/animais');
+            return response;
         } catch (error) {
             console.error('Erro ao cadastrar animal:', error);
             setErro('Erro ao realizar o cadastro. Tente novamente.');
@@ -38,27 +38,39 @@ const CadastrarUsuario = () => {
                 <h2 className='titulo-cadastro'>Cadastro de novo animal</h2>
                 <form onSubmit={handleSubmit} className='form-cadastrar'>
                     <div className='lado-a-lado'>
-                        <IconId className='icone' />
-                        <label>Id:</label>
+                        <IconInfo className='icone' />
+                        <label>Linhagem</label>
                     </div>
                     <input
                         className='input-cadastrar'
                         type="text"
-                        placeholder="Numero de identificação do animal"
-                        value={id}
-                        onChange={(e) => setId(e.target.value)}
+                        placeholder="Informações sobre a linhagem do novo animal a ser cadastrado"
+                        value={animal.linhagem}
+                        onChange={(e) => setAnimal(e.target.value)}
                         required
                     />
                     <div className='lado-a-lado'>
                         <IconInfo className='icone' />
-                        <label>Informações</label>
+                        <label>Idade</label>
                     </div>
                     <input
                         className='input-cadastrar'
-                        type="text"
-                        placeholder="Informações sobre o novo animal a ser cadastrado"
-                        value={info}
-                        onChange={(e) => setInfo(e.target.value)}
+                        type="number"
+                        placeholder="Idade do novo animal a ser cadastrado"
+                        value={animal.idade}
+                        onChange={(e) => setAnimal(e.target.value)}
+                        required
+                    />
+                    <div className='lado-a-lado'>
+                        <IconInfo className='icone' />
+                        <label>Peso</label>
+                    </div>
+                    <input
+                        className='input-cadastrar'
+                        type="number"
+                        placeholder="Peso do novo animal a ser cadastrado"
+                        value={animal.peso}
+                        onChange={(e) => setAnimal(e.target.value)}
                         required
                     />
                     {erro && <p className='erro'>{erro}</p>}
@@ -72,4 +84,4 @@ const CadastrarUsuario = () => {
     );
 };
 
-export default CadastrarUsuario;
+export default CadastrarAnimal;
