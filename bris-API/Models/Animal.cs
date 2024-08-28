@@ -5,7 +5,7 @@ namespace bris_API.Models
         public int Id { get; set; }
         public string? Linhagem { get; set; }
         public int Idade { get; set; }
-        public int Peso { get; set; }
+        public float Peso { get; set; }
         public bool Status { get; set; }
         public int GranjaId { get; set; }
         public Granja? Granja { get; set; }

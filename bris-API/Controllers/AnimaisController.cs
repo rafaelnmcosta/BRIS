@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 using bris_API.Data;
 using bris_API.Models;
+using bris_API.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace bris_API.Controllers
 {
@@ -39,13 +42,43 @@ namespace bris_API.Controllers
         }
 
         // POST: api/Animais
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAnimais)]
         [HttpPost]
-        public async Task<ActionResult<Animal>> PostAnimal(Animal animal)
+        public async Task<IActionResult> CadastrarAnimal([FromBody] CadastroAnimalDto animalDTO)
         {
+            // Obter o ID do usuário autenticado
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var granjaId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            // Realizar a busca pelo usuário e a granja associada
+            var usuarioResponsavel = await _context.Usuarios.FindAsync(int.Parse(userId));
+            var granjaAssociada = await _context.Granjas.FindAsync(int.Parse(granjaId));
+
+            if (usuarioResponsavel == null || granjaAssociada == null)
+            {
+                return NotFound("Usuário ou granja não encontrados.");
+            }
+
+            // Criar o objeto Animal
+            var animal = new Animal
+            {
+                Linhagem = animalDTO.Linhagem,
+                Idade = animalDTO.Idade,
+                Peso = animalDTO.Peso,
+                Usuario = usuarioResponsavel,
+                Granja = granjaAssociada
+            };
+
+            // Salvar no banco de dados
             _context.Animais.Add(animal);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetAnimal), new { id = animal.Id }, animal);
+            return Ok(animal);
         }
 
         // PUT: api/Animais/5
