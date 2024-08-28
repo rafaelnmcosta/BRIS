@@ -72,7 +72,7 @@ namespace bris_API.Controllers
 
 
             var token = _tokenService.GenerateToken(usuario.Id.ToString(), usuario.Email, usuario.TipoUsuario.Tipo);
-            return Ok(new { token });
+            return Ok(new { token, userId = usuario.Id });
         }
 
         [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
@@ -133,9 +133,9 @@ namespace bris_API.Controllers
         [HttpGet("usuarios/ativar")]
         public async Task<IActionResult> GetUsuariosNaoAtivados()
         {
-            // Buscar todos os usuários com TipoUsuarioId igual a 0
+            // Buscar todos os usuários com TipoUsuarioId igual a 98
             var usuariosNaoAtivados = await _context.Usuarios
-                .Where(u => u.TipoUsuarioId == 0)
+                .Where(u => u.TipoUsuarioId == 98)
                 .ToListAsync();
 
             return Ok(usuariosNaoAtivados);

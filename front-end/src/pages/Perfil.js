@@ -1,20 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const Perfil = () => {
-  const { id } = useParams();
+  const id = localStorage.getItem("userId");
+  console.log(id);
   const [usuario, setUsuario] = useState(null);
-
-  const UsuarioTeste = { id: 1, nome: 'João', email: 'joao@email.com', tipo: '2'};
-
   useEffect(() => {
-    /*
-    axios.get(`/api/usuarios/${id}`)
+    axios.get(`/api/Usuarios/perfil/${id}`)
       .then(response => setUsuario(response.data))
       .catch(error => console.error('Erro ao buscar Usuario:', error));
-    */
-   setUsuario(UsuarioTeste);
   }, [id]);
 
   if (!usuario) {

@@ -5,6 +5,7 @@ import './HeadbarSistema.css';
 import logo from '../assets/BRIS-logo-horizontal.png'
 
 function HeadbarSistema() {
+    const id = localStorage.getItem("userId");
     const handleLogout = async () => {
         localStorage.removeItem('jwtToken');
     }
@@ -18,7 +19,7 @@ function HeadbarSistema() {
             <div className='navbar-menu'>
                 <Link to="/">Página inicial</Link>
                 <p>|</p>
-                <Link to="/perfil">Perfil</Link>
+                <Link to = {`/perfil/${id}`} >Perfil</Link>
                 <p>|</p>
                 <Link onClick={handleLogout} to="/login">Sair</Link>
             </div>

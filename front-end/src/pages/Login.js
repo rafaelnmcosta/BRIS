@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,8 +21,9 @@ const Login = () => {
             email,
             senha
         });
-        const { token } = response.data;
+        const { token, userId } = response.data;
         localStorage.setItem('jwtToken', token);
+        localStorage.setItem('userId', userId);
         navigate('/');
     } catch (error) {
         console.error('Falha no login', error);
