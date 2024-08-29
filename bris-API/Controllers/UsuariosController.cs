@@ -29,7 +29,7 @@ namespace bris_API.Controllers
         }
 
         [Authorize(Roles = PoliticasDeAcesso.GerenciaTotal)]
-        [HttpPost("/cadastrar")]
+        [HttpPost("cadastrar")]
         public async Task<IActionResult> CadastrarUsuario([FromBody] CadastroAdminDto modelUsuario)
         {
             if (await _context.Usuarios.AnyAsync(u => u.Email == modelUsuario.Email))

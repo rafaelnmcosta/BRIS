@@ -5,10 +5,12 @@ namespace bris_API.Models
         public int Id { get; set; }
         public int NroSemana { get; set; }
         public int Resultado { get; set; }
-        /* Valores para resultado:
-            0: Menor;
-            1: Medio;
-            2: Maior;
+        /* Valores para resultado da Sensibilidade ao Resfriamento:
+            1: Menor;
+            2: Medio;
+            3: Maior;
+            0: Erro;
+            -1: Não gerado;
         */
         public int AvaliacaoId { get; set; }
         public Avaliacao? Avaliacao {get; set; }

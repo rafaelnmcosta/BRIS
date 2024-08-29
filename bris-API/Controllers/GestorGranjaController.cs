@@ -20,21 +20,21 @@ namespace bris_API.Controllers
         {
             _context = context;
         }
-        
+
         // GET: api/gg/usuarios
         [Authorize(Roles = PoliticasDeAcesso.VisualizacaoGranja)]
         [HttpGet("usuarios")]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
         {
-            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
+            var granjaId = User.FindFirst("GranjaId")?.Value;
 
-            var granjaId = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.Id == granjaUsuarioTipoId)
-                .Select(gut => gut.GranjaId)
-                .FirstOrDefaultAsync();
+            if (string.IsNullOrEmpty(granjaId))
+            {
+                return Unauthorized("GranjaId não encontrado no token.");
+            }
 
             var usuarios = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.GranjaId == granjaId)
+                .Where(gut => gut.GranjaId == int.Parse(granjaId))
                 .Select(gut => gut.Usuario)
                 .ToListAsync();
 
@@ -46,16 +46,16 @@ namespace bris_API.Controllers
         [HttpGet("usuarios/{id}")]
         public async Task<ActionResult<Usuario>> GetUsuario(int id)
         {
-            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
+            var granjaId = User.FindFirst("GranjaId")?.Value;
 
-            var granjaId = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.Id == granjaUsuarioTipoId)
-                .Select(gut => gut.GranjaId)
-                .FirstOrDefaultAsync();
+            if (string.IsNullOrEmpty(granjaId))
+            {
+                return Unauthorized("GranjaId não encontrado no token.");
+            }
 
             var usuario = await _context.Usuarios
                 .Where(u => u.Id == id && _context.GranjasUsuariosTipos
-                    .Any(gut => gut.UsuarioId == u.Id && gut.GranjaId == granjaId))
+                    .Any(gut => gut.UsuarioId == u.Id && gut.GranjaId == int.Parse(granjaId)))
                 .FirstOrDefaultAsync();
 
             if (usuario == null)
@@ -71,16 +71,16 @@ namespace bris_API.Controllers
         [HttpPut("usuarios/{id}/editar")]
         public async Task<IActionResult> EditarUsuario(int id, [FromBody] EditarGestorGranjaDto modelUsuario)
         {
-            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
+            var granjaId = User.FindFirst("GranjaId")?.Value;
 
-            var granjaId = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.Id == granjaUsuarioTipoId)
-                .Select(gut => gut.GranjaId)
-                .FirstOrDefaultAsync();
+            if (string.IsNullOrEmpty(granjaId))
+            {
+                return Unauthorized("GranjaId não encontrado no token.");
+            }
 
             var usuario = await _context.Usuarios
                 .Where(u => u.Id == id && _context.GranjasUsuariosTipos
-                    .Any(gut => gut.UsuarioId == u.Id && gut.GranjaId == granjaId))
+                    .Any(gut => gut.UsuarioId == u.Id && gut.GranjaId == int.Parse(granjaId)))
                 .FirstOrDefaultAsync();
 
             if (usuario == null)
@@ -111,19 +111,20 @@ namespace bris_API.Controllers
         [HttpPost("cadastrar")]
         public async Task<IActionResult> CadastrarUsuario([FromBody] CadastroGestorGranjaDto modelUsuario)
         {
-            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
+            var granjaId = User.FindFirst("GranjaId")?.Value;
+            var agroindustriaId = User.FindFirst("AgroindustriaId")?.Value;
 
-            var granjaId = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.Id == granjaUsuarioTipoId)
-                .Select(gut => gut.GranjaId)
-                .FirstOrDefaultAsync();
+            if (string.IsNullOrEmpty(granjaId) || string.IsNullOrEmpty(agroindustriaId))
+            {
+                return Unauthorized("GranjaId ou AgroindustriaId não encontrados no token.");
+            }
 
             var novoUsuario = new Usuario
             {
                 Nome = modelUsuario.Nome,
                 Email = modelUsuario.Email,
                 CPF = modelUsuario.CPF,
-                AgroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value)
+                AgroindustriaId = int.Parse(agroindustriaId)
             };
 
             _context.Usuarios.Add(novoUsuario);
@@ -147,7 +148,7 @@ namespace bris_API.Controllers
             var granjaUsuarioTipo = new GranjaUsuarioTipo
             {
                 UsuarioId = novoUsuario.Id,
-                GranjaId = granjaId,
+                GranjaId = int.Parse(granjaId),
                 TipoUsuarioId = 4 // O gestor da granja só cadastra novos técnicos
             };
 
@@ -162,15 +163,15 @@ namespace bris_API.Controllers
         [HttpGet("ativar")]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuariosParaAtivar()
         {
-            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
+            var granjaId = User.FindFirst("GranjaId")?.Value;
 
-            var granjaId = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.Id == granjaUsuarioTipoId)
-                .Select(gut => gut.GranjaId)
-                .FirstOrDefaultAsync();
+            if (string.IsNullOrEmpty(granjaId))
+            {
+                return Unauthorized("GranjaId não encontrado no token.");
+            }
 
             var usuarios = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.GranjaId == granjaId && (gut.TipoUsuarioId == 98 || gut.TipoUsuarioId == 99))
+                .Where(gut => gut.GranjaId == int.Parse(granjaId) && (gut.TipoUsuarioId == 98 || gut.TipoUsuarioId == 99))
                 .Select(gut => gut.Usuario)
                 .ToListAsync();
 
@@ -182,15 +183,15 @@ namespace bris_API.Controllers
         [HttpPost("ativar/{id}")]
         public async Task<IActionResult> AtivarUsuario(int id)
         {
-            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
+            var granjaId = User.FindFirst("GranjaId")?.Value;
 
-            var granjaId = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.Id == granjaUsuarioTipoId)
-                .Select(gut => gut.GranjaId)
-                .FirstOrDefaultAsync();
+            if (string.IsNullOrEmpty(granjaId))
+            {
+                return Unauthorized("GranjaId não encontrado no token.");
+            }
 
             var granjaUsuarioTipo = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.UsuarioId == id && gut.GranjaId == granjaId && (gut.TipoUsuarioId == 98 || gut.TipoUsuarioId == 99))
+                .Where(gut => gut.UsuarioId == id && gut.GranjaId == int.Parse(granjaId) && (gut.TipoUsuarioId == 98 || gut.TipoUsuarioId == 99))
                 .FirstOrDefaultAsync();
 
             if (granjaUsuarioTipo == null)
@@ -205,6 +206,5 @@ namespace bris_API.Controllers
 
             return Ok(new { message = "Usuário ativado com sucesso!" });
         }
-
     }
 }

@@ -77,7 +77,6 @@ namespace bris_API.Controllers
             return Ok(new { message = "Granja ativada com sucesso!" });
         }
 
-
         // GET: api/granjas/{id}
         [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
         [HttpGet("{id}")]
@@ -104,7 +103,7 @@ namespace bris_API.Controllers
         {
             var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
 
-            if (id != modelGranja.AgroindustriaId)
+            if (agroindustriaId != modelGranja.AgroindustriaId)
             {
                 return BadRequest("O ID da agroindústria no token não corresponde ao ID da agroindústria no DTO.");
             }

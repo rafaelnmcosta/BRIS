@@ -21,6 +21,40 @@ namespace bris_API.Controllers
             _context = context;
         }
 
+        // GET: api/ga/animais
+        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [HttpGet("animais")]
+        public async Task<ActionResult<IEnumerable<Animal>>> GetAnimais()
+        {
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            var animais = await _context.Animais
+                .Include(a => a.Granja) // Inclui a granja para verificar a agroindústria
+                .Where(a => a.Granja.AgroindustriaId == agroindustriaId)
+                .ToListAsync();
+
+            return Ok(animais);
+        }
+
+        // GET: api/ga/animais/{id}
+        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [HttpGet("animais/{id}")]
+        public async Task<ActionResult<Animal>> GetAnimal(int id)
+        {
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            var animal = await _context.Animais
+                .Include(a => a.Granja) // Inclui a granja para verificar a agroindústria
+                .FirstOrDefaultAsync(a => a.Id == id && a.Granja.AgroindustriaId == agroindustriaId);
+
+            if (animal == null)
+            {
+                return NotFound("Animal não encontrado ou não pertence à sua agroindústria.");
+            }
+
+            return Ok(animal);
+        }
+
         // GET: api/ga/usuarios
         [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
         [HttpGet("usuarios")]

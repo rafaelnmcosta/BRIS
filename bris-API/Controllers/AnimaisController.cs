@@ -21,57 +21,57 @@ namespace bris_API.Controllers
         }
 
         // GET: api/animais
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [Authorize(Roles = PoliticasDeAcesso.VisualizaAnimais)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Animal>>> GetAnimais()
         {
-            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
-
-            var granjaId = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.Id == granjaUsuarioTipoId)
-                .Select(gut => gut.GranjaId)
-                .FirstOrDefaultAsync();
+            var granjaId = User.FindFirst("GranjaId")?.Value;
+            
+            if (granjaId == null)
+            {
+                return Unauthorized("Claims de granja não encontradas.");
+            }
 
             var animais = await _context.Animais
-                .Where(a => a.GranjaId == granjaId && a.Ativo)
+                .Where(a => a.GranjaId == int.Parse(granjaId) && a.Ativo)
                 .ToListAsync();
 
             return Ok(animais);
         }
 
         // GET: api/animais/inativas
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
-        [HttpGet("ativar")]
+        [Authorize(Roles = PoliticasDeAcesso.VisualizaAnimais)]
+        [HttpGet("inativas")]
         public async Task<ActionResult<IEnumerable<Animal>>> GetAnimaisInativos()
         {
-            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
-
-            var granjaId = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.Id == granjaUsuarioTipoId)
-                .Select(gut => gut.GranjaId)
-                .FirstOrDefaultAsync();
+            var granjaId = User.FindFirst("GranjaId")?.Value;
+            
+            if (granjaId == null)
+            {
+                return Unauthorized("Claims de granja não encontradas.");
+            }
 
             var animais = await _context.Animais
-                .Where(a => a.GranjaId == granjaId && !a.Ativo)
+                .Where(a => a.GranjaId == int.Parse(granjaId) && !a.Ativo)
                 .ToListAsync();
 
             return Ok(animais);
         }
 
         // PUT: api/animais/ativar/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAnimais)]
         [HttpPut("ativar/{id}")]
         public async Task<IActionResult> AtivarAnimal(int id)
         {
-            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
-
-            var granjaId = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.Id == granjaUsuarioTipoId)
-                .Select(gut => gut.GranjaId)
-                .FirstOrDefaultAsync();
+            var granjaId = User.FindFirst("GranjaId")?.Value;
+            
+            if (granjaId == null)
+            {
+                return Unauthorized("Claims de granja não encontradas.");
+            }
 
             var animal = await _context.Animais
-                .Where(a => a.Id == id && a.GranjaId == granjaId)
+                .Where(a => a.Id == id && a.GranjaId == int.Parse(granjaId))
                 .FirstOrDefaultAsync();
 
             if (animal == null)
@@ -93,19 +93,19 @@ namespace bris_API.Controllers
         }
 
         // GET: api/animais/{id}
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [Authorize(Roles = PoliticasDeAcesso.VisualizaAnimais)]
         [HttpGet("{id}")]
         public async Task<ActionResult<Animal>> GetAnimal(int id)
         {
-            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
-
-            var granjaId = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.Id == granjaUsuarioTipoId)
-                .Select(gut => gut.GranjaId)
-                .FirstOrDefaultAsync();
+            var granjaId = User.FindFirst("GranjaId")?.Value;
+            
+            if (granjaId == null)
+            {
+                return Unauthorized("Claims de granja não encontradas.");
+            }
 
             var animal = await _context.Animais
-                .Where(a => a.Id == id && a.GranjaId == granjaId)
+                .Where(a => a.Id == id && a.GranjaId == int.Parse(granjaId))
                 .FirstOrDefaultAsync();
 
             if (animal == null)
@@ -117,19 +117,19 @@ namespace bris_API.Controllers
         }
 
         // PUT: api/animais/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAnimais)]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAnimal(int id, [FromBody] AnimalDto modelAnimal)
         {
-            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
-
-            var granjaId = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.Id == granjaUsuarioTipoId)
-                .Select(gut => gut.GranjaId)
-                .FirstOrDefaultAsync();
+            var granjaId = User.FindFirst("GranjaId")?.Value;
+            
+            if (granjaId == null)
+            {
+                return Unauthorized("Claims de granja não encontradas.");
+            }
 
             var animal = await _context.Animais
-                .Where(a => a.Id == id && a.GranjaId == granjaId)
+                .Where(a => a.Id == id && a.GranjaId == int.Parse(granjaId))
                 .FirstOrDefaultAsync();
 
             if (animal == null)
@@ -152,16 +152,16 @@ namespace bris_API.Controllers
         }
 
         // POST: api/animais
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAnimais)]
         [HttpPost]
         public async Task<IActionResult> PostAnimal([FromBody] AnimalDto modelAnimal)
         {
-            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
-
-            var granjaId = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.Id == granjaUsuarioTipoId)
-                .Select(gut => gut.GranjaId)
-                .FirstOrDefaultAsync();
+            var granjaId = User.FindFirst("GranjaId")?.Value;
+            
+            if (granjaId == null)
+            {
+                return Unauthorized("Claims de granja não encontradas.");
+            }
 
             var novoAnimal = new Animal
             {
@@ -171,7 +171,7 @@ namespace bris_API.Controllers
                 Status = modelAnimal.status,
                 UsuarioResponsavelId = modelAnimal.UsuarioResponsavelIdId,
                 Ativo = modelAnimal.Ativo,
-                GranjaId = granjaId
+                GranjaId = int.Parse(granjaId)
             };
 
             _context.Animais.Add(novoAnimal);
@@ -181,19 +181,19 @@ namespace bris_API.Controllers
         }
 
         // DELETE: api/animais/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [Authorize(Roles = PoliticasDeAcesso.GerenciaAnimais)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAnimal(int id)
         {
-            var granjaUsuarioTipoId = int.Parse(User.FindFirst("GranjaUsuarioTipoId")?.Value);
-
-            var granjaId = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.Id == granjaUsuarioTipoId)
-                .Select(gut => gut.GranjaId)
-                .FirstOrDefaultAsync();
+            var granjaId = User.FindFirst("GranjaId")?.Value;
+            
+            if (granjaId == null)
+            {
+                return Unauthorized("Claims de granja não encontradas.");
+            }
 
             var animal = await _context.Animais
-                .Where(a => a.Id == id && a.GranjaId == granjaId)
+                .Where(a => a.Id == id && a.GranjaId == int.Parse(granjaId))
                 .FirstOrDefaultAsync();
 
             if (animal == null)

@@ -104,18 +104,27 @@ namespace bris_API.Controllers
         [HttpPost("registros/token/{id}/")]
         public async Task<IActionResult> GenerateToken(int id)
         {
+            // Busca a entidade GranjasUsuariosTipos pelo ID
             var granjaUsuarioTipo = await _context.GranjasUsuariosTipos
                 .Include(gut => gut.Usuario)
+                .Include(gut => gut.Granja)
                 .FirstOrDefaultAsync(gut => gut.Id == id);
-            
-            var agroindustriaId = granjaUsuarioTipo.Usuario.AgroindustriaId;
 
-            // Gerar o token JWT com o ID do Registro
-            var token = _tokenService.GenerateToken(id.ToString(), agroindustriaId.ToString());
+            if (granjaUsuarioTipo == null)
+            {
+                return NotFound("GranjaUsuarioTipo não encontrado.");
+            }
 
+            var usuarioId = granjaUsuarioTipo.UsuarioId.ToString();
+            var tipoUsuarioId = granjaUsuarioTipo.TipoUsuarioId.ToString();
+            var granjaId = granjaUsuarioTipo.GranjaId.ToString();
+            var agroindustriaId = granjaUsuarioTipo.Usuario.AgroindustriaId.ToString();
+
+            // Gera o token usando o serviço de token
+            var token = _tokenService.GenerateToken(usuarioId, tipoUsuarioId, granjaId, agroindustriaId);
+
+            // Retorna o token gerado
             return Ok(new { token });
         }
-
-
     }
 }

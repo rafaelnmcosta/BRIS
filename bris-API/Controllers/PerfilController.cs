@@ -25,26 +25,9 @@ namespace bris_API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPerfil(int id)
         {
-            // Extraindo o GranjaUsuarioTipoId do token JWT
-            var granjaUsuarioTipoId = User.Claims.FirstOrDefault(c => c.Type == "GranjaUsuarioTipoId")?.Value;
-            if (granjaUsuarioTipoId == null)
-            {
-                return Unauthorized("Token inválido ou expirado.");
-            }
-
-            // Buscando o registro de GranjasUsuariosTipos correspondente ao token
-            var granjaUsuarioTipo = await _context.GranjasUsuariosTipos
-                .Include(gut => gut.TipoUsuario)
-                .Include(gut => gut.Granja)
-                .FirstOrDefaultAsync(gut => gut.Id.ToString() == granjaUsuarioTipoId);
-
-            if (granjaUsuarioTipo == null)
-            {
-                return Unauthorized("Token inválido ou não autorizado.");
-            }
-
-            // Verificando se o ID solicitado corresponde ao usuário logado
-            if (granjaUsuarioTipo.UsuarioId != id)
+            // Extraindo o UsuarioId do token JWT
+            var userIdFromToken = User.FindFirstValue("UsuarioId");
+            if (userIdFromToken == null || int.Parse(userIdFromToken) != id)
             {
                 return Forbid("Você não tem permissão para acessar o perfil de outro usuário.");
             }
@@ -56,6 +39,17 @@ namespace bris_API.Controllers
             if (usuario == null)
             {
                 return NotFound("Usuário não encontrado.");
+            }
+
+            // Buscando o registro de GranjasUsuariosTipos correspondente
+            var granjaUsuarioTipo = await _context.GranjasUsuariosTipos
+                .Include(gut => gut.TipoUsuario)
+                .Include(gut => gut.Granja)
+                .FirstOrDefaultAsync(gut => gut.UsuarioId == id);
+
+            if (granjaUsuarioTipo == null)
+            {
+                return Unauthorized("Usuário não autorizado ou não associado a uma granja.");
             }
 
             // Construindo a resposta com os dados do usuário, tipo de usuário e granja
@@ -74,7 +68,7 @@ namespace bris_API.Controllers
         public async Task<IActionResult> EditarPerfil(int id, [FromBody] CadastroDto cadastroDto)
         {
             var userIdFromToken = User.FindFirstValue("UsuarioId");
-            if (userIdFromToken == null || int.Parse(userIdFromToken) != id)
+            if (userIdFromToken == null || !int.TryParse(userIdFromToken, out var userId) || userId != id)
             {
                 return Forbid();
             }
