@@ -8,7 +8,7 @@ import Sobre from './pages/Sobre';
 import Login from './pages/Login';
 import Cadastro from './pages/Cadastro';
 import NovaDose from './pages/NovaDose';
-import ListaAnimais from './pages/ListaAnimais';
+import ListaAnimais from './pages/GerenciarAnimais';
 import Animal from './pages/Animal';
 import EditarAnimal from './pages/EditarAnimal';
 import CadastrarAnimal from './pages/CadastrarAnimal';
