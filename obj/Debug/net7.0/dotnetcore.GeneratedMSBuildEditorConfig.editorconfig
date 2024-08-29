@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = dotnetcore
-build_property.ProjectDir = /home/iury/Documentos/BRIS Web/bris-web/
+build_property.ProjectDir = /home/iury/Documentos/bris-web/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
