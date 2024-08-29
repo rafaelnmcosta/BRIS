@@ -21,7 +21,7 @@ const Login = () => {
             email,
             senha
         });
-        const { token, userId } = response.data;
+        const { token, userId, tipoUsuario } = response.data;
         localStorage.setItem('jwtToken', token);
         localStorage.setItem('userId', userId);
         navigate('/');

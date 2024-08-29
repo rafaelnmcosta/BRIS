@@ -12,6 +12,10 @@ const ListaAnimais = () => {
   const [animais, setAnimais] = useState([]);
   const navigate = useNavigate();
 
+  // Obtém o tipo de usuário do localStorage
+  const tipoUsuario = localStorage.getItem('tipoUsuario');
+  // const tipoUsuario = '1';
+
   useEffect(() => {
     const fetchAnimais = async () => {
       try {
@@ -26,33 +30,36 @@ const ListaAnimais = () => {
   }, []);
 
   const handleEdit = (animalId) => {
-    // Lógica para editar os dados do animal com o ID fornecido
     console.log('Editar dados do animal com ID:', animalId);
+    // Lógica de edição
   };
+
   return (
     <div>
-        <HeadbarSistema />
-        <div className='page-content'>
-            <a href='/'> {'< '} Voltar</a>
-            <div className='lado-a-lado'>
-              <h2 className='title'>Lista de animais</h2>
-              <div className='button-bar'>
-                <button onClick={() => navigate('/animais/cadastrar')} className='button-com-icone'>
-                  <IconCadastro className='icone-botao'/>
-                  Cadastrar novo animal
-                </button>
-              </div>
+      <HeadbarSistema />
+      <div className='page-content'>
+        <a href='/'> {'< '} Voltar</a>
+        <div className='lado-a-lado'>
+          <h2 className='title'>Lista de animais</h2>
+          {tipoUsuario === '1' || tipoUsuario === '2' || tipoUsuario === '4' ? (
+            <div className='button-bar'>
+              <button onClick={() => navigate('/animais/cadastrar')} className='button-com-icone'>
+                <IconCadastro className='icone-botao' />
+                Cadastrar novo animal
+              </button>
             </div>
-            {animais.map(animal => (
-                <div key={animal.id}>
-                    <CardAnimal
-                    id={animal.id}
-                    info={animal.info}
-                    onEdit={() => handleEdit(animal.id)}
-                    />
-                </div>
-            ))}
+          ) : null}
         </div>
+        {animais.map(animal => (
+          <div key={animal.id}>
+            <CardAnimal
+              id={animal.id}
+              info={animal.info}
+              onEdit={tipoUsuario === '1' || tipoUsuario === '2' || tipoUsuario === '4' ? () => handleEdit(animal.id) : null}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
