@@ -39,9 +39,9 @@ namespace bris_API.Controllers
             return Ok(animais);
         }
 
-        // GET: api/animais/inativas
+        // GET: api/animais/ativar
         [Authorize(Roles = PoliticasDeAcesso.VisualizaAnimais)]
-        [HttpGet("inativas")]
+        [HttpGet("ativar")]
         public async Task<ActionResult<IEnumerable<Animal>>> GetAnimaisInativos()
         {
             var granjaId = User.FindFirst("GranjaId")?.Value;

@@ -27,5 +27,28 @@ namespace bris_API.Services
             var hashOfInput = HashPassword(password, salt);
             return hashOfInput == hash;
         }
+        private static readonly char[] Characters = 
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()".ToCharArray();
+
+        public static string GenerateRandomPassword(int length)
+        {
+            var password = new StringBuilder();
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                var randomBytes = new byte[length];
+
+                // Preenche o array com números aleatórios.
+                rng.GetBytes(randomBytes);
+
+                for (int i = 0; i < length; i++)
+                {
+                    var randomIndex = randomBytes[i] % Characters.Length;
+                    password.Append(Characters[randomIndex]);
+                }
+            }
+
+            return password.ToString();
+        }
+
     }
 }

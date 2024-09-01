@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Mail;
 
 using bris_API.Data;
 using bris_API.Models;
@@ -28,11 +29,13 @@ namespace bris_API.Controllers
             if (await _context.Usuarios.AnyAsync(u => u.Email == modelUsuario.Email))
                 return BadRequest("Já existe um usuário com esse email!");
 
+            Console.Write("email: " + modelUsuario.Email + "\nsenha: " + modelUsuario.Senha + "\ncpf: " + modelUsuario.CPF + "\n");
             var usuario = new Usuario
             {
                 Nome = modelUsuario.Nome,
                 Email = modelUsuario.Email,
-                AgroindustriaId = modelUsuario.AgroindustriaId
+                CPF = modelUsuario.CPF,
+                AgroindustriaId = 1
             };
 
             _context.Usuarios.Add(usuario);
@@ -104,27 +107,101 @@ namespace bris_API.Controllers
         [HttpPost("registros/token/{id}/")]
         public async Task<IActionResult> GenerateToken(int id)
         {
-            // Busca a entidade GranjasUsuariosTipos pelo ID
+            // Busca a entidade GranjasUsuariosTipos pelo ID e inclui TipoUsuario para acessar o campo TIPO
             var granjaUsuarioTipo = await _context.GranjasUsuariosTipos
                 .Include(gut => gut.Usuario)
                 .Include(gut => gut.Granja)
+                .Include(gut => gut.TipoUsuario) // Inclui o TipoUsuario para acessar o campo TIPO
                 .FirstOrDefaultAsync(gut => gut.Id == id);
 
             if (granjaUsuarioTipo == null)
             {
-                return NotFound("GranjaUsuarioTipo não encontrado.");
+                return NotFound("O usuário não possui nenhum vínculo com nenhuma granja ou tipo definido.");
             }
 
             var usuarioId = granjaUsuarioTipo.UsuarioId.ToString();
-            var tipoUsuarioId = granjaUsuarioTipo.TipoUsuarioId.ToString();
+            var tipoUsuarioNome = granjaUsuarioTipo.TipoUsuario.Tipo; // Obtém o campo TIPO que é o nome da role
             var granjaId = granjaUsuarioTipo.GranjaId.ToString();
             var agroindustriaId = granjaUsuarioTipo.Usuario.AgroindustriaId.ToString();
 
-            // Gera o token usando o serviço de token
-            var token = _tokenService.GenerateToken(usuarioId, tipoUsuarioId, granjaId, agroindustriaId);
+            Console.WriteLine("Tipo de usuário: " + tipoUsuarioNome);
+
+            // Gera o token usando o serviço de token com o nome da role
+            var token = _tokenService.GenerateToken(usuarioId, tipoUsuarioNome, granjaId, agroindustriaId);
 
             // Retorna o token gerado
             return Ok(new { token });
+        }
+
+        // Rota POST para processar o email e redefinir a senha
+        [HttpPost("recuperar-senha")]
+        public async Task<IActionResult> ProcessarRecuperacaoSenha([FromBody] RecuperarSenhaDto model)
+        {
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == model.Email);
+
+            if (usuario == null)
+            {
+                return NotFound("Usuário não encontrado.");
+            }
+
+            // Gerar nova senha aleatória
+            var novaSenha = PasswordService.GenerateRandomPassword(6);
+
+            // Criar hash e salt da nova senha
+            var salt = PasswordService.GenerateSalt();
+            var hash = PasswordService.HashPassword(novaSenha, salt);
+
+            // Atualizar senha no banco de dados
+            var senha = await _context.Senhas.FirstOrDefaultAsync(s => s.UsuarioId == usuario.Id);
+            if (senha == null)
+            {
+                return BadRequest("Erro ao redefinir a senha.");
+            }
+
+            senha.SenhaHash = hash;
+            senha.Salt = salt;
+
+            _context.Senhas.Update(senha);
+            await _context.SaveChangesAsync();
+
+            // Enviar nova senha por email
+            await EnviarEmailRecuperacaoSenha(usuario.Email, novaSenha);
+
+            return Ok(new { message = "Nova senha enviada para o email informado." });
+        }
+
+        private async Task EnviarEmailRecuperacaoSenha(string email, string novaSenha)
+        {
+            var remetente = new MailAddress("bris.suporte@gmail.com", "Suporte BRIS");
+            var destino = new MailAddress(email);
+            const string assunto = "Recuperação de Senha - BRIS";
+            string corpo = $"Sua nova senha é: {novaSenha}.";
+
+            using (var smtp = new SmtpClient
+            {
+                Host = "smtp.gmail.com",
+                Port = 587,
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false,
+                Credentials = new System.Net.NetworkCredential(remetente.Address, "ojhnvldjueenmjnk")
+            })
+            {
+                using (var message = new MailMessage(remetente, destino)
+                {
+                    Subject = assunto,
+                    Body = corpo
+                })
+                try
+                {
+                    await smtp.SendMailAsync(message);
+                }
+                catch (SmtpException ex)
+                {
+                    Console.WriteLine($"Erro ao enviar e-mail: {ex.Message}");
+                    throw;
+                }
+            }
         }
     }
 }

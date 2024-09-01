@@ -21,7 +21,7 @@ namespace bris_API.Services
             _configuration = configuration;
         }
 
-        public string GenerateToken(string usuarioId, string tipoUsuarioId, string granjaId, string agroindustriaId)
+        public string GenerateToken(string usuarioId, string tipoUsuario, string granjaId, string agroindustriaId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
@@ -32,7 +32,7 @@ namespace bris_API.Services
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, usuarioId),
-                    new Claim(ClaimTypes.Role, tipoUsuarioId),
+                    new Claim(ClaimTypes.Role, tipoUsuario),
                     new Claim("GranjaId", granjaId),
                     new Claim("AgroindustriaId", agroindustriaId)
                 }),

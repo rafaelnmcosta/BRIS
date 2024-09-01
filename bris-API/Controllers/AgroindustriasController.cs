@@ -21,7 +21,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/agroindustrias
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoTotal)]
+        [Authorize(Roles = "ADMIN")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Agroindustria>>> GetAgroindustrias()
         {

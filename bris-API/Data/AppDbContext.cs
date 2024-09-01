@@ -91,11 +91,12 @@ namespace bris_API.Data
                 .WithMany(t => t.GranjasUsuariosTipos)
                 .HasForeignKey(gut => gut.TipoUsuarioId);
 
+            /*
             // Inserção de dados iniciais para a tabela TiposUsuario
             modelBuilder.Entity<TipoUsuario>().HasData(
                 new TipoUsuario { Id = 1, Tipo = "ADMIN", Descricao = "Administrador do sistema" },
-                new TipoUsuario { Id = 2, Tipo = "GESTOR GRANJA", Descricao = "Gestor de granjas" },
-                new TipoUsuario { Id = 3, Tipo = "GESTOR AGRO", Descricao = "Gestor de agroindústrias" },
+                new TipoUsuario { Id = 2, Tipo = "GESTOR_GRANJA", Descricao = "Gestor de granjas" },
+                new TipoUsuario { Id = 3, Tipo = "GESTOR_AGRO", Descricao = "Gestor de agroindústrias" },
                 new TipoUsuario { Id = 4, Tipo = "TECNICO", Descricao = "Técnico de campo" },
                 new TipoUsuario { Id = 5, Tipo = "VISUALIZADOR", Descricao = "Usuário com acesso somente leitura" },
                 new TipoUsuario { Id = 98, Tipo = "PENDENTE", Descricao = "Usuário pendente de ativação" },
@@ -104,7 +105,7 @@ namespace bris_API.Data
 
             // Dados iniciais para Agroindustria
             modelBuilder.Entity<Agroindustria>().HasData(
-                new Agroindustria { Id = 1, NomeFantasia = "Agroindustria Teste", RazaoSocial = "Razao Agroindustria", CNPJ = "00000000000100", Ativo = true}
+                new Agroindustria { Id = 1, NomeFantasia = "Agroindustria Default", RazaoSocial = "Agroindustria Default", CNPJ = "00000000000100", Ativo = true}
             );
 
             // Dados iniciais para Granja
@@ -118,7 +119,7 @@ namespace bris_API.Data
             );
 
             var salt = PasswordService.GenerateSalt();
-            var hash = PasswordService.HashPassword("admin", salt);
+            var hash = PasswordService.HashPassword("123456", salt);
 
             // Dados da senha para o Admin
             modelBuilder.Entity<Senha>().HasData(
@@ -129,6 +130,7 @@ namespace bris_API.Data
             modelBuilder.Entity<GranjaUsuarioTipo>().HasData(
                 new GranjaUsuarioTipo { Id = 1, UsuarioId = 1, GranjaId = 1, TipoUsuarioId = 1 }
             );
+            */
 
             // Aplica as configurações
             base.OnModelCreating(modelBuilder);

@@ -20,9 +20,5 @@ namespace bris_API.DTOs
         [Required(ErrorMessage = "A senha é obrigatória.")]
         [StringLength(100, MinimumLength = 6, ErrorMessage = "A senha deve ter entre 6 e 100 caracteres.")]
         public required string Senha { get; set; }
-
-        [Required(ErrorMessage = "O id da agroindustria é obrigatório.")]
-        [Range(1, int.MaxValue, ErrorMessage = "O id da agroindustria deve ser um valor positivo.")]
-        public required int AgroindustriaId { get; set; }
     }
 }
