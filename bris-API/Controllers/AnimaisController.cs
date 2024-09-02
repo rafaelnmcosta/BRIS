@@ -151,9 +151,9 @@ namespace bris_API.Controllers
             return Ok(new { message = "Animal atualizado com sucesso!" });
         }
 
-        // POST: api/animais
+        // POST: api/animais/cadastrar
         [Authorize(Policy = "GerenciaAnimais")]
-        [HttpPost]
+        [HttpPost("cadastrar")]
         public async Task<IActionResult> PostAnimal([FromBody] CadastroAnimalDto modelAnimal)
         {
             var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));

@@ -109,7 +109,7 @@ namespace bris_API.Controllers
         [HttpGet("ativar")]
         public async Task<IActionResult> GetUsuariosNaoAtivados()
         {
-            // Buscar todos os registros em GranjasUsuariosTipos com TipoUsuarioId igual a 98
+            // Buscar todos os acessos em GranjasUsuariosTipos com TipoUsuarioId igual a 98
             var usuariosNaoAtivadosIds = await _context.GranjasUsuariosTipos
                 .Where(gut => gut.TipoUsuarioId == 98)
                 .Select(gut => gut.UsuarioId)
@@ -128,24 +128,24 @@ namespace bris_API.Controllers
         [HttpPost("ativar/{id}")]
         public async Task<IActionResult> AtivarUsuario(int id, [FromBody] AtivarDto ativar)
         {
-            // Buscar o primeiro registro correspondente na tabela GranjasUsuariosTipos
-            var registro = await _context.GranjasUsuariosTipos
+            // Buscar o primeiro acesso correspondente na tabela GranjasUsuariosTipos
+            var acesso = await _context.GranjasUsuariosTipos
                 .FirstOrDefaultAsync(gut => gut.UsuarioId == id && gut.TipoUsuarioId == 98);
 
-            if (registro == null)
+            if (acesso == null)
             {
-                return NotFound(); // Se o registro não for encontrado, retornar NotFound
+                return NotFound(); // Se o acesso não for encontrado, retornar NotFound
             }
 
             // Atualizar os campos com os valores do DTO
-            registro.TipoUsuarioId = ativar.TipoUsuario;
-            registro.GranjaId = ativar.GranjaId;
+            acesso.TipoUsuarioId = ativar.TipoUsuario;
+            acesso.GranjaId = ativar.GranjaId;
 
             // Salvar as alterações no banco de dados
             await _context.SaveChangesAsync();
 
-            // Retornar o registro atualizado
-            return Ok(registro);
+            // Retornar o acesso atualizado
+            return Ok(acesso);
         }
 
 
@@ -174,27 +174,27 @@ namespace bris_API.Controllers
                 senha.Salt = salt;
             }
 
-            // Atualiza ou adiciona os registros em GranjasUsuariosTipos
+            // Atualiza ou adiciona os acessos em GranjasUsuariosTipos
             foreach (var nivelAcesso in modelUsuario.NiveisAcesso)
             {
-                var registro = await _context.GranjasUsuariosTipos
+                var acesso = await _context.GranjasUsuariosTipos
                     .FirstOrDefaultAsync(gut => gut.Id == nivelAcesso.Id && gut.UsuarioId == id);
 
-                if (registro != null)
+                if (acesso != null)
                 {
-                    registro.TipoUsuarioId = nivelAcesso.TipoUsuarioId;
-                    registro.GranjaId = nivelAcesso.GranjaId ?? registro.GranjaId;
+                    acesso.TipoUsuarioId = nivelAcesso.TipoUsuarioId;
+                    acesso.GranjaId = nivelAcesso.GranjaId ?? acesso.GranjaId;
                 }
                 else
                 {
-                    // Lógica para adicionar um novo registro, se necessário
-                    var novoRegistro = new GranjaUsuarioTipo
+                    // Lógica para adicionar um novo acesso, se necessário
+                    var novoacesso = new GranjaUsuarioTipo
                     {
                         UsuarioId = id,
                         TipoUsuarioId = nivelAcesso.TipoUsuarioId,
                         GranjaId = nivelAcesso.GranjaId ?? default(int)
                     };
-                    _context.GranjasUsuariosTipos.Add(novoRegistro);
+                    _context.GranjasUsuariosTipos.Add(novoacesso);
                 }
             }
 

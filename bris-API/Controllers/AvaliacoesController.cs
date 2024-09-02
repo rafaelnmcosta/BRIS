@@ -108,7 +108,7 @@ namespace bris_API.Controllers
             var avaliacao = new Avaliacao
             {
                 AnimalId = id,
-                DataInicioAvaliacao = DateTime.Now,
+                DataInicioAvaliacao = DateTime.UtcNow,
                 StatusAvaliacao = 1,
                 ResultadoFinal = null,
                 Semanas = new List<Semana>(),
@@ -134,7 +134,7 @@ namespace bris_API.Controllers
 
                 for (int ordem = 1; ordem <= 3; ordem++)
                 {
-                    var podePreencher = i == 1 && ordem == 0;
+                    var podePreencher = i == 1 && ordem == 1;
 
                     var dose = new Dose
                     {
@@ -143,12 +143,15 @@ namespace bris_API.Controllers
                         DataRegistro = null,
                         ValorRegistrado = null,
                         Ordem = ordem,
-                        PodePreencher = podePreencher
+                        PodePreencher = false
                     };
 
                     _context.Doses.Add(dose);
                 }
             }
+
+            // Define que a primeira dose pode ser preenchida
+            //var primeiraSemana = avaliacao.Semanas.FirstOrDefault().Doses.FirstOrDefault().PodePreencher = true;
 
             await _context.SaveChangesAsync();
 
@@ -183,9 +186,13 @@ namespace bris_API.Controllers
                 return Forbid("Apenas avaliações em aberto podem receber novas doses.");
             }
 
+            Console.Write("\n\n A proxima semana é: " + avaliacao.ProximaDoseSemana);
+            Console.Write("\n\n A proxima dose é: " + avaliacao.ProximaDoseOrdem);
+
             var dose = avaliacao.Semanas
                 .FirstOrDefault(s => s.NroSemana == avaliacao.ProximaDoseSemana)?
                 .Doses.FirstOrDefault(d => d.Ordem == avaliacao.ProximaDoseOrdem);
+
 
             if (dose == null || !dose.PodePreencher)
             {
@@ -193,13 +200,17 @@ namespace bris_API.Controllers
             }
 
             dose.ValorRegistrado = model.ValorRegistrado;
-            dose.DataRegistro = DateTime.Now;
+            dose.DataRegistro = DateTime.UtcNow;
             dose.PodePreencher = false;
 
             // Atualiza a próxima dose e semana
             var avaliacaoAtualizada = AtualizaProximaDose(avaliacao);
             avaliacao.ProximaDoseSemana = avaliacaoAtualizada.ProximaDoseSemana;
             avaliacao.ProximaDoseOrdem = avaliacaoAtualizada.ProximaDoseOrdem;
+
+            Console.Write("\n\n Proxima dose atualizada!");
+            Console.Write("\n\n A proxima semana é: " + avaliacao.ProximaDoseSemana);
+            Console.Write("\n\n A proxima dose é: " + avaliacao.ProximaDoseOrdem);
 
             await _context.SaveChangesAsync();
 
@@ -273,10 +284,10 @@ namespace bris_API.Controllers
         private int GeraResultadoSemana(Semana semana)
         {
             // Obtém a dose de 120h
-            var dose120h = semana.Doses.FirstOrDefault(d => d.Ordem == 1);
+            var dose120h = semana.Doses.FirstOrDefault(d => d.Ordem == 2);
             
             // Obtém a dose de 168h
-            var dose168h = semana.Doses.FirstOrDefault(d => d.Ordem == 2);
+            var dose168h = semana.Doses.FirstOrDefault(d => d.Ordem == 3);
 
             //Caso uma das doses seja nula retorna zero para indicar erro
             if (dose120h == null || dose168h == null) return 0;
@@ -320,9 +331,9 @@ namespace bris_API.Controllers
             var proximaOrdem = avaliacao.ProximaDoseOrdem + 1;
 
             // Caso complete as doses da semana, inicia uma nova semana e gera o resultado da semana fechada
-            if (proximaOrdem > 2)
+            if (proximaOrdem > 3)
             {
-                proximaOrdem = 0;
+                proximaOrdem = 1;
                 var semanaAtual = avaliacao.Semanas
                     .FirstOrDefault(s => s.NroSemana == avaliacao.ProximaDoseSemana);
 

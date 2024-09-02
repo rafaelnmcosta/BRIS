@@ -39,7 +39,8 @@ namespace bris_API.Controllers
             };
 
             _context.Usuarios.Add(usuario);
-
+            await _context.SaveChangesAsync();
+             
             var salt = PasswordService.GenerateSalt();
             var hash = PasswordService.HashPassword(modelUsuario.Senha, salt);
 

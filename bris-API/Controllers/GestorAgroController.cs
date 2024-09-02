@@ -121,24 +121,24 @@ namespace bris_API.Controllers
             // Atualiza ou adiciona os registros em GranjasUsuariosTipos
             foreach (var nivelAcesso in modelUsuario.NiveisAcesso)
             {
-                var registro = await _context.GranjasUsuariosTipos
+                var acesso = await _context.GranjasUsuariosTipos
                     .FirstOrDefaultAsync(gut => gut.Id == nivelAcesso.Id && gut.UsuarioId == id);
 
-                if (registro != null)
+                if (acesso != null)
                 {
-                    registro.TipoUsuarioId = nivelAcesso.TipoUsuarioId;
-                    registro.GranjaId = nivelAcesso.GranjaId ?? registro.GranjaId;
+                    acesso.TipoUsuarioId = nivelAcesso.TipoUsuarioId;
+                    acesso.GranjaId = nivelAcesso.GranjaId ?? acesso.GranjaId;
                 }
                 else
                 {
-                    // Lógica para adicionar um novo registro, se necessário
-                    var novoRegistro = new GranjaUsuarioTipo
+                    // Lógica para adicionar um novo acesso, se necessário
+                    var novoAcesso = new GranjaUsuarioTipo
                     {
                         UsuarioId = id,
                         TipoUsuarioId = nivelAcesso.TipoUsuarioId,
                         GranjaId = nivelAcesso.GranjaId ?? default(int)
                     };
-                    _context.GranjasUsuariosTipos.Add(novoRegistro);
+                    _context.GranjasUsuariosTipos.Add(novoAcesso);
                 }
             }
 
@@ -149,7 +149,7 @@ namespace bris_API.Controllers
         // POST: api/ga/usuarios/cadastrar
         [Authorize(Policy = "GerenciaAgro")]
         [HttpPost("usuarios/cadastrar")]
-        public async Task<IActionResult> CadastrarUsuario([FromBody] GestorGranjaCadastraUsuarioDto modelUsuario)
+        public async Task<IActionResult> CadastrarUsuario([FromBody] GestorAgroCadastraUsuarioDto modelUsuario)
         {
             var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
 
@@ -177,7 +177,7 @@ namespace bris_API.Controllers
             _context.Senhas.Add(senha);
             await _context.SaveChangesAsync();
 
-            // Cria registro em GranjasUsuariosTipos
+            // Cria acesso em GranjasUsuariosTipos
             var granjaUsuarioTipo = new GranjaUsuarioTipo
             {
                 UsuarioId = novoUsuario.Id,
@@ -336,7 +336,7 @@ namespace bris_API.Controllers
             return Ok(new { message = "Granja atualizada com sucesso!" });
         }
 
-        // POST: api/granjas
+        // POST: api/granjas/cadastrar
         [Authorize(Policy = "GerenciaAgro")]
         [HttpPost("granjas/cadastrar")]
         public async Task<IActionResult> PostGranja([FromBody] GestorAgroEditaGranjaDto modelGranja)
