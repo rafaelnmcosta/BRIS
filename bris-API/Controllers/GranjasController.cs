@@ -21,47 +21,39 @@ namespace bris_API.Controllers
         }
 
         // GET: api/granjas
-        [Authorize(Policy = "VisualizaAgro")]
+        [Authorize(Policy = "VisualizaTotal")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Granja>>> GetGranjas()
         {
-            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
-
-            var granjas = await _context.Granjas
-                .Where(g => g.AgroindustriaId == agroindustriaId && g.Ativo)
-                .ToListAsync();
+            var granjas = await _context.Granjas.ToListAsync();
 
             return Ok(granjas);
         }
 
         // GET: api/granjas/ativar
-        [Authorize(Policy = "VisualizaAgro")]
+        [Authorize(Policy = "VisualizaTotal")]
         [HttpGet("ativar")]
         public async Task<ActionResult<IEnumerable<Granja>>> GetGranjasInativas()
         {
-            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
-
             var granjas = await _context.Granjas
-                .Where(g => g.AgroindustriaId == agroindustriaId && !g.Ativo)
+                .Where(g => !g.Ativo)
                 .ToListAsync();
 
             return Ok(granjas);
         }
 
         // PUT: api/granjas/ativar/{id}
-        [Authorize(Policy = "GerenciaAgro")]
+        [Authorize(Policy = "GerenciaTotal")]
         [HttpPut("ativar/{id}")]
         public async Task<IActionResult> AtivarGranja(int id)
         {
-            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
-
             var granja = await _context.Granjas
-                .Where(g => g.Id == id && g.AgroindustriaId == agroindustriaId)
+                .Where(g => g.Id == id)
                 .FirstOrDefaultAsync();
 
             if (granja == null)
             {
-                return NotFound("Granja não encontrada ou não pertence à sua agroindústria.");
+                return NotFound("Granja não encontrada.");
             }
 
             if (granja.Ativo)
@@ -78,43 +70,34 @@ namespace bris_API.Controllers
         }
 
         // GET: api/granjas/{id}
-        [Authorize(Policy = "VisualizaAgro")]
+        [Authorize(Policy = "VisualizaTotal")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Granja>> GetGranja(int id)
         {
-            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
-
             var granja = await _context.Granjas
-                .Where(g => g.Id == id && g.AgroindustriaId == agroindustriaId)
+                .Where(g => g.Id == id)
                 .FirstOrDefaultAsync();
 
             if (granja == null)
             {
-                return NotFound("Granja não encontrada ou não pertence à sua agroindústria.");
+                return NotFound("Granja não encontrada.");
             }
 
             return Ok(granja);
         }
 
-        // PUT: api/granjas/{id}
-        [Authorize(Policy = "GerenciaAgro")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutGranja(int id, [FromBody] GranjaDto modelGranja)
+        // PUT: api/granjas/{id}/editar
+        [Authorize(Policy = "GerenciaTotal")]
+        [HttpPut("{id}/editar")]
+        public async Task<IActionResult> PutGranja(int id, [FromBody] AdminEditaGranjaDto modelGranja)
         {
-            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
-
-            if (agroindustriaId != modelGranja.AgroindustriaId)
-            {
-                return BadRequest("O ID da agroindústria no token não corresponde ao ID da agroindústria no DTO.");
-            }
-
             var granja = await _context.Granjas
-                .Where(g => g.Id == id && g.AgroindustriaId == agroindustriaId)
+                .Where(g => g.Id == id)
                 .FirstOrDefaultAsync();
 
             if (granja == null)
             {
-                return NotFound("Granja não encontrada ou não pertence à sua agroindústria.");
+                return NotFound("Granja não encontrada.");
             }
 
             // Atualiza os campos da granja
@@ -129,23 +112,18 @@ namespace bris_API.Controllers
         }
 
         // POST: api/granjas
-        [Authorize(Policy = "GerenciaAgro")]
+        [Authorize(Policy = "GerenciaTotal")]
         [HttpPost]
-        public async Task<IActionResult> PostGranja([FromBody] GranjaDto modelGranja)
+        public async Task<IActionResult> PostGranja([FromBody] AdminEditaGranjaDto modelGranja)
         {
             var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
-
-            if (agroindustriaId != modelGranja.AgroindustriaId)
-            {
-                return BadRequest("O ID da agroindústria no token não corresponde ao ID da agroindústria no DTO.");
-            }
 
             var novaGranja = new Granja
             {
                 NomePropriedade = modelGranja.NomePropriedade,
                 Endereco = modelGranja.Endereco,
                 CNPJ = modelGranja.CNPJ,
-                AgroindustriaId = agroindustriaId,
+                AgroindustriaId = modelGranja.AgroindustriaId,
                 Ativo = modelGranja.Ativo
             };
 
@@ -156,19 +134,17 @@ namespace bris_API.Controllers
         }
 
         // DELETE: api/granjas/{id}
-        [Authorize(Policy = "GerenciaAgro")]
+        [Authorize(Policy = "GerenciaTotal")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteGranja(int id)
         {
-            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
-
             var granja = await _context.Granjas
-                .Where(g => g.Id == id && g.AgroindustriaId == agroindustriaId)
+                .Where(g => g.Id == id)
                 .FirstOrDefaultAsync();
 
             if (granja == null)
             {
-                return NotFound("Granja não encontrada ou não pertence à sua agroindústria.");
+                return NotFound("Granja não encontrada.");
             }
 
             granja.Ativo = false;

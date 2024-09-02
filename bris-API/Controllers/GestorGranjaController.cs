@@ -69,7 +69,7 @@ namespace bris_API.Controllers
         // PUT: api/gg/usuarios/{id}/editar
         [Authorize(Policy = "GerenciaGranja")]
         [HttpPut("usuarios/{id}/editar")]
-        public async Task<IActionResult> EditarUsuario(int id, [FromBody] EditarGestorGranjaDto modelUsuario)
+        public async Task<IActionResult> EditarUsuario(int id, [FromBody] GestorGranjaEditaUsuarioDto modelUsuario)
         {
             var granjaId = User.FindFirst("GranjaId")?.Value;
 
@@ -108,8 +108,8 @@ namespace bris_API.Controllers
 
         // POST: api/gg/cadastrar
         [Authorize(Policy = "GerenciaGranja")]
-        [HttpPost("cadastrar")]
-        public async Task<IActionResult> CadastrarUsuario([FromBody] CadastroGestorGranjaDto modelUsuario)
+        [HttpPost("usuarios/cadastrar")]
+        public async Task<IActionResult> CadastrarUsuario([FromBody] GestorGranjaCadastraUsuarioDto modelUsuario)
         {
             var granjaId = User.FindFirst("GranjaId")?.Value;
             var agroindustriaId = User.FindFirst("AgroindustriaId")?.Value;
@@ -160,7 +160,7 @@ namespace bris_API.Controllers
 
         // GET: api/gg/ativar
         [Authorize(Policy = "VisualizaGranja")]
-        [HttpGet("ativar")]
+        [HttpGet("usuarios/ativar")]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuariosParaAtivar()
         {
             var granjaId = User.FindFirst("GranjaId")?.Value;
@@ -180,7 +180,7 @@ namespace bris_API.Controllers
 
         // POST: api/gg/ativar/{id}
         [Authorize(Policy = "GerenciaGranja")]
-        [HttpPost("ativar/{id}")]
+        [HttpPost("usuarios/ativar/{id}")]
         public async Task<IActionResult> AtivarUsuario(int id)
         {
             var granjaId = User.FindFirst("GranjaId")?.Value;

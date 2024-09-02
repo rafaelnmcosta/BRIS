@@ -116,9 +116,9 @@ namespace bris_API.Controllers
             return Ok(animal);
         }
 
-        // PUT: api/animais/{id}
+        // PUT: api/animais/{id}/editar
         [Authorize(Policy = "GerenciaAnimais")]
-        [HttpPut("{id}")]
+        [HttpPut("{id}/editar")]
         public async Task<IActionResult> PutAnimal(int id, [FromBody] AnimalDto modelAnimal)
         {
             var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace bris_API.DTOs
 {
-    public class CadastroGestorGranjaDto
+    public class GestorGranjaEditaUsuarioDto
     {
         [Required(ErrorMessage = "O nome é obrigatório.")]
         [StringLength(100, ErrorMessage = "O nome deve ter no máximo 100 caracteres.")]
@@ -11,10 +11,6 @@ namespace bris_API.DTOs
         [Required(ErrorMessage = "O email é obrigatório.")]
         [EmailAddress(ErrorMessage = "O email informado não é válido.")]
         public required string Email { get; set; }
-
-        [Required(ErrorMessage = "O tipo de usuário é obrigatório.")]
-        [Range(1, int.MaxValue, ErrorMessage = "O id do tipo de usuário deve ser um valor positivo.")]
-        public int TipoUsuarioId { get; set; }
 
         [Required(ErrorMessage = "O CPF é obrigatório.")]
         [StringLength(11, MinimumLength = 11, ErrorMessage = "O CPF deve ter 11 dígitos.")]

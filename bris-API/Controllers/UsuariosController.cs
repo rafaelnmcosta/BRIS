@@ -10,7 +10,7 @@ using bris_API.DTOs;
 
 namespace bris_API.Controllers
 {
-    [Route("api/users")]
+    [Route("api/usuarios")]
     [ApiController]
     public class UsuariosController : ControllerBase
     {
@@ -30,7 +30,7 @@ namespace bris_API.Controllers
 
         [Authorize(Policy = "GerenciaTotal")]
         [HttpPost("cadastrar")]
-        public async Task<IActionResult> CadastrarUsuario([FromBody] CadastroAdminDto modelUsuario)
+        public async Task<IActionResult> CadastrarUsuario([FromBody] AdminCadastraUsuarioDto modelUsuario)
         {
             if (await _context.Usuarios.AnyAsync(u => u.Email == modelUsuario.Email))
                 return BadRequest("Já existe um usuário com esse email!");
@@ -151,7 +151,7 @@ namespace bris_API.Controllers
 
         [Authorize(Policy = "GerenciaTotal")]
         [HttpPut("{id}/editar")]
-        public async Task<IActionResult> EditarUsuario(int id, [FromBody] EditarAdminDto modelUsuario)
+        public async Task<IActionResult> EditarUsuario(int id, [FromBody] AdminEditaUsuario modelUsuario)
         {
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario == null)

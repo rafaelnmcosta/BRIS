@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace bris_API.DTOs
 {
-    public class RegistroDTO
+    public class AcessoDTO
     {
         [Required(ErrorMessage = "O id do registro é obrigatório.")]
         public required int Id { get; set; }

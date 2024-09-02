@@ -91,7 +91,7 @@ namespace bris_API.Controllers
         // PUT: api/ga/usuarios/{id}/editar
         [Authorize(Policy = "GerenciaAgro")]
         [HttpPut("usuarios/{id}/editar")]
-        public async Task<IActionResult> EditarUsuario(int id, [FromBody] EditarGestorAgroDto modelUsuario)
+        public async Task<IActionResult> EditarUsuario(int id, [FromBody] GestorAgroEditaUsuarioDto modelUsuario)
         {
             var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
 
@@ -146,10 +146,10 @@ namespace bris_API.Controllers
             return Ok(new { message = "Usuário e níveis de acesso atualizados com sucesso!" });
         }
 
-        // POST: api/ga/cadastrar
+        // POST: api/ga/usuarios/cadastrar
         [Authorize(Policy = "GerenciaAgro")]
-        [HttpPost("cadastrar")]
-        public async Task<IActionResult> CadastrarUsuario([FromBody] CadastroGestorAgroDto modelUsuario)
+        [HttpPost("usuarios/cadastrar")]
+        public async Task<IActionResult> CadastrarUsuario([FromBody] GestorGranjaCadastraUsuarioDto modelUsuario)
         {
             var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
 
@@ -192,9 +192,9 @@ namespace bris_API.Controllers
             return Ok(new { message = "Usuário registrado com sucesso!" });
         }
 
-        // GET: api/ga/ativar
+        // GET: api/ga/usuarios/ativar
         [Authorize(Policy = "VisualizaAgro")]
-        [HttpGet("ativar")]
+        [HttpGet("usuarios/ativar")]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuariosParaAtivar()
         {
             var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
@@ -208,9 +208,9 @@ namespace bris_API.Controllers
         }
 
 
-        // POST: api/ga/ativar/{id}
+        // POST: api/ga/usuarios/ativar/{id}
         [Authorize(Policy = "GerenciaAgro")]
-        [HttpPost("ativar/{id}")]
+        [HttpPut("usuarios/ativar/{id}")]
         public async Task<IActionResult> AtivarUsuario(int id, [FromBody] AtivarDto ativarDTO)
         {
             var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
@@ -231,6 +231,154 @@ namespace bris_API.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Usuário ativado com sucesso!" });
+        }
+
+        // GET: api/granjas
+        [Authorize(Policy = "VisualizaAgro")]
+        [HttpGet("granjas")]
+        public async Task<ActionResult<IEnumerable<Granja>>> GetGranjas()
+        {
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            var granjas = await _context.Granjas
+                .Where(g => g.AgroindustriaId == agroindustriaId && g.Ativo)
+                .ToListAsync();
+
+            return Ok(granjas);
+        }
+
+        // GET: api/granjas/ativar
+        [Authorize(Policy = "VisualizaAgro")]
+        [HttpGet("granjas/ativar")]
+        public async Task<ActionResult<IEnumerable<Granja>>> GetGranjasInativas()
+        {
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            var granjas = await _context.Granjas
+                .Where(g => g.AgroindustriaId == agroindustriaId && !g.Ativo)
+                .ToListAsync();
+
+            return Ok(granjas);
+        }
+
+        // PUT: api/granjas/ativar/{id}
+        [Authorize(Policy = "GerenciaAgro")]
+        [HttpPut("granjas/ativar/{id}")]
+        public async Task<IActionResult> AtivarGranja(int id)
+        {
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            var granja = await _context.Granjas
+                .Where(g => g.Id == id && g.AgroindustriaId == agroindustriaId)
+                .FirstOrDefaultAsync();
+
+            if (granja == null)
+            {
+                return NotFound("Granja não encontrada ou não pertence à sua agroindústria.");
+            }
+
+            if (granja.Ativo)
+            {
+                return BadRequest("Granja já está ativa.");
+            }
+
+            granja.Ativo = true;
+
+            _context.Entry(granja).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Granja ativada com sucesso!" });
+        }
+
+        // GET: api/granjas/{id}
+        [Authorize(Policy = "VisualizaAgro")]
+        [HttpGet("granjas/{id}")]
+        public async Task<ActionResult<Granja>> GetGranja(int id)
+        {
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            var granja = await _context.Granjas
+                .Where(g => g.Id == id && g.AgroindustriaId == agroindustriaId)
+                .FirstOrDefaultAsync();
+
+            if (granja == null)
+            {
+                return NotFound("Granja não encontrada ou não pertence à sua agroindústria.");
+            }
+
+            return Ok(granja);
+        }
+
+        // PUT: api/granjas/{id}
+        [Authorize(Policy = "GerenciaAgro")]
+        [HttpPut("granjas/{id}/editar")]
+        public async Task<IActionResult> PutGranja(int id, [FromBody] GestorAgroEditaGranjaDto modelGranja)
+        {
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            var granja = await _context.Granjas
+                .Where(g => g.Id == id && g.AgroindustriaId == agroindustriaId)
+                .FirstOrDefaultAsync();
+
+            if (granja == null)
+            {
+                return NotFound("Granja não encontrada ou não pertence à sua agroindústria.");
+            }
+
+            // Atualiza os campos da granja
+            granja.NomePropriedade = modelGranja.NomePropriedade;
+            granja.Endereco = modelGranja.Endereco;
+            granja.CNPJ = modelGranja.CNPJ;
+            granja.Ativo = modelGranja.Ativo;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Granja atualizada com sucesso!" });
+        }
+
+        // POST: api/granjas
+        [Authorize(Policy = "GerenciaAgro")]
+        [HttpPost("granjas/cadastrar")]
+        public async Task<IActionResult> PostGranja([FromBody] GestorAgroEditaGranjaDto modelGranja)
+        {
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            var novaGranja = new Granja
+            {
+                NomePropriedade = modelGranja.NomePropriedade,
+                Endereco = modelGranja.Endereco,
+                CNPJ = modelGranja.CNPJ,
+                AgroindustriaId = agroindustriaId,
+                Ativo = modelGranja.Ativo
+            };
+
+            _context.Granjas.Add(novaGranja);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Granja cadastrada com sucesso!" });
+        }
+
+        // DELETE: api/granjas/{id}
+        [Authorize(Policy = "GerenciaAgro")]
+        [HttpDelete("granjas/{id}")]
+        public async Task<IActionResult> DeleteGranja(int id)
+        {
+            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
+
+            var granja = await _context.Granjas
+                .Where(g => g.Id == id && g.AgroindustriaId == agroindustriaId)
+                .FirstOrDefaultAsync();
+
+            if (granja == null)
+            {
+                return NotFound("Granja não encontrada ou não pertence à sua agroindústria.");
+            }
+
+            granja.Ativo = false;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Granja desativada com sucesso!" });
         }
     }
 }

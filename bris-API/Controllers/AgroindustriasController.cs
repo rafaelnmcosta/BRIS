@@ -80,9 +80,9 @@ namespace bris_API.Controllers
             return Ok(agroindustria);
         }
 
-        // PUT: api/agroindustrias/{id}
+        // PUT: api/agroindustrias/{id}/editar
         [Authorize(Policy = "GerenciaTotal")]
-        [HttpPut("{id}")]
+        [HttpPut("{id}/editar")]
         public async Task<IActionResult> PutAgroindustria(int id, [FromBody] AgroindustriaDTO modelAgroindustria)
         {
             if (id <= 0)

@@ -80,8 +80,8 @@ namespace bris_API.Controllers
         }
 
         
-        [HttpGet("registros/{id}")]
-        public async Task<IActionResult> GetRegistros(int id)
+        [HttpGet("acessos/{id}")]
+        public async Task<IActionResult> GetAcessos(int id)
         {
             // Verifica se o usuário existe
             var usuarioExists = await _context.Usuarios.AnyAsync(u => u.Id == id);
@@ -90,8 +90,8 @@ namespace bris_API.Controllers
                 return NotFound("Usuário não encontrado");
             }
 
-            // Busca registros com junção à esquerda na tabela Granjas
-            var registros = await _context.GranjasUsuariosTipos
+            // Busca acessos com junção à esquerda na tabela Granjas
+            var acessos = await _context.GranjasUsuariosTipos
                 .Where(gut => gut.UsuarioId == id)
                 .Join(_context.TiposUsuario,
                     gut => gut.TipoUsuarioId,
@@ -101,7 +101,7 @@ namespace bris_API.Controllers
                     combined => combined.gut.GranjaId,
                     granja => granja.Id,
                     (combined, granjas) => new { combined.gut, combined.tipo, granja = granjas.FirstOrDefault() })
-                .Select(result => new RegistroDTO
+                .Select(result => new AcessoDTO
                 {
                     Id = result.gut.Id,
                     NomeTipo = result.tipo.Tipo,
@@ -111,11 +111,11 @@ namespace bris_API.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(new { registros });
+            return Ok(new { acessos });
         }
 
 
-        [HttpPost("registros/token/{id}/")]
+        [HttpPost("acessos/token/{id}/")]
         public async Task<IActionResult> GenerateToken(int id)
         {
             // Busca a entidade GranjasUsuariosTipos pelo ID e inclui TipoUsuario para acessar o campo TIPO

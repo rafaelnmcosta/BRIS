@@ -2,15 +2,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace bris_API.DTOs
 {
-    public class GranjaDto
+    public class GestorAgroEditaGranjaDto
     {
         [Required(ErrorMessage = "O nome é obrigatório.")]
         [StringLength(100, ErrorMessage = "O nome deve ter no máximo 100 caracteres.")]
         public required string NomePropriedade { get; set; }
-
-        [Required(ErrorMessage = "O id da agroindustria é obrigatório.")]
-        [Range(1, int.MaxValue, ErrorMessage = "O id da agroindustria deve ser um valor positivo.")]
-        public required int AgroindustriaId { get; set; }
         
         [Required(ErrorMessage = "O endereço é obrigatório.")]
         [StringLength(300, ErrorMessage = "O endereço deve ter no máximo 300 caracteres.")]
