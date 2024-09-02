@@ -22,7 +22,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/gg/usuarios
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoGranja)]
+        [Authorize(Policy = "VisualizaGranja")]
         [HttpGet("usuarios")]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
         {
@@ -42,7 +42,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/gg/usuarios/{id}
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoGranja)]
+        [Authorize(Policy = "VisualizaGranja")]
         [HttpGet("usuarios/{id}")]
         public async Task<ActionResult<Usuario>> GetUsuario(int id)
         {
@@ -67,7 +67,7 @@ namespace bris_API.Controllers
         }
 
         // PUT: api/gg/usuarios/{id}/editar
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaGranja)]
+        [Authorize(Policy = "GerenciaGranja")]
         [HttpPut("usuarios/{id}/editar")]
         public async Task<IActionResult> EditarUsuario(int id, [FromBody] EditarGestorGranjaDto modelUsuario)
         {
@@ -107,7 +107,7 @@ namespace bris_API.Controllers
         }
 
         // POST: api/gg/cadastrar
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaGranja)]
+        [Authorize(Policy = "GerenciaGranja")]
         [HttpPost("cadastrar")]
         public async Task<IActionResult> CadastrarUsuario([FromBody] CadastroGestorGranjaDto modelUsuario)
         {
@@ -159,7 +159,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/gg/ativar
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoGranja)]
+        [Authorize(Policy = "VisualizaGranja")]
         [HttpGet("ativar")]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuariosParaAtivar()
         {
@@ -179,7 +179,7 @@ namespace bris_API.Controllers
         }
 
         // POST: api/gg/ativar/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaGranja)]
+        [Authorize(Policy = "GerenciaGranja")]
         [HttpPost("ativar/{id}")]
         public async Task<IActionResult> AtivarUsuario(int id)
         {

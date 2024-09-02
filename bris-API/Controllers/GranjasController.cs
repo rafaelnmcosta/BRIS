@@ -21,7 +21,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/granjas
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [Authorize(Policy = "VisualizaAgro")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Granja>>> GetGranjas()
         {
@@ -35,7 +35,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/granjas/ativar
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [Authorize(Policy = "VisualizaAgro")]
         [HttpGet("ativar")]
         public async Task<ActionResult<IEnumerable<Granja>>> GetGranjasInativas()
         {
@@ -49,7 +49,7 @@ namespace bris_API.Controllers
         }
 
         // PUT: api/granjas/ativar/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [Authorize(Policy = "GerenciaAgro")]
         [HttpPut("ativar/{id}")]
         public async Task<IActionResult> AtivarGranja(int id)
         {
@@ -78,7 +78,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/granjas/{id}
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [Authorize(Policy = "VisualizaAgro")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Granja>> GetGranja(int id)
         {
@@ -97,7 +97,7 @@ namespace bris_API.Controllers
         }
 
         // PUT: api/granjas/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [Authorize(Policy = "GerenciaAgro")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutGranja(int id, [FromBody] GranjaDto modelGranja)
         {
@@ -129,7 +129,7 @@ namespace bris_API.Controllers
         }
 
         // POST: api/granjas
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [Authorize(Policy = "GerenciaAgro")]
         [HttpPost]
         public async Task<IActionResult> PostGranja([FromBody] GranjaDto modelGranja)
         {
@@ -156,7 +156,7 @@ namespace bris_API.Controllers
         }
 
         // DELETE: api/granjas/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [Authorize(Policy = "GerenciaAgro")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteGranja(int id)
         {

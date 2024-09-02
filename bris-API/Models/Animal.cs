@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace bris_API.Models
 {
     public class Animal
@@ -11,6 +13,8 @@ namespace bris_API.Models
         public Granja? Granja { get; set; }
         public int UsuarioResponsavelId { get; set; }
         public Usuario? Usuario { get; set;}
+
+        [JsonIgnore]
         public ICollection<Avaliacao>? Avaliacoes {get; set;}
         public bool Ativo { get; set; }
     }

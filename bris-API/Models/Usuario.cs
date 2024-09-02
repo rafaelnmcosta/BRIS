@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace bris_API.Models
 {
     public class Usuario
@@ -9,8 +11,14 @@ namespace bris_API.Models
         public Senha? Senha { get; set; }
         public Agroindustria? Agroindustria { get; set; }
         public int? AgroindustriaId { get; set; }
+
+        [JsonIgnore]
         public ICollection<Dose>? Doses { get; set; }
+
+        [JsonIgnore]
         public ICollection<Animal>? Animais { get; set; }
+
+        [JsonIgnore]
         public ICollection<GranjaUsuarioTipo>? GranjasUsuariosTipos { get; set; }
     }
 }

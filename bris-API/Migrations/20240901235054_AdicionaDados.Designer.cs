@@ -12,8 +12,8 @@ using bris_API.Data;
 namespace bris_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240828092535_AgroindustriaFilter")]
-    partial class AgroindustriaFilter
+    [Migration("20240901235054_AdicionaDados")]
+    partial class AdicionaDados
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,7 +33,10 @@ namespace bris_API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CNPJAgroindustria")
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("CNPJ")
                         .HasColumnType("text");
 
                     b.Property<string>("NomeFantasia")
@@ -50,9 +53,10 @@ namespace bris_API.Migrations
                         new
                         {
                             Id = 1,
-                            CNPJAgroindustria = "00.000.000/0001-00",
-                            NomeFantasia = "Agroindustria Teste",
-                            RazaoSocial = "Razao Agroindustria"
+                            Ativo = true,
+                            CNPJ = "00000000000100",
+                            NomeFantasia = "Agroindustria Default",
+                            RazaoSocial = "Agroindustria Default"
                         });
                 });
 
@@ -64,7 +68,10 @@ namespace bris_API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("GranjaId")
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("GranjaId")
                         .HasColumnType("integer");
 
                     b.Property<int>("Idade")
@@ -76,7 +83,7 @@ namespace bris_API.Migrations
                     b.Property<float>("Peso")
                         .HasColumnType("real");
 
-                    b.Property<bool>("Status")
+                    b.Property<bool?>("Status")
                         .HasColumnType("boolean");
 
                     b.Property<int>("UsuarioResponsavelId")
@@ -105,7 +112,13 @@ namespace bris_API.Migrations
                     b.Property<DateTime>("DataInicioAvaliacao")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("ResultadoFinal")
+                    b.Property<int>("ProximaDoseOrdem")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProximaDoseSemana")
+                        .HasColumnType("integer");
+
+                    b.Property<bool?>("ResultadoFinal")
                         .HasColumnType("boolean");
 
                     b.Property<int>("StatusAvaliacao")
@@ -126,11 +139,14 @@ namespace bris_API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("DataRegistro")
+                    b.Property<DateTime?>("DataRegistro")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Ordem")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("PodePreencher")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("SemanaId")
                         .HasColumnType("integer");
@@ -138,7 +154,7 @@ namespace bris_API.Migrations
                     b.Property<int>("UsuarioId")
                         .HasColumnType("integer");
 
-                    b.Property<float>("ValorRegistrado")
+                    b.Property<float?>("ValorRegistrado")
                         .HasColumnType("real");
 
                     b.HasKey("Id");
@@ -161,6 +177,9 @@ namespace bris_API.Migrations
                     b.Property<int>("AgroindustriaId")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("CNPJ")
                         .HasColumnType("text");
 
@@ -181,7 +200,8 @@ namespace bris_API.Migrations
                         {
                             Id = 1,
                             AgroindustriaId = 1,
-                            CNPJ = "99.999.999/0001-99",
+                            Ativo = true,
+                            CNPJ = "99999999000199",
                             Endereco = "Rua teste",
                             NomePropriedade = "Granja Teste"
                         });
@@ -276,8 +296,8 @@ namespace bris_API.Migrations
                         new
                         {
                             Id = 1,
-                            Salt = "KGa6FDnQ8P0W8LHJ0s2gtg==",
-                            SenhaHash = "eDFNP6sDC4q1YRlMK3Ie3IWOoRp7VaUOSNrR0e7hG4s=",
+                            Salt = "4sNW+s6WkEuuKlolORFIjw==",
+                            SenhaHash = "sJ+5RoVZtxR1SBQtdURuHRKtpEgmwMTT9TG1JTnz8uc=",
                             UsuarioId = 1
                         });
                 });
@@ -311,13 +331,13 @@ namespace bris_API.Migrations
                         {
                             Id = 2,
                             Descricao = "Gestor de granjas",
-                            Tipo = "GESTOR GRANJA"
+                            Tipo = "GESTOR_GRANJA"
                         },
                         new
                         {
                             Id = 3,
                             Descricao = "Gestor de agroindústrias",
-                            Tipo = "GESTOR AGRO"
+                            Tipo = "GESTOR_AGRO"
                         },
                         new
                         {
@@ -353,7 +373,7 @@ namespace bris_API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AgroindustriaId")
+                    b.Property<int?>("AgroindustriaId")
                         .HasColumnType("integer");
 
                     b.Property<string>("CPF")
@@ -376,7 +396,7 @@ namespace bris_API.Migrations
                         {
                             Id = 1,
                             AgroindustriaId = 1,
-                            CPF = "000.000.000-00",
+                            CPF = "00000000000",
                             Email = "admin@gmail.com",
                             Nome = "Admin"
                         });
@@ -386,9 +406,7 @@ namespace bris_API.Migrations
                 {
                     b.HasOne("bris_API.Models.Granja", "Granja")
                         .WithMany("Animais")
-                        .HasForeignKey("GranjaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GranjaId");
 
                     b.HasOne("bris_API.Models.Usuario", "Usuario")
                         .WithMany("Animais")
@@ -493,9 +511,7 @@ namespace bris_API.Migrations
                 {
                     b.HasOne("bris_API.Models.Agroindustria", "Agroindustria")
                         .WithMany("Usuarios")
-                        .HasForeignKey("AgroindustriaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AgroindustriaId");
 
                     b.Navigation("Agroindustria");
                 });

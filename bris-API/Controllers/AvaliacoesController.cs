@@ -20,7 +20,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/avaliacoes
-        [Authorize(Roles = PoliticasDeAcesso.VisualizaAnimais)]
+        [Authorize(Policy = "VisualizaAnimais")]
         [HttpGet()]
         public async Task<ActionResult<IEnumerable<Avaliacao>>> GetAvaliacoes()
         {
@@ -40,7 +40,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/avaliacoes/interrompidas
-        [Authorize(Roles = PoliticasDeAcesso.VisualizaAnimais)]
+        [Authorize(Policy = "VisualizaAnimais")]
         [HttpGet("interrompidas")]
         public async Task<ActionResult<IEnumerable<Avaliacao>>> GetAvaliacoesInterrompidas()
         {
@@ -60,7 +60,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/avaliacoes/{id}
-        [Authorize(Roles = PoliticasDeAcesso.VisualizaAnimais)]
+        [Authorize(Policy = "VisualizaAnimais")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Avaliacao>> GetAvaliacao(int id)
         {
@@ -85,7 +85,7 @@ namespace bris_API.Controllers
         }
 
         // POST: api/avaliacoes/nova/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAnimais)]
+        [Authorize(Policy = "GerenciaAnimais")]
         [HttpPost("nova/{id}")]
         public async Task<ActionResult> NovaAvaliacao(int id)
         {
@@ -156,7 +156,7 @@ namespace bris_API.Controllers
         }
 
         // PUT: api/avaliacoes/{id}/nova-dose
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAnimais)]
+        [Authorize(Policy = "GerenciaAnimais")]
         [HttpPut("{id}/nova-dose")]
         public async Task<ActionResult> NovaDose(int id, [FromBody] DoseDto model)
         {
@@ -207,7 +207,7 @@ namespace bris_API.Controllers
         }
 
         // PUT: api/avaliacoes/finaliza/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAnimais)]
+        [Authorize(Policy = "GerenciaAnimais")]
         [HttpPut("finaliza/{id}")]
         public async Task<ActionResult> FinalizaAvaliacao(int id)
         {
@@ -239,7 +239,7 @@ namespace bris_API.Controllers
         }
 
         // PUT: api/avaliacoes/interrompe/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAnimais)]
+        [Authorize(Policy = "GerenciaAnimais")]
         [HttpPut("interrompe/{id}")]
         public async Task<ActionResult> InterrompeAvaliacao(int id)
         {

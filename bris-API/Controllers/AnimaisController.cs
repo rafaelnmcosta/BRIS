@@ -21,7 +21,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/animais
-        [Authorize(Roles = PoliticasDeAcesso.VisualizaAnimais)]
+        [Authorize(Policy = "VisualizaAnimais")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Animal>>> GetAnimais()
         {
@@ -40,7 +40,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/animais/ativar
-        [Authorize(Roles = PoliticasDeAcesso.VisualizaAnimais)]
+        [Authorize(Policy = "VisualizaAnimais")]
         [HttpGet("ativar")]
         public async Task<ActionResult<IEnumerable<Animal>>> GetAnimaisInativos()
         {
@@ -59,7 +59,7 @@ namespace bris_API.Controllers
         }
 
         // PUT: api/animais/ativar/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAnimais)]
+        [Authorize(Policy = "GerenciaAnimais")]
         [HttpPut("ativar/{id}")]
         public async Task<IActionResult> AtivarAnimal(int id)
         {
@@ -93,7 +93,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/animais/{id}
-        [Authorize(Roles = PoliticasDeAcesso.VisualizaAnimais)]
+        [Authorize(Policy = "VisualizaAnimais")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Animal>> GetAnimal(int id)
         {
@@ -117,10 +117,11 @@ namespace bris_API.Controllers
         }
 
         // PUT: api/animais/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAnimais)]
+        [Authorize(Policy = "GerenciaAnimais")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAnimal(int id, [FromBody] AnimalDto modelAnimal)
         {
+            var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var granjaId = User.FindFirst("GranjaId")?.Value;
             
             if (granjaId == null)
@@ -142,7 +143,6 @@ namespace bris_API.Controllers
             animal.Idade = modelAnimal.Idade;
             animal.Peso = modelAnimal.Peso;
             animal.Status = modelAnimal.status;
-            animal.UsuarioResponsavelId = modelAnimal.UsuarioResponsavelIdId;
             animal.Ativo = modelAnimal.Ativo;
 
             _context.Entry(animal).State = EntityState.Modified;
@@ -152,10 +152,11 @@ namespace bris_API.Controllers
         }
 
         // POST: api/animais
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAnimais)]
+        [Authorize(Policy = "GerenciaAnimais")]
         [HttpPost]
-        public async Task<IActionResult> PostAnimal([FromBody] AnimalDto modelAnimal)
+        public async Task<IActionResult> PostAnimal([FromBody] CadastroAnimalDto modelAnimal)
         {
+            var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var granjaId = User.FindFirst("GranjaId")?.Value;
             
             if (granjaId == null)
@@ -168,9 +169,9 @@ namespace bris_API.Controllers
                 Linhagem = modelAnimal.Linhagem,
                 Idade = modelAnimal.Idade,
                 Peso = modelAnimal.Peso,
-                Status = modelAnimal.status,
-                UsuarioResponsavelId = modelAnimal.UsuarioResponsavelIdId,
-                Ativo = modelAnimal.Ativo,
+                Status = null,
+                UsuarioResponsavelId = usuarioId,
+                Ativo = true,
                 GranjaId = int.Parse(granjaId)
             };
 
@@ -181,7 +182,7 @@ namespace bris_API.Controllers
         }
 
         // DELETE: api/animais/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAnimais)]
+        [Authorize(Policy = "GerenciaAnimais")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAnimal(int id)
         {

@@ -7,15 +7,15 @@
 namespace bris_API.Migrations
 {
     /// <inheritdoc />
-    public partial class AdicionaDadosIniciais : Migration
+    public partial class AdicionaDados : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.InsertData(
                 table: "Agroindustrias",
-                columns: new[] { "Id", "CNPJAgroindustria", "NomeFantasia", "RazaoSocial" },
-                values: new object[] { 1, "00.000.000/0001-00", "Agroindustria Teste", "Razao Agroindustria" });
+                columns: new[] { "Id", "Ativo", "CNPJ", "NomeFantasia", "RazaoSocial" },
+                values: new object[] { 1, true, "00000000000100", "Agroindustria Default", "Agroindustria Default" });
 
             migrationBuilder.InsertData(
                 table: "TiposUsuario",
@@ -23,8 +23,8 @@ namespace bris_API.Migrations
                 values: new object[,]
                 {
                     { 1, "Administrador do sistema", "ADMIN" },
-                    { 2, "Gestor de granjas", "GESTOR GRANJA" },
-                    { 3, "Gestor de agroindústrias", "GESTOR AGRO" },
+                    { 2, "Gestor de granjas", "GESTOR_GRANJA" },
+                    { 3, "Gestor de agroindústrias", "GESTOR_AGRO" },
                     { 4, "Técnico de campo", "TECNICO" },
                     { 5, "Usuário com acesso somente leitura", "VISUALIZADOR" },
                     { 98, "Usuário pendente de ativação", "PENDENTE" },
@@ -33,30 +33,30 @@ namespace bris_API.Migrations
 
             migrationBuilder.InsertData(
                 table: "Granjas",
-                columns: new[] { "Id", "AgroindustriaId", "CNPJ", "Endereco", "Nome_propriedade" },
-                values: new object[] { 1, 1, "99.999.999/0001-99", "Rua teste", "Granja Teste" });
+                columns: new[] { "Id", "AgroindustriaId", "Ativo", "CNPJ", "Endereco", "NomePropriedade" },
+                values: new object[] { 1, 1, true, "99999999000199", "Rua teste", "Granja Teste" });
 
             migrationBuilder.InsertData(
                 table: "Usuarios",
-                columns: new[] { "Id", "Email", "Nome", "TipoUsuarioId" },
-                values: new object[] { 1, "admin@gmail.com", "Admin", 1 });
+                columns: new[] { "Id", "AgroindustriaId", "CPF", "Email", "Nome" },
+                values: new object[] { 1, 1, "00000000000", "admin@gmail.com", "Admin" });
 
             migrationBuilder.InsertData(
-                table: "Granjas_Usuarios_Tipos",
+                table: "GranjasUsuariosTipos",
                 columns: new[] { "Id", "GranjaId", "TipoUsuarioId", "UsuarioId" },
                 values: new object[] { 1, 1, 1, 1 });
 
             migrationBuilder.InsertData(
                 table: "Senhas",
                 columns: new[] { "Id", "Salt", "SenhaHash", "UsuarioId" },
-                values: new object[] { 1, "TB+yey2pFxr+UXRe9EmyMg==", "44nGqQYy7DxWI0wpM7ujF2q4M0q/COs8gh4ekW+a7Jc=", 1 });
+                values: new object[] { 1, "4sNW+s6WkEuuKlolORFIjw==", "sJ+5RoVZtxR1SBQtdURuHRKtpEgmwMTT9TG1JTnz8uc=", 1 });
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DeleteData(
-                table: "Granjas_Usuarios_Tipos",
+                table: "GranjasUsuariosTipos",
                 keyColumn: "Id",
                 keyValue: 1);
 
@@ -101,17 +101,17 @@ namespace bris_API.Migrations
                 keyValue: 1);
 
             migrationBuilder.DeleteData(
+                table: "TiposUsuario",
+                keyColumn: "Id",
+                keyValue: 1);
+
+            migrationBuilder.DeleteData(
                 table: "Usuarios",
                 keyColumn: "Id",
                 keyValue: 1);
 
             migrationBuilder.DeleteData(
                 table: "Agroindustrias",
-                keyColumn: "Id",
-                keyValue: 1);
-
-            migrationBuilder.DeleteData(
-                table: "TiposUsuario",
                 keyColumn: "Id",
                 keyValue: 1);
         }

@@ -22,7 +22,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/ga/animais
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [Authorize(Policy = "VisualizaAgro")]
         [HttpGet("animais")]
         public async Task<ActionResult<IEnumerable<Animal>>> GetAnimais()
         {
@@ -37,7 +37,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/ga/animais/{id}
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [Authorize(Policy = "VisualizaAgro")]
         [HttpGet("animais/{id}")]
         public async Task<ActionResult<Animal>> GetAnimal(int id)
         {
@@ -56,7 +56,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/ga/usuarios
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [Authorize(Policy = "VisualizaAgro")]
         [HttpGet("usuarios")]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
         {
@@ -70,7 +70,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/ga/usuarios/{id}
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [Authorize(Policy = "VisualizaAgro")]
         [HttpGet("usuarios/{id}")]
         public async Task<ActionResult<Usuario>> GetUsuario(int id)
         {
@@ -89,7 +89,7 @@ namespace bris_API.Controllers
         }
 
         // PUT: api/ga/usuarios/{id}/editar
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [Authorize(Policy = "GerenciaAgro")]
         [HttpPut("usuarios/{id}/editar")]
         public async Task<IActionResult> EditarUsuario(int id, [FromBody] EditarGestorAgroDto modelUsuario)
         {
@@ -147,7 +147,7 @@ namespace bris_API.Controllers
         }
 
         // POST: api/ga/cadastrar
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [Authorize(Policy = "GerenciaAgro")]
         [HttpPost("cadastrar")]
         public async Task<IActionResult> CadastrarUsuario([FromBody] CadastroGestorAgroDto modelUsuario)
         {
@@ -193,7 +193,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/ga/ativar
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoAgro)]
+        [Authorize(Policy = "VisualizaAgro")]
         [HttpGet("ativar")]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuariosParaAtivar()
         {
@@ -209,7 +209,7 @@ namespace bris_API.Controllers
 
 
         // POST: api/ga/ativar/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaAgro)]
+        [Authorize(Policy = "GerenciaAgro")]
         [HttpPost("ativar/{id}")]
         public async Task<IActionResult> AtivarUsuario(int id, [FromBody] AtivarDto ativarDTO)
         {

@@ -52,8 +52,8 @@ namespace bris_API.Migrations
                             Id = 1,
                             Ativo = true,
                             CNPJ = "00000000000100",
-                            NomeFantasia = "Agroindustria Teste",
-                            RazaoSocial = "Razao Agroindustria"
+                            NomeFantasia = "Agroindustria Default",
+                            RazaoSocial = "Agroindustria Default"
                         });
                 });
 
@@ -293,8 +293,8 @@ namespace bris_API.Migrations
                         new
                         {
                             Id = 1,
-                            Salt = "M2R6Jh49Y/IlXyHf8YOQ1Q==",
-                            SenhaHash = "VDUCQfty979vhm3cQw0Uclmc7Sj0N/DXICvhpDwcuzM=",
+                            Salt = "4sNW+s6WkEuuKlolORFIjw==",
+                            SenhaHash = "sJ+5RoVZtxR1SBQtdURuHRKtpEgmwMTT9TG1JTnz8uc=",
                             UsuarioId = 1
                         });
                 });
@@ -328,13 +328,13 @@ namespace bris_API.Migrations
                         {
                             Id = 2,
                             Descricao = "Gestor de granjas",
-                            Tipo = "GESTOR GRANJA"
+                            Tipo = "GESTOR_GRANJA"
                         },
                         new
                         {
                             Id = 3,
                             Descricao = "Gestor de agroindústrias",
-                            Tipo = "GESTOR AGRO"
+                            Tipo = "GESTOR_AGRO"
                         },
                         new
                         {
@@ -370,7 +370,7 @@ namespace bris_API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AgroindustriaId")
+                    b.Property<int?>("AgroindustriaId")
                         .HasColumnType("integer");
 
                     b.Property<string>("CPF")
@@ -508,9 +508,7 @@ namespace bris_API.Migrations
                 {
                     b.HasOne("bris_API.Models.Agroindustria", "Agroindustria")
                         .WithMany("Usuarios")
-                        .HasForeignKey("AgroindustriaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AgroindustriaId");
 
                     b.Navigation("Agroindustria");
                 });

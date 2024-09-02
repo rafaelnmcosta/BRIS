@@ -18,10 +18,6 @@ namespace bris_API.DTOs
 
         // O status inicia como nulo e só receberá um valor após algumas regras de negócio de avaliação serem executadas
         public bool? status { get; set; }
-        
-        [Required(ErrorMessage = "O id do usuário responsável é obrigatório.")]
-        [Range(1, int.MaxValue, ErrorMessage = "O id do usuário responsável deve ser um valor positivo.")]
-        public required int UsuarioResponsavelIdId { get; set; }
 
         [Required(ErrorMessage = "O estado de ativação é obrigatório.")]
         public required bool Ativo { get; set; }

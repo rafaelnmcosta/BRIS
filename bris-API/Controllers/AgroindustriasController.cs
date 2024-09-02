@@ -21,7 +21,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/agroindustrias
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Policy = "VisualizaTotal")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Agroindustria>>> GetAgroindustrias()
         {
@@ -30,7 +30,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/agroindustrias/ativar
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoTotal)]
+        [Authorize(Policy = "VisualizaTotal")]
         [HttpGet("ativar")]
         public async Task<ActionResult<IEnumerable<Agroindustria>>> GetAgroindustriasInativas()
         {
@@ -41,7 +41,7 @@ namespace bris_API.Controllers
         }
         
         // PUT: api/agroindustrias/ativar/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaTotal)]
+        [Authorize(Policy = "GerenciaTotal")]
         [HttpPut("ativar/{id}")]
         public async Task<IActionResult> AtivarAgroindustria(int id)
         {
@@ -66,7 +66,7 @@ namespace bris_API.Controllers
         }
 
         // GET: api/agroindustrias/{id}
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoTotal)]
+        [Authorize(Policy = "VisualizaTotal")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Agroindustria>> GetAgroindustria(int id)
         {
@@ -81,7 +81,7 @@ namespace bris_API.Controllers
         }
 
         // PUT: api/agroindustrias/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaTotal)]
+        [Authorize(Policy = "GerenciaTotal")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAgroindustria(int id, [FromBody] AgroindustriaDTO modelAgroindustria)
         {
@@ -109,7 +109,7 @@ namespace bris_API.Controllers
         }
 
         // POST: api/agroindustrias
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaTotal)]
+        [Authorize(Policy = "GerenciaTotal")]
         [HttpPost]
         public async Task<ActionResult<Agroindustria>> PostAgroindustria([FromBody] AgroindustriaDTO modelAgroindustria)
         {
@@ -128,7 +128,7 @@ namespace bris_API.Controllers
         }
 
         // DELETE: api/agroindustrias/{id}
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaTotal)]
+        [Authorize(Policy = "GerenciaTotal")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAgroindustria(int id)
         {

@@ -21,14 +21,14 @@ namespace bris_API.Controllers
             _context = context;
         }
 
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoTotal)]
+        [Authorize(Policy = "VisualizaTotal")]
         [HttpGet()]
         public async Task<IActionResult> GetUsuarios()
         {
             return Ok(await _context.Usuarios.ToListAsync());
         }
 
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaTotal)]
+        [Authorize(Policy = "GerenciaTotal")]
         [HttpPost("cadastrar")]
         public async Task<IActionResult> CadastrarUsuario([FromBody] CadastroAdminDto modelUsuario)
         {
@@ -72,7 +72,7 @@ namespace bris_API.Controllers
             return Ok(new { message = "Usuário registrado com sucesso!" });
         }
 
-        [Authorize(Roles = PoliticasDeAcesso.VisualizacaoTotal)]
+        [Authorize(Policy = "VisualizaTotal")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUsuario(int id)
         {
@@ -105,7 +105,7 @@ namespace bris_API.Controllers
         }
 
 
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaTotal)]
+        [Authorize(Policy = "GerenciaTotal")]
         [HttpGet("ativar")]
         public async Task<IActionResult> GetUsuariosNaoAtivados()
         {
@@ -124,7 +124,7 @@ namespace bris_API.Controllers
             return Ok(usuariosNaoAtivados);
         }
 
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaTotal)]
+        [Authorize(Policy = "GerenciaTotal")]
         [HttpPost("ativar/{id}")]
         public async Task<IActionResult> AtivarUsuario(int id, [FromBody] AtivarDto ativar)
         {
@@ -149,7 +149,7 @@ namespace bris_API.Controllers
         }
 
 
-        [Authorize(Roles = PoliticasDeAcesso.GerenciaTotal)]
+        [Authorize(Policy = "GerenciaTotal")]
         [HttpPut("{id}/editar")]
         public async Task<IActionResult> EditarUsuario(int id, [FromBody] EditarAdminDto modelUsuario)
         {

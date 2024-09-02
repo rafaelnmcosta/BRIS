@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace bris_API.Models
 {
     public class Semana
@@ -14,6 +16,8 @@ namespace bris_API.Models
         */
         public int AvaliacaoId { get; set; }
         public Avaliacao? Avaliacao {get; set; }
+
+        [JsonIgnore]
         public ICollection<Dose>? Doses { get; set; }
     }
 }

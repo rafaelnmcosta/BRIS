@@ -91,7 +91,6 @@ namespace bris_API.Data
                 .WithMany(t => t.GranjasUsuariosTipos)
                 .HasForeignKey(gut => gut.TipoUsuarioId);
 
-            /*
             // Inserção de dados iniciais para a tabela TiposUsuario
             modelBuilder.Entity<TipoUsuario>().HasData(
                 new TipoUsuario { Id = 1, Tipo = "ADMIN", Descricao = "Administrador do sistema" },
@@ -130,7 +129,6 @@ namespace bris_API.Data
             modelBuilder.Entity<GranjaUsuarioTipo>().HasData(
                 new GranjaUsuarioTipo { Id = 1, UsuarioId = 1, GranjaId = 1, TipoUsuarioId = 1 }
             );
-            */
 
             // Aplica as configurações
             base.OnModelCreating(modelBuilder);

@@ -20,7 +20,8 @@ namespace bris_API.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     NomeFantasia = table.Column<string>(type: "text", nullable: true),
                     RazaoSocial = table.Column<string>(type: "text", nullable: true),
-                    CNPJAgroindustria = table.Column<string>(type: "text", nullable: true)
+                    CNPJ = table.Column<string>(type: "text", nullable: true),
+                    Ativo = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -47,10 +48,11 @@ namespace bris_API.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Nome_propriedade = table.Column<string>(type: "text", nullable: true),
+                    NomePropriedade = table.Column<string>(type: "text", nullable: true),
                     AgroindustriaId = table.Column<int>(type: "integer", nullable: false),
                     Endereco = table.Column<string>(type: "text", nullable: true),
-                    CNPJ = table.Column<string>(type: "text", nullable: true)
+                    CNPJ = table.Column<string>(type: "text", nullable: true),
+                    Ativo = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -71,17 +73,17 @@ namespace bris_API.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Nome = table.Column<string>(type: "text", nullable: true),
                     Email = table.Column<string>(type: "text", nullable: true),
-                    TipoUsuarioId = table.Column<int>(type: "integer", nullable: false)
+                    CPF = table.Column<string>(type: "text", nullable: true),
+                    AgroindustriaId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Usuarios", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Usuarios_TiposUsuario_TipoUsuarioId",
-                        column: x => x.TipoUsuarioId,
-                        principalTable: "TiposUsuario",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_Usuarios_Agroindustrias_AgroindustriaId",
+                        column: x => x.AgroindustriaId,
+                        principalTable: "Agroindustrias",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -92,10 +94,11 @@ namespace bris_API.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Linhagem = table.Column<string>(type: "text", nullable: true),
                     Idade = table.Column<int>(type: "integer", nullable: false),
-                    Peso = table.Column<int>(type: "integer", nullable: false),
-                    Status = table.Column<bool>(type: "boolean", nullable: false),
-                    GranjaId = table.Column<int>(type: "integer", nullable: false),
-                    UsuarioResponsavelId = table.Column<int>(type: "integer", nullable: false)
+                    Peso = table.Column<float>(type: "real", nullable: false),
+                    Status = table.Column<bool>(type: "boolean", nullable: true),
+                    GranjaId = table.Column<int>(type: "integer", nullable: true),
+                    UsuarioResponsavelId = table.Column<int>(type: "integer", nullable: false),
+                    Ativo = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -104,8 +107,7 @@ namespace bris_API.Migrations
                         name: "FK_Animais_Granjas_GranjaId",
                         column: x => x.GranjaId,
                         principalTable: "Granjas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Animais_Usuarios_UsuarioResponsavelId",
                         column: x => x.UsuarioResponsavelId,
@@ -115,32 +117,31 @@ namespace bris_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Granjas_Usuarios_Tipos",
+                name: "GranjasUsuariosTipos",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UsuarioId = table.Column<int>(type: "integer", nullable: false),
-                    GranjaId = table.Column<int>(type: "integer", nullable: false),
+                    GranjaId = table.Column<int>(type: "integer", nullable: true),
                     TipoUsuarioId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Granjas_Usuarios_Tipos", x => x.Id);
+                    table.PrimaryKey("PK_GranjasUsuariosTipos", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Granjas_Usuarios_Tipos_Granjas_GranjaId",
+                        name: "FK_GranjasUsuariosTipos_Granjas_GranjaId",
                         column: x => x.GranjaId,
                         principalTable: "Granjas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Granjas_Usuarios_Tipos_TiposUsuario_TipoUsuarioId",
+                        name: "FK_GranjasUsuariosTipos_TiposUsuario_TipoUsuarioId",
                         column: x => x.TipoUsuarioId,
                         principalTable: "TiposUsuario",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Granjas_Usuarios_Tipos_Usuarios_UsuarioId",
+                        name: "FK_GranjasUsuariosTipos_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
                         principalTable: "Usuarios",
                         principalColumn: "Id",
@@ -175,9 +176,11 @@ namespace bris_API.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     AnimalId = table.Column<int>(type: "integer", nullable: false),
-                    DataInicioAvaliacap = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DataInicioAvaliacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     StatusAvaliacao = table.Column<int>(type: "integer", nullable: false),
-                    ResultadoFinal = table.Column<bool>(type: "boolean", nullable: false)
+                    ResultadoFinal = table.Column<bool>(type: "boolean", nullable: true),
+                    ProximaDoseSemana = table.Column<int>(type: "integer", nullable: false),
+                    ProximaDoseOrdem = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -219,9 +222,10 @@ namespace bris_API.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     SemanaId = table.Column<int>(type: "integer", nullable: false),
                     UsuarioId = table.Column<int>(type: "integer", nullable: false),
-                    DataResgistro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ValorRegistrado = table.Column<float>(type: "real", nullable: false),
-                    Ordem = table.Column<int>(type: "integer", nullable: false)
+                    DataRegistro = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ValorRegistrado = table.Column<float>(type: "real", nullable: true),
+                    Ordem = table.Column<int>(type: "integer", nullable: false),
+                    PodePreencher = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -271,18 +275,18 @@ namespace bris_API.Migrations
                 column: "AgroindustriaId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Granjas_Usuarios_Tipos_GranjaId",
-                table: "Granjas_Usuarios_Tipos",
+                name: "IX_GranjasUsuariosTipos_GranjaId",
+                table: "GranjasUsuariosTipos",
                 column: "GranjaId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Granjas_Usuarios_Tipos_TipoUsuarioId",
-                table: "Granjas_Usuarios_Tipos",
+                name: "IX_GranjasUsuariosTipos_TipoUsuarioId",
+                table: "GranjasUsuariosTipos",
                 column: "TipoUsuarioId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Granjas_Usuarios_Tipos_UsuarioId",
-                table: "Granjas_Usuarios_Tipos",
+                name: "IX_GranjasUsuariosTipos_UsuarioId",
+                table: "GranjasUsuariosTipos",
                 column: "UsuarioId");
 
             migrationBuilder.CreateIndex(
@@ -297,9 +301,9 @@ namespace bris_API.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Usuarios_TipoUsuarioId",
+                name: "IX_Usuarios_AgroindustriaId",
                 table: "Usuarios",
-                column: "TipoUsuarioId");
+                column: "AgroindustriaId");
         }
 
         /// <inheritdoc />
@@ -309,13 +313,16 @@ namespace bris_API.Migrations
                 name: "Doses");
 
             migrationBuilder.DropTable(
-                name: "Granjas_Usuarios_Tipos");
+                name: "GranjasUsuariosTipos");
 
             migrationBuilder.DropTable(
                 name: "Senhas");
 
             migrationBuilder.DropTable(
                 name: "Semanas");
+
+            migrationBuilder.DropTable(
+                name: "TiposUsuario");
 
             migrationBuilder.DropTable(
                 name: "Avaliacoes");
@@ -331,9 +338,6 @@ namespace bris_API.Migrations
 
             migrationBuilder.DropTable(
                 name: "Agroindustrias");
-
-            migrationBuilder.DropTable(
-                name: "TiposUsuario");
         }
     }
 }

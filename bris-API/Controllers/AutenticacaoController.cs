@@ -39,7 +39,6 @@ namespace bris_API.Controllers
             };
 
             _context.Usuarios.Add(usuario);
-            await _context.SaveChangesAsync();
 
             var salt = PasswordService.GenerateSalt();
             var hash = PasswordService.HashPassword(modelUsuario.Senha, salt);
@@ -50,11 +49,19 @@ namespace bris_API.Controllers
                 SenhaHash = hash,
                 Salt = salt
             };
-
             _context.Senhas.Add(senha);
+
+            var novoAcesso = new GranjaUsuarioTipo
+            {
+                UsuarioId = usuario.Id,
+                GranjaId = null,
+                TipoUsuarioId = 98
+            };
+            _context.GranjasUsuariosTipos.Add(novoAcesso);
+
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Usuário registrado com sucesso!" });
+            return Ok(new { message = "Usuário registrado com sucesso! (Conta precisa de ativação)" });
         }
 
         [HttpPost("login")]
@@ -76,33 +83,37 @@ namespace bris_API.Controllers
         [HttpGet("registros/{id}")]
         public async Task<IActionResult> GetRegistros(int id)
         {
+            // Verifica se o usuário existe
             var usuarioExists = await _context.Usuarios.AnyAsync(u => u.Id == id);
             if (!usuarioExists)
             {
-                return NotFound();
+                return NotFound("Usuário não encontrado");
             }
 
+            // Busca registros com junção à esquerda na tabela Granjas
             var registros = await _context.GranjasUsuariosTipos
                 .Where(gut => gut.UsuarioId == id)
                 .Join(_context.TiposUsuario,
                     gut => gut.TipoUsuarioId,
                     tipo => tipo.Id,
                     (gut, tipo) => new { gut, tipo })
-                .Join(_context.Granjas,
+                .GroupJoin(_context.Granjas,
                     combined => combined.gut.GranjaId,
                     granja => granja.Id,
-                    (combined, granja) => new RegistroDTO
-                    {
-                        Id = combined.gut.Id,
-                        NomeTipo = combined.tipo.Tipo,
-                        TipoId = combined.gut.TipoUsuarioId,
-                        NomeGranja = granja.NomePropriedade,
-                        GranjaId = combined.gut.GranjaId
-                    })
+                    (combined, granjas) => new { combined.gut, combined.tipo, granja = granjas.FirstOrDefault() })
+                .Select(result => new RegistroDTO
+                {
+                    Id = result.gut.Id,
+                    NomeTipo = result.tipo.Tipo,
+                    TipoId = result.gut.TipoUsuarioId,
+                    NomeGranja = result.granja != null ? result.granja.NomePropriedade : null,
+                    GranjaId = result.gut.GranjaId
+                })
                 .ToListAsync();
 
             return Ok(new { registros });
         }
+
 
         [HttpPost("registros/token/{id}/")]
         public async Task<IActionResult> GenerateToken(int id)
@@ -120,11 +131,9 @@ namespace bris_API.Controllers
             }
 
             var usuarioId = granjaUsuarioTipo.UsuarioId.ToString();
-            var tipoUsuarioNome = granjaUsuarioTipo.TipoUsuario.Tipo; // Obtém o campo TIPO que é o nome da role
+            var tipoUsuarioNome = granjaUsuarioTipo.TipoUsuario.Tipo;
             var granjaId = granjaUsuarioTipo.GranjaId.ToString();
             var agroindustriaId = granjaUsuarioTipo.Usuario.AgroindustriaId.ToString();
-
-            Console.WriteLine("Tipo de usuário: " + tipoUsuarioNome);
 
             // Gera o token usando o serviço de token com o nome da role
             var token = _tokenService.GenerateToken(usuarioId, tipoUsuarioNome, granjaId, agroindustriaId);
