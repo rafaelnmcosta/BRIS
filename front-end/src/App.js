@@ -21,6 +21,7 @@ import Perfil from './pages/Perfil';
 import EditarPerfil from './pages/EditarPerfil';
 import CadastrarUsuario from './pages/CadastrarUsuario';
 // import ListaGranjas from './pages/Granjas';
+import Teste from './pages/Teste';
 
 const App = () => {
   return (
@@ -44,6 +45,7 @@ const App = () => {
           <Route path="/perfil/:id" element={<ProtectedRoute element={<Perfil />} />} />
           <Route path="/perfil/:id/editar" element={<ProtectedRoute element={<EditarPerfil />} />} />
           {/* <Route path="/granjas" element={<ListaGranjas />} /> */}
+          <Route path="/teste" element={<Teste />} />
         </Routes>
     </BrowserRouter>
   );

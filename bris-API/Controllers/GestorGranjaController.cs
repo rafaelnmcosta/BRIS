@@ -106,7 +106,7 @@ namespace bris_API.Controllers
             return Ok(new { message = "Usuário atualizado com sucesso!" });
         }
 
-        // POST: api/gg/cadastrar
+        // POST: api/gg//usuarios/cadastrar
         [Authorize(Policy = "GerenciaGranja")]
         [HttpPost("usuarios/cadastrar")]
         public async Task<IActionResult> CadastrarUsuario([FromBody] GestorGranjaCadastraUsuarioDto modelUsuario)
@@ -158,7 +158,7 @@ namespace bris_API.Controllers
             return Ok(new { message = "Usuário registrado com sucesso!" });
         }
 
-        // GET: api/gg/ativar
+        // GET: api/gg/usuarios/ativar
         [Authorize(Policy = "VisualizaGranja")]
         [HttpGet("usuarios/ativar")]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuariosParaAtivar()
@@ -178,7 +178,7 @@ namespace bris_API.Controllers
             return Ok(usuarios);
         }
 
-        // POST: api/gg/ativar/{id}
+        // POST: api/gg//usuarios/ativar/{id}
         [Authorize(Policy = "GerenciaGranja")]
         [HttpPost("usuarios/ativar/{id}")]
         public async Task<IActionResult> AtivarUsuario(int id)

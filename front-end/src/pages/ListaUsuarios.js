@@ -13,11 +13,11 @@ const ListaUsuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
   const navigate = useNavigate();
 
-  // Obtém o tipo de usuário do localStorage
   const tipoUsuario = localStorage.getItem('tipoUsuario');
   // const tipoUsuario = '1';
 
   useEffect(() => {
+    /*
     const fetchUsuarios = async () => {
       try {
         const response = await api.get('http://localhost:5206/api/Usuarios/usuarios');
@@ -28,6 +28,14 @@ const ListaUsuarios = () => {
     };
 
     fetchUsuarios();
+    */
+    const usuariosTeste = [
+      { id: 1, nome: 'João Silva', email: 'joao.silva@example.com', tipo: 'Admin' },
+      { id: 2, nome: 'Maria Oliveira', email: 'maria.oliveira@example.com', tipo: 'Gerente' },
+      { id: 3, nome: 'Pedro Santos', email: 'pedro.santos@example.com', tipo: 'Técnico' },
+      { id: 4, nome: 'Ana Costa', email: 'ana.costa@example.com', tipo: 'Admin' }
+    ];
+    setUsuarios(usuariosTeste);
   }, []);
 
   const handleEdit = (usuarioId) => {

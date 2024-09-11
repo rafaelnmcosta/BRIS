@@ -309,7 +309,7 @@ namespace bris_API.Controllers
             return Ok(granja);
         }
 
-        // PUT: api/granjas/{id}
+        // PUT: api/granjas/{id}/editar
         [Authorize(Policy = "GerenciaAgro")]
         [HttpPut("granjas/{id}/editar")]
         public async Task<IActionResult> PutGranja(int id, [FromBody] GestorAgroEditaGranjaDto modelGranja)
@@ -358,9 +358,9 @@ namespace bris_API.Controllers
             return Ok(new { message = "Granja cadastrada com sucesso!" });
         }
 
-        // DELETE: api/granjas/{id}
+        // DELETE: api/granjas/{id}/desativar
         [Authorize(Policy = "GerenciaAgro")]
-        [HttpDelete("granjas/{id}")]
+        [HttpDelete("granjas/{id}/desativar")]
         public async Task<IActionResult> DeleteGranja(int id)
         {
             var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);

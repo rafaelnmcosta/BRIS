@@ -183,7 +183,7 @@ namespace bris_API.Controllers
 
         // DELETE: api/animais/{id}
         [Authorize(Policy = "GerenciaAnimais")]
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}/desativar")]
         public async Task<IActionResult> DeleteAnimal(int id)
         {
             var granjaId = User.FindFirst("GranjaId")?.Value;

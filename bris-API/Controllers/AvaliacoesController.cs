@@ -5,6 +5,7 @@ using System.Security.Claims;
 using bris_API.Data;
 using bris_API.Models;
 using bris_API.DTOs;
+using bris_API.Services;
 
 namespace bris_API.Controllers
 {
@@ -113,7 +114,7 @@ namespace bris_API.Controllers
                 ResultadoFinal = null,
                 Semanas = new List<Semana>(),
                 ProximaDoseSemana = 1,
-                ProximaDoseOrdem = 0
+                ProximaDoseOrdem = 1
             };
 
             _context.Avaliacoes.Add(avaliacao);
@@ -151,7 +152,7 @@ namespace bris_API.Controllers
             }
 
             // Define que a primeira dose pode ser preenchida
-            //var primeiraSemana = avaliacao.Semanas.FirstOrDefault().Doses.FirstOrDefault().PodePreencher = true;
+            avaliacao.Semanas.FirstOrDefault().Doses.FirstOrDefault().PodePreencher = true;
 
             await _context.SaveChangesAsync();
 
@@ -164,6 +165,7 @@ namespace bris_API.Controllers
         public async Task<ActionResult> NovaDose(int id, [FromBody] DoseDto model)
         {
             var granjaId = User.FindFirst("GranjaId")?.Value;
+            var resultsService = new ResultsService();
 
             if (granjaId == null)
             {
@@ -183,11 +185,8 @@ namespace bris_API.Controllers
 
             if (avaliacao.StatusAvaliacao != 1)
             {
-                return Forbid("Apenas avaliações em aberto podem receber novas doses.");
+                return BadRequest("Apenas avaliações em aberto podem receber novas doses.");
             }
-
-            Console.Write("\n\n A proxima semana é: " + avaliacao.ProximaDoseSemana);
-            Console.Write("\n\n A proxima dose é: " + avaliacao.ProximaDoseOrdem);
 
             var dose = avaliacao.Semanas
                 .FirstOrDefault(s => s.NroSemana == avaliacao.ProximaDoseSemana)?
@@ -204,7 +203,8 @@ namespace bris_API.Controllers
             dose.PodePreencher = false;
 
             // Atualiza a próxima dose e semana
-            var avaliacaoAtualizada = AtualizaProximaDose(avaliacao);
+
+            var avaliacaoAtualizada = resultsService.ProcessaAvaliacao(avaliacao);
             avaliacao.ProximaDoseSemana = avaliacaoAtualizada.ProximaDoseSemana;
             avaliacao.ProximaDoseOrdem = avaliacaoAtualizada.ProximaDoseOrdem;
 
@@ -275,104 +275,42 @@ namespace bris_API.Controllers
                 return BadRequest("Avaliação já está interrompida ou finalizada.");
             }
 
-            avaliacao.StatusAvaliacao = 2;
+            avaliacao.StatusAvaliacao = 3;
             await _context.SaveChangesAsync();
 
             return Ok("Avaliação interrompida com sucesso.");
         }
 
-        private int GeraResultadoSemana(Semana semana)
+        // PUT: api/avaliacoes/{id}/reativar
+        [Authorize(Policy = "GerenciaAnimais")]
+        [HttpPut("{id}/reativar")]
+        public async Task<ActionResult> ReativaAvaliacao(int id)
         {
-            // Obtém a dose de 120h
-            var dose120h = semana.Doses.FirstOrDefault(d => d.Ordem == 2);
+            var granjaId = User.FindFirst("GranjaId")?.Value;
             
-            // Obtém a dose de 168h
-            var dose168h = semana.Doses.FirstOrDefault(d => d.Ordem == 3);
-
-            //Caso uma das doses seja nula retorna zero para indicar erro
-            if (dose120h == null || dose168h == null) return 0;
-
-            // Verifica o PMP na dose de 120h
-            if (dose120h.ValorRegistrado < 60)
+            if (granjaId == null)
             {
-                // retorna código para "Maior" caso o PMP às 120h seja menor que 60%;
-                return 3;
+                return Unauthorized("Claims de granja não encontradas.");
             }
 
-            // Verifica o PMP na dose de 120h e na dose de 168h
-            if (dose120h.ValorRegistrado >= 60 && dose168h.ValorRegistrado < 60)
+            var avaliacao = await _context.Avaliacoes
+                .Include(a => a.Animal)
+                .FirstOrDefaultAsync(a => a.Id == id && a.Animal.Granja.Id == int.Parse(granjaId));
+
+            if (avaliacao == null)
             {
-                // retorna código para "Médio"  caso o PMP às 120h seja maior ou igual a 60% e às 168h seja menor que 60%;
-                return 2;
+                return NotFound("Avaliação não encontrada ou não pertence à sua granja.");
             }
 
-            if (dose168h.ValorRegistrado >= 60)
+            if (avaliacao.StatusAvaliacao == 2 || avaliacao.StatusAvaliacao == 3)
             {
-                // retorna código para "Menor" caso o PMP às 168h seja maior ou igual a 60%;
-                return 1; 
+                return BadRequest("Avaliação já está interrompida ou finalizada.");
             }
 
-            // Retorna código para erro se nenhum dos critérios for atendido
-            return 0;
-        }
+            avaliacao.StatusAvaliacao = 1;
+            await _context.SaveChangesAsync();
 
-
-        private bool GeraResultadoFinal(Avaliacao avaliacao)
-        {
-            // Conta quantas semanas obtiveram resultado de sensibilidade "Maior"
-            int semanasComResultadoMaior = avaliacao.Semanas.Count(s => s.Resultado == 3);
-
-            // Retorna false se pelo menos 3 semanas têm resultado "Maior"
-            return semanasComResultadoMaior < 3;
-        }
-
-        private Avaliacao AtualizaProximaDose(Avaliacao avaliacao)
-        {
-            var proximaOrdem = avaliacao.ProximaDoseOrdem + 1;
-
-            // Caso complete as doses da semana, inicia uma nova semana e gera o resultado da semana fechada
-            if (proximaOrdem > 3)
-            {
-                proximaOrdem = 1;
-                var semanaAtual = avaliacao.Semanas
-                    .FirstOrDefault(s => s.NroSemana == avaliacao.ProximaDoseSemana);
-
-                // Verifica se a semanaAtual não é nula antes de calcular o resultado
-                if (semanaAtual != null)
-                {
-                    semanaAtual.Resultado = GeraResultadoSemana(semanaAtual);
-                }
-
-                // Atualiza o número da semana para a próxima
-                avaliacao.ProximaDoseSemana++;
-            }
-
-            // Caso complete as 5 semanas, finaliza a avaliação
-            if (avaliacao.ProximaDoseSemana > 5)
-            {
-                avaliacao.ProximaDoseSemana = -1;
-                avaliacao.ProximaDoseOrdem = -1;
-                avaliacao.StatusAvaliacao = 2;
-                avaliacao.ResultadoFinal = GeraResultadoFinal(avaliacao);
-            }
-            else
-            {
-                // Atualiza a ordem da dose
-                avaliacao.ProximaDoseOrdem = proximaOrdem;
-
-                // Obtém a próxima dose
-                var proximaDose = avaliacao.Semanas
-                    .FirstOrDefault(s => s.NroSemana == avaliacao.ProximaDoseSemana)?
-                    .Doses.FirstOrDefault(d => d.Ordem == avaliacao.ProximaDoseOrdem);
-
-                // Marca a próxima dose como preenchível, se existir
-                if (proximaDose != null)
-                {
-                    proximaDose.PodePreencher = true;
-                }
-            }
-
-            return avaliacao;
+            return Ok("Avaliação interrompida com sucesso.");
         }
 
 

@@ -133,3 +133,10 @@ a {
   align-items: center;
   width: 100%;
 }
+
+.div-centralizada {
+  display: flex;
+  justify-content: center; /* Centraliza horizontalmente */
+  align-items: center; /* Centraliza verticalmente */
+  height: 100vh; /* Define a altura da div, se necessário */
+}

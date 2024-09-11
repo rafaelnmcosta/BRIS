@@ -108,9 +108,9 @@ namespace bris_API.Controllers
             return Ok(new { message = "Agroindústria atualizada com sucesso!" });
         }
 
-        // POST: api/agroindustrias
+        // POST: api/agroindustrias/cadastro
         [Authorize(Policy = "GerenciaTotal")]
-        [HttpPost]
+        [HttpPost("cadastro")]
         public async Task<ActionResult<Agroindustria>> PostAgroindustria([FromBody] AgroindustriaDTO modelAgroindustria)
         {
             var agroindustria = new Agroindustria
@@ -127,9 +127,9 @@ namespace bris_API.Controllers
             return CreatedAtAction(nameof(GetAgroindustria), new { id = agroindustria.Id }, agroindustria);
         }
 
-        // DELETE: api/agroindustrias/{id}
+        // DELETE: api/agroindustrias/{id}/desativar
         [Authorize(Policy = "GerenciaTotal")]
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}/desativar")]
         public async Task<IActionResult> DeleteAgroindustria(int id)
         {
             var agroindustria = await _context.Agroindustrias.FindAsync(id);

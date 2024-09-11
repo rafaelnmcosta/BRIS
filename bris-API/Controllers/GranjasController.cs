@@ -111,13 +111,11 @@ namespace bris_API.Controllers
             return Ok(new { message = "Granja atualizada com sucesso!" });
         }
 
-        // POST: api/granjas
+        // POST: api/granjas/cadastrar
         [Authorize(Policy = "GerenciaTotal")]
-        [HttpPost]
+        [HttpPost("cadastrar")]
         public async Task<IActionResult> PostGranja([FromBody] AdminEditaGranjaDto modelGranja)
         {
-            var agroindustriaId = int.Parse(User.FindFirst("AgroindustriaId")?.Value);
-
             var novaGranja = new Granja
             {
                 NomePropriedade = modelGranja.NomePropriedade,
@@ -133,9 +131,9 @@ namespace bris_API.Controllers
             return Ok(new { message = "Granja cadastrada com sucesso!" });
         }
 
-        // DELETE: api/granjas/{id}
+        // DELETE: api/granjas/{id}/desativar
         [Authorize(Policy = "GerenciaTotal")]
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}/desativar")]
         public async Task<IActionResult> DeleteGranja(int id)
         {
             var granja = await _context.Granjas

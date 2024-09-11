@@ -11,7 +11,7 @@ const Home = () => {
   const navigate = useNavigate();
   
   // const tipoUsuario = localStorage.getItem('tipoUsuario');
-  const tipoUsuario = '1';
+  const tipoUsuario = '2';
 
   if (!tipoUsuario) {
     return <h1>Você precisa estar logado para acessar esta página.</h1>;
@@ -23,7 +23,7 @@ const Home = () => {
         return (
           <>
             <Col span={6}>
-              <button className='button-menu' onClick={() => navigate('/avaliacoes')}>Cadastrar avaliações</button>
+              <button className='button-menu' onClick={() => navigate('/avaliacoes')}>Gerenciar avaliações</button>
             </Col>
             <Col span={6}>
               <button className='button-menu' onClick={() => navigate('/animais')}>Gerenciar animais</button>
@@ -32,10 +32,10 @@ const Home = () => {
               <button className='button-menu' onClick={() => navigate('/usuarios')}>Gerenciar usuários</button>
             </Col>
             <Col span={6}>
-              <button className='button-menu button-desativado' disabled={true} onClick={() => navigate('/granjas')}>Gerenciar granjas</button>
+              <button className='button-menu' disabled={true} onClick={() => navigate('/granjas')}>Gerenciar granjas</button>
             </Col>
             <Col span={6} style={{marginTop: 20}}>
-              <button className='button-menu button-desativado' disabled={true} onClick={() => navigate('/agroindustrias')}>Gerenciar agroindústrias</button>
+              <button className='button-menu' disabled={true} onClick={() => navigate('/agroindustrias')}>Gerenciar agroindústrias</button>
             </Col>
           </>
         );
@@ -43,13 +43,13 @@ const Home = () => {
       case '2': // Gestor de Granja
         return (
           <>
-            <Col span={6}>
+            <Col span={8}>
               <button className='button-menu' onClick={() => navigate('/avaliacoes')}>Gerenciar avaliações</button>
             </Col>
-            <Col span={6}>
+            <Col span={8}>
               <button className='button-menu' onClick={() => navigate('/animais')}>Gerenciar animais</button>
             </Col>
-            <Col span={6}>
+            <Col span={8}>
               <button className='button-menu' onClick={() => navigate('/usuarios')}>Gerenciar usuários</button>
             </Col>
           </>
@@ -58,13 +58,13 @@ const Home = () => {
       case '3': // Gestor de Agroindústria
         return (
           <>
-            <Col span={6}>
+            <Col span={8}>
               <button className='button-menu' onClick={() => navigate('/animais')}>Visualizar animais</button>
             </Col>
-            <Col span={6}>
+            <Col span={8}>
               <button className='button-menu' onClick={() => navigate('/usuarios')}>Gerenciar usuários</button>
             </Col>
-            <Col span={6}>
+            <Col span={8}>
               <button className='button-menu button-desativado' disabled={true} onClick={() => navigate('/granjas')}>Gerenciar granjas</button>
             </Col>
           </>
@@ -73,10 +73,10 @@ const Home = () => {
       case '4': // Técnico
         return (
           <>
-            <Col span={6}>
+            <Col span={12}>
               <button className='button-menu' onClick={() => navigate('/avaliacoes')}>Gerenciar avaliações</button>
             </Col>
-            <Col span={6}>
+            <Col span={12}>
               <button className='button-menu' onClick={() => navigate('/animais')}>Gerenciar animais</button>
             </Col>
           </>
