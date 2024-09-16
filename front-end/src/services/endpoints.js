@@ -25,7 +25,6 @@ const endpoints = {
     listarAcessos: (id) => `${API_BASE_URL}/auth/acessos/${id}`,
     receberToken: (id) => `${API_BASE_URL}/auth/acessos/token/${id}`,
     recuperarSenha: `${API_BASE_URL}/auth/recuperar-senha`
-
   },
   avaliacoes: {
     listar: `${API_BASE_URL}/avalicoes`,
