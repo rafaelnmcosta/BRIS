@@ -4,9 +4,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './services/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Teste from './pages/Teste';
+import Home from './components/pages/Home';
+import Login from './components/pages/Login';
+import Teste from './components/pages/Teste';
 
 function App() {
   return (

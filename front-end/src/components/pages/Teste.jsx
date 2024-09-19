@@ -1,5 +1,7 @@
 import React from 'react';
-import { useAuth } from '../services/AuthContext';
+import { useAuth } from '../../services/AuthContext';
+import InputSemBordaComLabel from '../molecules/InputSemBordaComLabel';
+import { MailOutlined } from '@ant-design/icons';
 
 const Teste = () => {
   const { isAuthenticated, login, logout } = useAuth();
@@ -20,6 +22,11 @@ const Teste = () => {
       ) : (
         <button onClick={handleLogin}>Login</button>
       )}
+      <InputSemBordaComLabel
+        label="Testeeeee"
+        placeholder="Receba seu placeholder"
+        icone={<MailOutlined/>}
+      />
     </div>
   );
 };
