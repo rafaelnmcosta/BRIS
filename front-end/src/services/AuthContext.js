@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 const AuthContext = createContext();
 
 export const useAuth = () => {
-  console.log("Chamou o hook\n");
   return useContext(AuthContext);
 };
 
@@ -20,14 +19,14 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (token) => {
-    console.log("GUARDANDO TOKEN: " + token);
+    //console.log("GUARDANDO TOKEN: " + token);
     sessionStorage.setItem('jwtToken', token);
     setIsAuthenticated(true);
     navigate('/home');
   };
 
   const logout = () => {
-    console.log("REMOVENDO TOKEN\n");
+    //console.log("REMOVENDO TOKEN\n");
     sessionStorage.removeItem('jwtToken');
     setIsAuthenticated(false);
     navigate('/login');

@@ -1,16 +1,13 @@
 import React from 'react';
 import { Button } from 'antd';
 
-const BotaoPrimario = ({ texto, icone }) => {
+const BotaoPrimario = ({ texto, onClick }) => {
   return (
-    <Button 
-      type='primary' 
-      shape='round' 
-      icon={icone ? icone : null}>
-
-      {texto}
-
-    </Button>
+    <div>
+      <Button type="primary" onClick={onClick} className="bg-green hover:!bg-green-dark text-white font-bold px-10 rounded-full h-10">
+        {texto}
+      </Button>
+    </div>
   );
 };
 

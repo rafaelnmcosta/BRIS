@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';  // Importa o axios para fazer requisições HTTP
+import axios from 'axios';
 import '../App.css';
 import './FormCadastro.css';
 
