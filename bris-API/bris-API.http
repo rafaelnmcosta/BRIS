@@ -1,6 +1,3 @@
-@bris_API_HostAddress = http://localhost:5206
-
-GET {{bris_API_HostAddress}}/weatherforecast/
-Accept: application/json
+@bris_API_HostAddress = http://localhost:5000
 
 ###

@@ -1,0 +1,52 @@
+image: docker:latest
+
+services:
+  - docker:dind
+
+stages:
+  - build
+  - deploy
+
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
+  APP_NAME: bris-web
+  REACT_APP_NAME: bris-frontend
+  DOTNET_APP_NAME: bris-api
+  POSTGRES_DB: bris-database
+  TAG: $CI_COMMIT_SHORT_SHA
+
+before_script:
+  - dotnet restore
+  - docker info
+
+build_api:
+  stage: build
+  script:
+    - docker build -t $APP_NAME-api:$TAG ./bris-API
+    - docker push $CI_REGISTRY_IMAGE/$APP_NAME-api:$TAG
+  only:
+    - main
+  tags:
+    - docker
+
+build_frontend:
+  stage: build
+  script:
+    - docker build -t $APP_NAME-frontend:$TAG ./front-end
+    - docker push $CI_REGISTRY_IMAGE/$APP_NAME-frontend:$TAG
+  only:
+    - main
+  tags:
+    - docker
+
+deploy_production:
+  stage: deploy
+  script:
+    - docker pull $CI_REGISTRY_IMAGE/$APP_NAME-api:$TAG
+    - docker pull $CI_REGISTRY_IMAGE/$APP_NAME-frontend:$TAG
+    - docker-compose -f docker-compose.yml up -d
+  only:
+    - main
+  tags:
+    - docker

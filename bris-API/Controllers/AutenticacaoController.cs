@@ -29,7 +29,7 @@ namespace bris_API.Controllers
             if (await _context.Usuarios.AnyAsync(u => u.Email == modelUsuario.Email))
                 return BadRequest("Já existe um usuário com esse email!");
 
-            Console.Write("email: " + modelUsuario.Email + "\nsenha: " + modelUsuario.Senha + "\ncpf: " + modelUsuario.CPF + "\n");
+            //Console.Write("email: " + modelUsuario.Email + "\nsenha: " + modelUsuario.Senha + "\ncpf: " + modelUsuario.CPF + "\n");
             var usuario = new Usuario
             {
                 Nome = modelUsuario.Nome,

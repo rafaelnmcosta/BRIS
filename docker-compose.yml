@@ -1,0 +1,59 @@
+services:
+  # Serviço para a API .NET
+  api:
+    build:
+      context: ./bris-API
+      dockerfile: Dockerfile
+    ports:
+      - "5000:80"  # A API sempre usará 5000:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${MODE:-Production}  # ambiente para a api
+    depends_on:
+      - db
+    networks:
+      - bris-net
+
+# Serviço de migrations
+  migrations:
+    image: bris-api  # Reutilizando a imagem da API
+    command: dotnet ef database update  # Comando para rodar as migrations
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${MODE:-Production} # ambiente para as migrations
+    networks:
+      - bris-net
+    depends_on:
+      - db  # Garantir que o banco de dados esteja rodando antes das migrations
+
+
+  # Serviço para o Frontend React
+  frontend:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+    ports:
+      - "3000:${FRONTEND_PORT:-80}" # Porta dinâmica, 3000:3000 para dev ou 3000:80 para prod
+    environment:
+      - NODE_ENV=${MODE:-production}  # ambiente para o frontend
+    networks:
+      - bris-net
+
+  # Serviço para o banco de dados PostgreSQL
+  db:
+    image: postgres:15.7
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: bris_database
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - bris-net
+
+networks:
+  bris-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
