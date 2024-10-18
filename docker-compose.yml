@@ -5,9 +5,9 @@ services:
       context: ./bris-API
       dockerfile: Dockerfile
     ports:
-      - "5000:80"  # A API sempre usará 5000:80
+      - "5000:80" 
     environment:
-      - ASPNETCORE_ENVIRONMENT=${MODE:-Production}  # ambiente para a api
+      - ASPNETCORE_ENVIRONMENT=Production  # ambiente para a api
     depends_on:
       - db
     networks:
@@ -15,10 +15,11 @@ services:
 
 # Serviço de migrations
   migrations:
-    image: bris-api  # Reutilizando a imagem da API
+    build:
+      context: ./bris-API  # Reutilizando o build da API
     command: dotnet ef database update  # Comando para rodar as migrations
     environment:
-      - ASPNETCORE_ENVIRONMENT=${MODE:-Production} # ambiente para as migrations
+      - ASPNETCORE_ENVIRONMENT=Production # ambiente para as migrations
     networks:
       - bris-net
     depends_on:
@@ -31,9 +32,9 @@ services:
       context: ./front-end
       dockerfile: Dockerfile
     ports:
-      - "3000:${FRONTEND_PORT:-80}" # Porta dinâmica, 3000:3000 para dev ou 3000:80 para prod
+      - "3000:80" 
     environment:
-      - NODE_ENV=${MODE:-production}  # ambiente para o frontend
+      - NODE_ENV=production # ambiente para o frontend
     networks:
       - bris-net
 
@@ -47,7 +48,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       - bris-net
 
