@@ -104,9 +104,10 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
+
 builder.Logging.AddConsole();
-
-
+    
 var app = builder.Build();
 
 // Configuração do Swagger
