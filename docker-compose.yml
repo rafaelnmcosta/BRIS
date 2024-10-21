@@ -15,18 +15,17 @@ services:
 
 # Serviço de migrations
   migrations:
-    image: mcr.microsoft.com/dotnet/sdk:8.0  # Usando a imagem do SDK do .NET
-    working_dir: /src
-    volumes:
-      - ./bris-API:/src  # Montando o diretório da API no container
-    entrypoint: ["dotnet", "tool", "install", "--global", "dotnet-ef"]  # Instalar a ferramenta dotnet-ef
-    command: ["dotnet-ef", "database", "update"]  # Rodar as migrations
+    build:
+      context: ./bris-API
+      dockerfile: Dockerfile  # Certifique-se que é o Dockerfile correto
+    command: dotnet ef database update
     environment:
-      - ASPNETCORE_ENVIRONMENT=${MODE:-Production}
-    depends_on:
-      - db
+      - ASPNETCORE_ENVIRONMENT=Production # ambiente para as migrations
     networks:
       - bris-net
+    depends_on:
+      - db  # Garantir que o banco de dados esteja rodando antes das migrations
+
   # Serviço para o Frontend React
   frontend:
     build:
