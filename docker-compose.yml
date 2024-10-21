@@ -19,7 +19,7 @@ services:
       context: ./front-end
       dockerfile: Dockerfile
     ports:
-      - "5432:80" 
+      - "443:80" 
     environment:
       - NODE_ENV=production # ambiente para o frontend
     networks:
@@ -29,16 +29,13 @@ services:
   migrations:
     build:
       context: ./bris-API
-      dockerfile: Dockerfile
-    command: ["dotnet", "ef", "database", "update"]  # Execute o comando de migrations
+      dockerfile: Dockerfile.migrations  # Especifica o Dockerfile para migrations
     environment:
       - ASPNETCORE_ENVIRONMENT=Production # ambiente para as migrations
     networks:
       - bris-net
     depends_on:
       - db  # Garantir que o banco de dados esteja rodando antes das migrations
-    volumes:
-      - ./bris-API:/src  # Monta o código-fonte para que as migrations sejam acessíveis
 
   # Serviço para o banco de dados PostgreSQL
   db:
@@ -50,7 +47,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "5432:5432"
     networks:
       - bris-net
 
