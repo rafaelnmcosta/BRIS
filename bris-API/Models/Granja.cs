@@ -11,7 +11,7 @@ namespace bris_API.Models {
         public string? CNPJ { get; set; }
 
         [JsonIgnore]
-        public ICollection<GranjaUsuarioTipo>? GranjasUsuariosTipos { get; set; }
+        public ICollection<Vinculos>? Vinculos { get; set; }
         public bool Ativo { get; set; }
     }
 }

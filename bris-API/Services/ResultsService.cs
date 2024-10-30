@@ -3,7 +3,7 @@ using bris_API.Models;
 
 namespace bris_API.Services
 {
-    public class ResultsService
+    public class ResultsService : IResultsService
     {
         private int GeraResultadoSemana(Semana semana)
         {

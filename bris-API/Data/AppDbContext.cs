@@ -6,18 +6,24 @@ namespace bris_API.Data
 {
     public class AppDbContext : DbContext
     {
+        private readonly IPopulateDbService _populateDbService;
+
+        public AppDbContext(DbContextOptions<AppDbContext> options, IPopulateDbService populateDbService) 
+            : base(options)
+        {
+            _populateDbService = populateDbService;
+        }
+
         public DbSet<Agroindustria> Agroindustrias { get; set; }
         public DbSet<Animal> Animais { get; set; }
         public DbSet<Avaliacao> Avaliacoes { get; set; }
         public DbSet<Dose> Doses { get; set; }
         public DbSet<Granja> Granjas { get; set; }
-        public DbSet<GranjaUsuarioTipo> GranjasUsuariosTipos { get; set; }
+        public DbSet<Vinculos> Vinculos { get; set; } // Alterado
         public DbSet<Semana> Semanas { get; set; }
         public DbSet<Senha> Senhas { get; set; }
         public DbSet<TipoUsuario> TiposUsuario { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
-
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,12 +33,6 @@ namespace bris_API.Data
                 .WithOne(s => s.Usuario)
                 .HasForeignKey<Senha>(s => s.UsuarioId);
             
-            // Relação 1-N Agroindustria-Usuario
-            modelBuilder.Entity<Usuario>()
-                .HasOne(u => u.Agroindustria)
-                .WithMany(a => a.Usuarios)
-                .HasForeignKey(u => u.AgroindustriaId);
-
             // Relação 1-N Agroindustria-Granja
             modelBuilder.Entity<Granja>()
                 .HasOne(g => g.Agroindustria)
@@ -75,62 +75,30 @@ namespace bris_API.Data
                 .WithMany(u => u.Doses)
                 .HasForeignKey(d => d.UsuarioId);
 
-            // Relação N-N Granja_Usuario_Tipo
-            modelBuilder.Entity<GranjaUsuarioTipo>()
-                .HasOne(gut => gut.Granja)
-                .WithMany(g => g.GranjasUsuariosTipos)
-                .HasForeignKey(gut => gut.GranjaId);
+            // Relação N-N Vinculos
+            modelBuilder.Entity<Vinculos>()
+                .HasOne(v => v.Granja)
+                .WithMany(g => g.Vinculos)
+                .HasForeignKey(v => v.GranjaId);
 
-            modelBuilder.Entity<GranjaUsuarioTipo>()
-                .HasOne(gut => gut.Usuario)
-                .WithMany(u => u.GranjasUsuariosTipos)
-                .HasForeignKey(gut => gut.UsuarioId);
+            modelBuilder.Entity<Vinculos>()
+                .HasOne(v => v.Usuario)
+                .WithMany(u => u.Vinculos)
+                .HasForeignKey(v => v.UsuarioId);
 
-            modelBuilder.Entity<GranjaUsuarioTipo>()
-                .HasOne(gut => gut.TipoUsuario)
-                .WithMany(t => t.GranjasUsuariosTipos)
-                .HasForeignKey(gut => gut.TipoUsuarioId);
+            modelBuilder.Entity<Vinculos>()
+                .HasOne(v => v.TipoUsuario)
+                .WithMany(t => t.Vinculos)
+                .HasForeignKey(v => v.TipoUsuarioId);
 
-            // Inserção de dados iniciais para a tabela TiposUsuario
-            modelBuilder.Entity<TipoUsuario>().HasData(
-                new TipoUsuario { Id = 1, Tipo = "ADMIN", Descricao = "Administrador do sistema" },
-                new TipoUsuario { Id = 2, Tipo = "GESTOR_GRANJA", Descricao = "Gestor de granjas" },
-                new TipoUsuario { Id = 3, Tipo = "GESTOR_AGRO", Descricao = "Gestor de agroindústrias" },
-                new TipoUsuario { Id = 4, Tipo = "TECNICO", Descricao = "Técnico de campo" },
-                new TipoUsuario { Id = 5, Tipo = "VISUALIZADOR", Descricao = "Usuário com acesso somente leitura" },
-                new TipoUsuario { Id = 98, Tipo = "PENDENTE", Descricao = "Usuário pendente de ativação" },
-                new TipoUsuario { Id = 99, Tipo = "INATIVO", Descricao = "Usuário inativo" }
-            );
+            modelBuilder.Entity<Vinculos>()
+                .HasOne(v => v.Agroindustria)
+                .WithMany(a => a.Vinculos)
+                .HasForeignKey(v => v.AgroindustriaId);
 
-            // Dados iniciais para Agroindustria
-            modelBuilder.Entity<Agroindustria>().HasData(
-                new Agroindustria { Id = 1, NomeFantasia = "Agroindustria Default", RazaoSocial = "Agroindustria Default", CNPJ = "00000000000100", Ativo = true}
-            );
+            // Insere informações diretamente no banco de dados
+            _populateDbService.SeedData(modelBuilder);
 
-            // Dados iniciais para Granja
-            modelBuilder.Entity<Granja>().HasData(
-                new Granja { Id = 1, NomePropriedade = "Granja Teste", AgroindustriaId = 1, Endereco = "Rua teste", CNPJ = "99999999000199", Ativo = true }
-            );
-
-            // Dados iniciais para o Admin
-            modelBuilder.Entity<Usuario>().HasData(
-                new Usuario { Id = 1, Nome = "Admin", Email = "admin@gmail.com", CPF = "00000000000", AgroindustriaId = 1 }
-            );
-
-            var salt = PasswordService.GenerateSalt();
-            var hash = PasswordService.HashPassword("123456", salt);
-
-            // Dados da senha para o Admin
-            modelBuilder.Entity<Senha>().HasData(
-                new Senha { Id = 1, UsuarioId = 1, SenhaHash = hash, Salt = salt }
-            );
-
-            // Linka todos os Dados na tabela de relação
-            modelBuilder.Entity<GranjaUsuarioTipo>().HasData(
-                new GranjaUsuarioTipo { Id = 1, UsuarioId = 1, GranjaId = 1, TipoUsuarioId = 1 }
-            );
-
-            // Aplica as configurações
             base.OnModelCreating(modelBuilder);
         }
     }

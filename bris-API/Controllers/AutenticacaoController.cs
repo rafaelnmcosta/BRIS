@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Net.Mail;
 
 using bris_API.Data;
 using bris_API.Models;
@@ -15,11 +14,15 @@ namespace bris_API.Controllers
     {
         private readonly AppDbContext _context;
         private readonly ITokenService _tokenService;
+        private readonly IPasswordService _passwordService;
+        private readonly IEmailService _emailService;
 
-        public AutenticacaoController(AppDbContext context, ITokenService tokenService)
+        public AutenticacaoController(AppDbContext context, ITokenService tokenService, IPasswordService passwordService, IEmailService emailService)
         {
             _context = context;
             _tokenService = tokenService;
+            _passwordService = passwordService;
+            _emailService = emailService;
         }
 
 
@@ -29,7 +32,6 @@ namespace bris_API.Controllers
             if (await _context.Usuarios.AnyAsync(u => u.Email == modelUsuario.Email))
                 return BadRequest("Já existe um usuário com esse email!");
 
-            //Console.Write("email: " + modelUsuario.Email + "\nsenha: " + modelUsuario.Senha + "\ncpf: " + modelUsuario.CPF + "\n");
             var usuario = new Usuario
             {
                 Nome = modelUsuario.Nome,
@@ -41,8 +43,8 @@ namespace bris_API.Controllers
             _context.Usuarios.Add(usuario);
             await _context.SaveChangesAsync();
              
-            var salt = PasswordService.GenerateSalt();
-            var hash = PasswordService.HashPassword(modelUsuario.Senha, salt);
+            var salt = _passwordService.GenerateSalt();
+            var hash = _passwordService.HashPassword(modelUsuario.Senha, salt);
 
             var senha = new Senha
             {
@@ -72,7 +74,7 @@ namespace bris_API.Controllers
                 .Include(u => u.Senha)
                 .FirstOrDefaultAsync(u => u.Email == modelLogin.Email);
 
-            if (usuario == null || !PasswordService.VerifyPassword(modelLogin.Senha, usuario.Senha.Salt, usuario.Senha.SenhaHash))
+            if (usuario == null || !_passwordService.VerifyPassword(modelLogin.Senha, usuario.Senha.Salt, usuario.Senha.SenhaHash))
             {
                 return Unauthorized();
             }
@@ -155,11 +157,11 @@ namespace bris_API.Controllers
             }
 
             // Gerar nova senha aleatória
-            var novaSenha = PasswordService.GenerateRandomPassword(6);
+            var novaSenha = _passwordService.GenerateRandomPassword(6);
 
             // Criar hash e salt da nova senha
-            var salt = PasswordService.GenerateSalt();
-            var hash = PasswordService.HashPassword(novaSenha, salt);
+            var salt = _passwordService.GenerateSalt();
+            var hash = _passwordService.HashPassword(novaSenha, salt);
 
             // Atualizar senha no banco de dados
             var senha = await _context.Senhas.FirstOrDefaultAsync(s => s.UsuarioId == usuario.Id);
@@ -175,43 +177,10 @@ namespace bris_API.Controllers
             await _context.SaveChangesAsync();
 
             // Enviar nova senha por email
-            await EnviarEmailRecuperacaoSenha(usuario.Email, novaSenha);
+            await _emailService.EnviarEmailRecuperacaoSenha(usuario.Email, novaSenha);
 
             return Ok(new { message = "Nova senha enviada para o email informado." });
         }
 
-        private async Task EnviarEmailRecuperacaoSenha(string email, string novaSenha)
-        {
-            var remetente = new MailAddress("bris.suporte@gmail.com", "Suporte BRIS");
-            var destino = new MailAddress(email);
-            const string assunto = "Recuperação de Senha - BRIS";
-            string corpo = $"Sua nova senha é: {novaSenha}.";
-
-            using (var smtp = new SmtpClient
-            {
-                Host = "smtp.gmail.com",
-                Port = 587,
-                EnableSsl = true,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                UseDefaultCredentials = false,
-                Credentials = new System.Net.NetworkCredential(remetente.Address, "ojhnvldjueenmjnk")
-            })
-            {
-                using (var message = new MailMessage(remetente, destino)
-                {
-                    Subject = assunto,
-                    Body = corpo
-                })
-                try
-                {
-                    await smtp.SendMailAsync(message);
-                }
-                catch (SmtpException ex)
-                {
-                    Console.WriteLine($"Erro ao enviar e-mail: {ex.Message}");
-                    throw;
-                }
-            }
-        }
     }
 }

@@ -8,9 +8,9 @@ namespace bris_API.Models
         public string? Nome { get; set; }
         public string? Email { get; set; }
         public string? CPF { get; set; }
+        
+        [JsonIgnore]
         public Senha? Senha { get; set; }
-        public Agroindustria? Agroindustria { get; set; }
-        public int? AgroindustriaId { get; set; }
 
         [JsonIgnore]
         public ICollection<Dose>? Doses { get; set; }
@@ -19,6 +19,6 @@ namespace bris_API.Models
         public ICollection<Animal>? Animais { get; set; }
 
         [JsonIgnore]
-        public ICollection<GranjaUsuarioTipo>? GranjasUsuariosTipos { get; set; }
+        public ICollection<Vinculos>? Vinculos { get; set; }
     }
 }

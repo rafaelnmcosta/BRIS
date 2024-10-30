@@ -3,18 +3,18 @@ using System.Text;
 
 namespace bris_API.Services
 {
-    public class PasswordService
+    public class PasswordService : IPasswordService
     {
-        public static string GenerateSalt()
-        {
+        private static readonly char[] Characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()".ToCharArray();
+
+        public string GenerateSalt(){
             var rng = new RNGCryptoServiceProvider();
             var saltBytes = new byte[16];
             rng.GetBytes(saltBytes);
             return Convert.ToBase64String(saltBytes);
         }
 
-        public static string HashPassword(string password, string salt)
-        {
+        public string HashPassword(string password, string salt){
             var sha256 = SHA256.Create();
             var saltedPassword = password + salt;
             var saltedPasswordBytes = Encoding.UTF8.GetBytes(saltedPassword);
@@ -22,22 +22,16 @@ namespace bris_API.Services
             return Convert.ToBase64String(hashBytes);
         }
 
-        public static bool VerifyPassword(string password, string salt, string hash)
-        {
+        public bool VerifyPassword(string password, string salt, string hash){
             var hashOfInput = HashPassword(password, salt);
             return hashOfInput == hash;
         }
-        private static readonly char[] Characters = 
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()".ToCharArray();
 
-        public static string GenerateRandomPassword(int length)
-        {
+        public string GenerateRandomPassword(int length){
             var password = new StringBuilder();
             using (var rng = RandomNumberGenerator.Create())
             {
                 var randomBytes = new byte[length];
-
-                // Preenche o array com números aleatórios.
                 rng.GetBytes(randomBytes);
 
                 for (int i = 0; i < length; i++)
@@ -49,6 +43,5 @@ namespace bris_API.Services
 
             return password.ToString();
         }
-
     }
 }

@@ -59,7 +59,7 @@ namespace bris_API.Controllers
             _context.Senhas.Add(senha);
             await _context.SaveChangesAsync();
 
-            var granjaUsuarioTipo = new GranjaUsuarioTipo
+            var granjaUsuarioTipo = new Vinculos
             {
                 UsuarioId = usuario.Id,
                 GranjaId = modelUsuario.GranjaId,
@@ -188,7 +188,7 @@ namespace bris_API.Controllers
                 else
                 {
                     // Lógica para adicionar um novo acesso, se necessário
-                    var novoacesso = new GranjaUsuarioTipo
+                    var novoacesso = new Vinculos
                     {
                         UsuarioId = id,
                         TipoUsuarioId = nivelAcesso.TipoUsuarioId,

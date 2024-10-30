@@ -132,7 +132,7 @@ namespace bris_API.Controllers
                 else
                 {
                     // Lógica para adicionar um novo acesso, se necessário
-                    var novoAcesso = new GranjaUsuarioTipo
+                    var novoAcesso = new Vinculos
                     {
                         UsuarioId = id,
                         TipoUsuarioId = nivelAcesso.TipoUsuarioId,
@@ -178,7 +178,7 @@ namespace bris_API.Controllers
             await _context.SaveChangesAsync();
 
             // Cria acesso em GranjasUsuariosTipos
-            var granjaUsuarioTipo = new GranjaUsuarioTipo
+            var granjaUsuarioTipo = new Vinculos
             {
                 UsuarioId = novoUsuario.Id,
                 GranjaId = modelUsuario.GranjaId,

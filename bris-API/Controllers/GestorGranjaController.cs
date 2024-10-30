@@ -145,7 +145,7 @@ namespace bris_API.Controllers
             await _context.SaveChangesAsync();
 
             // Cria registro em GranjasUsuariosTipos
-            var granjaUsuarioTipo = new GranjaUsuarioTipo
+            var granjaUsuarioTipo = new Vinculos
             {
                 UsuarioId = novoUsuario.Id,
                 GranjaId = int.Parse(granjaId),

@@ -12,6 +12,9 @@ namespace bris_API.Models {
 
         [JsonIgnore]
         public ICollection<Usuario>? Usuarios { get; set; }
+
+        [JsonIgnore]
+        public ICollection<Vinculos>? Vinculos { get; set; }
         public bool Ativo { get; set; }
     }    
 }
