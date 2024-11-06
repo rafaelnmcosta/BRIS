@@ -11,7 +11,7 @@ namespace bris_API.Models {
         public string? CNPJ { get; set; }
 
         [JsonIgnore]
-        public ICollection<Vinculos>? Vinculos { get; set; }
+        public ICollection<Vinculo>? Vinculos { get; set; }
         public bool Ativo { get; set; }
     }
 }

@@ -15,15 +15,17 @@ namespace bris_API.Data
         }
 
         public DbSet<Agroindustria> Agroindustrias { get; set; }
+        public DbSet<Granja> Granjas { get; set; }
         public DbSet<Animal> Animais { get; set; }
         public DbSet<Avaliacao> Avaliacoes { get; set; }
-        public DbSet<Dose> Doses { get; set; }
-        public DbSet<Granja> Granjas { get; set; }
-        public DbSet<Vinculos> Vinculos { get; set; } // Alterado
         public DbSet<Semana> Semanas { get; set; }
-        public DbSet<Senha> Senhas { get; set; }
-        public DbSet<TipoUsuario> TiposUsuario { get; set; }
+        public DbSet<Dose> Doses { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Senha> Senhas { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<Policy> Policy { get; set; }
+        public DbSet<PolicyRole> PolicyRoles { get; set; }
+        public DbSet<Vinculo> Vinculos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -76,25 +78,36 @@ namespace bris_API.Data
                 .HasForeignKey(d => d.UsuarioId);
 
             // Relação N-N Vinculos
-            modelBuilder.Entity<Vinculos>()
+            modelBuilder.Entity<Vinculo>()
                 .HasOne(v => v.Granja)
                 .WithMany(g => g.Vinculos)
                 .HasForeignKey(v => v.GranjaId);
 
-            modelBuilder.Entity<Vinculos>()
+            modelBuilder.Entity<Vinculo>()
                 .HasOne(v => v.Usuario)
                 .WithMany(u => u.Vinculos)
                 .HasForeignKey(v => v.UsuarioId);
 
-            modelBuilder.Entity<Vinculos>()
-                .HasOne(v => v.TipoUsuario)
+            modelBuilder.Entity<Vinculo>()
+                .HasOne(v => v.Role)
                 .WithMany(t => t.Vinculos)
-                .HasForeignKey(v => v.TipoUsuarioId);
+                .HasForeignKey(v => v.RoleId);
 
-            modelBuilder.Entity<Vinculos>()
+            modelBuilder.Entity<Vinculo>()
                 .HasOne(v => v.Agroindustria)
                 .WithMany(a => a.Vinculos)
                 .HasForeignKey(v => v.AgroindustriaId);
+            
+            // Relação N-N Policy-Roles
+            modelBuilder.Entity<PolicyRole>()
+                .HasOne(pr => pr.Policy)
+                .WithMany(p => p.PolicyRoles)
+                .HasForeignKey(pr => pr.PolicyId);
+
+            modelBuilder.Entity<PolicyRole>()
+                .HasOne(pr => pr.Role)
+                .WithMany(r => r.PolicyRoles)
+                .HasForeignKey(pr => pr.RoleId);
 
             // Insere informações diretamente no banco de dados
             _populateDbService.SeedData(modelBuilder);

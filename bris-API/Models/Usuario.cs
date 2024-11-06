@@ -19,6 +19,6 @@ namespace bris_API.Models
         public ICollection<Animal>? Animais { get; set; }
 
         [JsonIgnore]
-        public ICollection<Vinculos>? Vinculos { get; set; }
+        public ICollection<Vinculo>? Vinculos { get; set; }
     }
 }

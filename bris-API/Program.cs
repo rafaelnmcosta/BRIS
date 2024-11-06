@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Logging.Console;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 using bris_API.Data;
@@ -19,6 +20,7 @@ builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPopulateDbService, PopulateDbService>();
 builder.Services.AddScoped<IResultsService, ResultsService>();
+builder.Services.AddScoped<IWorkingService, WorkingService>();
 
 // adicionando os controllers
 builder.Services.AddControllers();
@@ -101,29 +103,18 @@ builder.Services.AddAuthentication(options =>
 
 });
 
-//Configuração dos níveis de Autorização
-var policyRolesMap = new Dictionary<string, string[]>
+// Configuração de autorização com policies dinâmicas
+using (var serviceProvider = builder.Services.BuildServiceProvider())
 {
-    { "VisualizaTotal", new[] { "ADMIN" } },
-    { "VisualizaAgro", new[] { "ADMIN", "GESTOR_AGRO", "VISUALIZADOR" } },
-    { "VisualizaGranja", new[] { "ADMIN", "GESTOR_AGRO", "GESTOR_GRANJA", "VISUALIZADOR" } },
-    { "VisualizaAnimais", new[] { "ADMIN", "GESTOR_AGRO", "GESTOR_GRANJA", "VISUALIZADOR", "TECNICO" } },
-    { "GerenciaTotal", new[] { "ADMIN" } },
-    { "GerenciaAgro", new[] { "ADMIN", "GESTOR_AGRO" } },
-    { "GerenciaGranja", new[] { "ADMIN", "GESTOR_GRANJA" } },
-    { "GerenciaAnimais", new[] { "ADMIN", "GESTOR_GRANJA", "TECNICO" } },
-    { "TodosUsuarios", new[] { "ADMIN", "GESTOR_AGRO", "GESTOR_GRANJA", "VISUALIZADOR", "TECNICO" } }
-};
+    var dbContext = serviceProvider.GetRequiredService<AppDbContext>();
+    var workingServices = serviceProvider.GetRequiredService<IWorkingService>();
 
-// Configuração de Autorização baseada nas Roles do dicionário
-builder.Services.AddAuthorization(options =>
-{
-    foreach (var policy in policyRolesMap)
+    builder.Services.AddAuthorization(options =>
     {
-        options.AddPolicy(policy.Key, policyBuilder =>
-            policyBuilder.RequireRole(policy.Value));
-    }
-});
+        workingServices.ConfigurePolicies(options, dbContext);
+    });
+}
+
 
 // Adicionando o swagger
 builder.Services.AddSwaggerGen(c =>
@@ -131,24 +122,24 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new() { Title = "BRIS API", Version = "v1.1" });
 
     // adicionando o token no swagger
-    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        In = ParameterLocation.Header,
         Description = "Por favor, insira o token JWT no formato: Bearer {token}",
         Name = "Authorization",
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Type = SecuritySchemeType.ApiKey,
         BearerFormat = "JWT",
         Scheme = "Bearer"
     });
 
-    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            new OpenApiSecurityScheme
             {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                Reference = new OpenApiReference
                 {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
                 }
             },

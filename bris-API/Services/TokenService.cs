@@ -45,7 +45,7 @@ namespace bris_API.Services
 
 
         // Gera um token com informações adicionais do vínculo selecionado pelo usuário
-        public string GenerateTokenVinculo(string userId, string role, string granjaId, string agroindustriaId, string userIp, string userAgent)
+        public string GenerateTokenVinculo(string userId, string vinculoId, string role, string granjaId, string agroindustriaId, string userIp, string userAgent)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
@@ -55,6 +55,7 @@ namespace bris_API.Services
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, userId),
+                    new Claim("VinculoId", vinculoId),
                     new Claim(ClaimTypes.Role, role),
                     new Claim("GranjaId", granjaId),
                     new Claim("AgroindustriaId", agroindustriaId),
@@ -88,10 +89,9 @@ namespace bris_API.Services
             return JWT.Decode(encryptedToken, _encryptionKey);
         }
 
-        // Valida o token decriptado e obtém os claims se for válido
-        public ClaimsPrincipal ValidateGetClaims(string token, string currentIp, string currentUserAgent)
+        // decripta o token, valida, obtém os claims e retorna as claims apenas se o usuário for válido no sistema
+        public ClaimsPrincipal ValidateToken(string token, string currentIp, string currentUserAgent)
         {
-            string decryptedToken = DecryptToken(token);
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
 
@@ -105,7 +105,7 @@ namespace bris_API.Services
                 ValidAudience = _configuration["Jwt:Audience"],
                 IssuerSigningKey = new SymmetricSecurityKey(key)
             };
-            var principal = tokenHandler.ValidateToken(decryptedToken, validationParameters, out _);
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
 
             // Verifica se o IP e o User-Agent do token coincidem com a requisição atual
             var ipClaim = principal.FindFirst("UserIP")?.Value;

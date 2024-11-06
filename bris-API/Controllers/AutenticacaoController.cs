@@ -5,6 +5,7 @@ using bris_API.Data;
 using bris_API.Models;
 using bris_API.Services;
 using bris_API.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace bris_API.Controllers
 {
@@ -37,7 +38,6 @@ namespace bris_API.Controllers
                 Nome = modelUsuario.Nome,
                 Email = modelUsuario.Email,
                 CPF = modelUsuario.CPF,
-                AgroindustriaId = 1
             };
 
             _context.Usuarios.Add(usuario);
@@ -54,13 +54,14 @@ namespace bris_API.Controllers
             };
             _context.Senhas.Add(senha);
 
-            var novoAcesso = new GranjaUsuarioTipo
+            var novoAcesso = new Vinculo
             {
                 UsuarioId = usuario.Id,
                 GranjaId = null,
+                AgroindustriaId = null,
                 TipoUsuarioId = 98
             };
-            _context.GranjasUsuariosTipos.Add(novoAcesso);
+            _context.Vinculos.Add(novoAcesso);
 
             await _context.SaveChangesAsync();
 
@@ -79,10 +80,10 @@ namespace bris_API.Controllers
                 return Unauthorized();
             }
 
-            return Ok(new { userId = usuario.Id });
+            return Ok(new { usuario.Id });
         }
 
-        
+        [Authorize(Policy = "TodosUsuarios")]
         [HttpGet("acessos/{id}")]
         public async Task<IActionResult> GetAcessos(int id)
         {
@@ -94,54 +95,56 @@ namespace bris_API.Controllers
             }
 
             // Busca acessos com junção à esquerda na tabela Granjas
-            var acessos = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.UsuarioId == id)
+            var acessos = await _context.Vinculos
+                .Where(v => v.UsuarioId == id)
                 .Join(_context.TiposUsuario,
-                    gut => gut.TipoUsuarioId,
+                    v => v.TipoUsuarioId,
                     tipo => tipo.Id,
-                    (gut, tipo) => new { gut, tipo })
+                    (v, tipo) => new { v, tipo })
                 .GroupJoin(_context.Granjas,
-                    combined => combined.gut.GranjaId,
+                    combined => combined.v.GranjaId,
                     granja => granja.Id,
-                    (combined, granjas) => new { combined.gut, combined.tipo, granja = granjas.FirstOrDefault() })
+                    (combined, granjas) => new { combined.v, combined.tipo, granja = granjas.FirstOrDefault() })
                 .Select(result => new AcessoDTO
                 {
-                    Id = result.gut.Id,
+                    Id = result.v.Id,
                     NomeTipo = result.tipo.Tipo,
-                    TipoId = result.gut.TipoUsuarioId,
+                    TipoId = result.v.TipoUsuarioId,
                     NomeGranja = result.granja != null ? result.granja.NomePropriedade : null,
-                    GranjaId = result.gut.GranjaId
+                    GranjaId = result.v.GranjaId
                 })
                 .ToListAsync();
 
             return Ok(new { acessos });
         }
 
-
+        [Authorize(Policy = "TodosUsuarios")]
         [HttpPost("acessos/token/{id}/")]
-        public async Task<IActionResult> GenerateToken(int id)
+        public async Task<IActionResult> GenerateTokenVinculo(int id)
         {
-            // Busca a entidade GranjasUsuariosTipos pelo ID e inclui TipoUsuario para acessar o campo TIPO
-            var granjaUsuarioTipo = await _context.GranjasUsuariosTipos
-                .Include(gut => gut.Usuario)
-                .Include(gut => gut.Granja)
-                .Include(gut => gut.TipoUsuario) // Inclui o TipoUsuario para acessar o campo TIPO
-                .FirstOrDefaultAsync(gut => gut.Id == id);
+            // Busca a entidade Vinculos pelo ID e inclui TipoUsuario para acessar o campo TIPO
+            var vinculo = await _context.Vinculos
+                .Include(v => v.Usuario)
+                .Include(v => v.Granja)
+                .Include(v => v.TipoUsuario)
+                .Include(v => v.Agroindustria)
+                .FirstOrDefaultAsync(v => v.Id == id);
 
-            if (granjaUsuarioTipo == null)
+            if (vinculo == null)
             {
-                return NotFound("O usuário não possui nenhum vínculo com nenhuma granja ou tipo definido.");
+                return NotFound("O usuário não possui nenhum vínculo registrado no sistema.");
             }
 
-            var usuarioId = granjaUsuarioTipo.UsuarioId.ToString();
-            var tipoUsuarioNome = granjaUsuarioTipo.TipoUsuario.Tipo;
-            var granjaId = granjaUsuarioTipo.GranjaId.ToString();
-            var agroindustriaId = granjaUsuarioTipo.Usuario.AgroindustriaId.ToString();
+            var usuarioId = vinculo.UsuarioId.ToString();
+            var role = vinculo.TipoUsuario.Tipo.ToString();
+            var granjaId = vinculo.GranjaId.ToString();
+            var agroindustriaId = vinculo.AgroindustriaId.ToString();
+            var ipUsuario = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var agentUsuario = HttpContext.Request.Headers["User-Agent"].ToString(); //navegador
 
-            // Gera o token usando o serviço de token com o nome da role
-            var token = _tokenService.GenerateToken(usuarioId, tipoUsuarioNome, granjaId, agroindustriaId);
+            var token = _tokenService.GenerateTokenVinculo(usuarioId, role, granjaId, agroindustriaId, ipUsuario, agentUsuario);
 
-            // Retorna o token gerado
+            // Retorna o token completo gerado
             return Ok(new { token });
         }
 
