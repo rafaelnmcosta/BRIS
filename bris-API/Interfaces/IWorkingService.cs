@@ -6,5 +6,6 @@ namespace bris_API.Services
     public interface IWorkingService
     {
         void ConfigurePolicies(AuthorizationOptions options, AppDbContext dbContext);
+        Task<bool> ValidaUsuario(string token);
     }
 }

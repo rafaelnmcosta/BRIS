@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 using bris_API.Data;
 using bris_API.Models;
@@ -15,191 +14,234 @@ namespace bris_API.Controllers
     public class UsuariosController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IPasswordService _passwordService;
 
-        public UsuariosController(AppDbContext context, ITokenService tokenService)
+        public UsuariosController(AppDbContext context, IPasswordService passwordService)
         {
             _context = context;
+            _passwordService = passwordService;
         }
 
         [Authorize(Policy = "VisualizaTotal")]
         [HttpGet()]
         public async Task<IActionResult> GetUsuarios()
         {
-            return Ok(await _context.Usuarios.ToListAsync());
+            try
+            {
+                var usuarios = await _context.Usuarios.ToListAsync();
+                return Ok(usuarios);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Erro ao buscar usuários: " + ex.Message);
+            }
         }
-
         [Authorize(Policy = "GerenciaTotal")]
         [HttpPost("cadastrar")]
-        public async Task<IActionResult> CadastrarUsuario([FromBody] AdminCadastraUsuarioDto modelUsuario)
+        public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioDTO modelUsuario)
         {
             if (await _context.Usuarios.AnyAsync(u => u.Email == modelUsuario.Email))
                 return BadRequest("Já existe um usuário com esse email!");
 
-            var usuario = new Usuario
+            try
             {
-                Nome = modelUsuario.Nome,
-                Email = modelUsuario.Email,
-                CPF = modelUsuario.CPF,
-                AgroindustriaId = modelUsuario.AgroindustriaId
-            };
+                var usuario = new Usuario
+                {
+                    Nome = modelUsuario.Nome,
+                    Email = modelUsuario.Email,
+                    CPF = modelUsuario.CPF
+                };
 
-            _context.Usuarios.Add(usuario);
-            await _context.SaveChangesAsync();
+                _context.Usuarios.Add(usuario);
+                await _context.SaveChangesAsync();
 
-            var salt = PasswordService.GenerateSalt();
-            var hash = PasswordService.HashPassword(modelUsuario.Senha, salt);
+                var salt = _passwordService.GenerateSalt();
+                var hash = _passwordService.HashPassword(modelUsuario.Senha, salt);
 
-            var senha = new Senha
+                var senha = new Senha
+                {
+                    UsuarioId = usuario.Id,
+                    SenhaHash = hash,
+                    Salt = salt
+                };
+
+                _context.Senhas.Add(senha);
+                await _context.SaveChangesAsync();
+
+                var vinculo = new Vinculo
+                {
+                    UsuarioId = usuario.Id,
+                    RoleId = modelUsuario.RoleId,
+                    GranjaId = modelUsuario.GranjaId,
+                    AgroindustriaId = modelUsuario.AgroindustriaId
+                };
+
+                _context.Vinculos.Add(vinculo);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Usuário registrado com sucesso!" });
+            }
+            catch (Exception ex)
             {
-                UsuarioId = usuario.Id,
-                SenhaHash = hash,
-                Salt = salt
-            };
-
-            _context.Senhas.Add(senha);
-            await _context.SaveChangesAsync();
-
-            var granjaUsuarioTipo = new Vinculos
-            {
-                UsuarioId = usuario.Id,
-                GranjaId = modelUsuario.GranjaId,
-                TipoUsuarioId = modelUsuario.TipoUsuarioId
-            };
-
-            _context.GranjasUsuariosTipos.Add(granjaUsuarioTipo);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { message = "Usuário registrado com sucesso!" });
+                return StatusCode(500, "Erro ao cadastrar o usuário: " + ex.Message);
+            }
         }
 
         [Authorize(Policy = "VisualizaTotal")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUsuario(int id)
         {
-            var usuario = await _context.Usuarios
-                .Include(u => u.GranjasUsuariosTipos)
-                    .ThenInclude(gut => gut.TipoUsuario)
-                .Include(u => u.GranjasUsuariosTipos)
-                    .ThenInclude(gut => gut.Granja)
-                .FirstOrDefaultAsync(u => u.Id == id);
-
-            if (usuario == null)
+            try
             {
-                return NotFound();
-            }
+                var usuario = await _context.Usuarios
+                    .Include(u => u.Vinculos)
+                        .ThenInclude(v => v.Role)
+                    .Include(u => u.Vinculos)
+                        .ThenInclude(v => v.Granja)
+                    .Include(u => u.Vinculos)
+                        .ThenInclude(v => v.Agroindustria)
+                    .FirstOrDefaultAsync(u => u.Id == id);
 
-            var response = new
-            {
-                Usuario = usuario,
-                Acessos = usuario.GranjasUsuariosTipos.Select(gut => new 
+                if (usuario == null)
                 {
-                    gut.Id,
-                    gut.TipoUsuarioId,
-                    gut.TipoUsuario?.Tipo,
-                    gut.GranjaId,
-                    gut.Granja?.NomePropriedade
-                }).ToList()
-            };
+                    return NotFound("Usuário não encontrado!");
+                }
 
-            return Ok(response);
+                var usuarioDTO = new GetUsuarioDTO
+                {
+                    Nome = usuario.Nome,
+                    Email = usuario.Email,
+                    CPF = usuario.CPF,
+                    Vinculos = usuario.Vinculos.Select(v => new VinculoDTO
+                    {
+                        VinculoId = v.Id,
+                        Role = v.Role.Nome,
+                        NomeGranja = v.Granja?.NomePropriedade,
+                        NomeAgroindustria = v.Agroindustria?.NomeFantasia 
+                    }).ToList()
+                };
+
+                return Ok(usuarioDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Erro ao buscar usuário: " + ex.Message);
+            }
         }
-
 
         [Authorize(Policy = "GerenciaTotal")]
         [HttpGet("ativar")]
         public async Task<IActionResult> GetUsuariosNaoAtivados()
         {
-            // Buscar todos os acessos em GranjasUsuariosTipos com TipoUsuarioId igual a 98
-            var usuariosNaoAtivadosIds = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.TipoUsuarioId == 98)
-                .Select(gut => gut.UsuarioId)
-                .Distinct()
-                .ToListAsync();
+            try
+            {
+                // Buscar todos os vinculos com RoleId igual a 98
+                var usuariosNaoAtivadosIds = await _context.Vinculos
+                    .Where(v => v.RoleId == 98)
+                    .Select(v => v.UsuarioId)
+                    .Distinct()
+                    .ToListAsync();
 
-            // Buscar todos os usuários correspondentes na tabela Usuarios
-            var usuariosNaoAtivados = await _context.Usuarios
-                .Where(u => usuariosNaoAtivadosIds.Contains(u.Id))
-                .ToListAsync();
+                // Buscar todos os usuários correspondentes na tabela Usuarios
+                var usuariosNaoAtivados = await _context.Usuarios
+                    .Where(u => usuariosNaoAtivadosIds.Contains(u.Id))
+                    .ToListAsync();
 
-            return Ok(usuariosNaoAtivados);
+                return Ok(usuariosNaoAtivados);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Erro ao buscar usuários não ativados: " + ex.Message);
+            }
         }
 
         [Authorize(Policy = "GerenciaTotal")]
         [HttpPost("ativar/{id}")]
-        public async Task<IActionResult> AtivarUsuario(int id, [FromBody] AtivarDto ativar)
+        public async Task<IActionResult> AtivarUsuario(int id, [FromBody] AtivarDto modelAtivar)
         {
-            // Buscar o primeiro acesso correspondente na tabela GranjasUsuariosTipos
-            var acesso = await _context.GranjasUsuariosTipos
-                .FirstOrDefaultAsync(gut => gut.UsuarioId == id && gut.TipoUsuarioId == 98);
+            try
+            {    
+                // Busca o primeiro vinculo correspondente na tabela Vinculos (um usuário não pode ter mais de um vínculo "pendente")
+                var vinculo = await _context.Vinculos
+                    .FirstOrDefaultAsync(v => v.UsuarioId == id && v.RoleId == 98);
 
-            if (acesso == null)
-            {
-                return NotFound(); // Se o acesso não for encontrado, retornar NotFound
+                if (vinculo == null)
+                {
+                    return NotFound("Usuário não encontrado!");
+                }
+                
+                vinculo.RoleId = modelAtivar.Role;
+                vinculo.GranjaId = modelAtivar.GranjaId;
+                vinculo.AgroindustriaId = modelAtivar.AgroindustriaId;
+
+                await _context.SaveChangesAsync();
+
+                // Retorna o vinculo atualizado
+                return Ok(vinculo);
             }
-
-            // Atualizar os campos com os valores do DTO
-            acesso.TipoUsuarioId = ativar.TipoUsuario;
-            acesso.GranjaId = ativar.GranjaId;
-
-            // Salvar as alterações no banco de dados
-            await _context.SaveChangesAsync();
-
-            // Retornar o acesso atualizado
-            return Ok(acesso);
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Erro ao ativar usuário: " + ex.Message);
+            }
         }
-
 
         [Authorize(Policy = "GerenciaTotal")]
         [HttpPut("{id}/editar")]
-        public async Task<IActionResult> EditarUsuario(int id, [FromBody] AdminEditaUsuario modelUsuario)
+        public async Task<IActionResult> EditarUsuario(int id, [FromBody] EditarUsuarioDTO modelUsuario)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario == null)
+            try
             {
-                return NotFound();
-            }
-
-            // Atualiza as informações do usuário
-            usuario.Nome = modelUsuario.Nome;
-            usuario.Email = modelUsuario.Email;
-            usuario.CPF = modelUsuario.CPF;
-            usuario.AgroindustriaId = modelUsuario.AgroindustriaId;
-
-            // Atualiza a senha
-            var senha = await _context.Senhas.FirstOrDefaultAsync(s => s.UsuarioId == id);
-            if (senha != null)
-            {
-                var salt = PasswordService.GenerateSalt();
-                senha.SenhaHash = PasswordService.HashPassword(modelUsuario.Senha, salt);
-                senha.Salt = salt;
-            }
-
-            // Atualiza ou adiciona os acessos em GranjasUsuariosTipos
-            foreach (var nivelAcesso in modelUsuario.NiveisAcesso)
-            {
-                var acesso = await _context.GranjasUsuariosTipos
-                    .FirstOrDefaultAsync(gut => gut.Id == nivelAcesso.Id && gut.UsuarioId == id);
-
-                if (acesso != null)
+                var usuario = await _context.Usuarios.FindAsync(id);
+                if (usuario == null)
                 {
-                    acesso.TipoUsuarioId = nivelAcesso.TipoUsuarioId;
-                    acesso.GranjaId = nivelAcesso.GranjaId ?? acesso.GranjaId;
+                    return NotFound("Usuário não encontrado!");
                 }
-                else
+
+                usuario.Nome = modelUsuario.Nome;
+                usuario.Email = modelUsuario.Email;
+                usuario.CPF = modelUsuario.CPF;
+
+                var senha = await _context.Senhas.FirstOrDefaultAsync(s => s.UsuarioId == id);
+                if (senha != null)
                 {
-                    // Lógica para adicionar um novo acesso, se necessário
-                    var novoacesso = new Vinculos
+                    var salt = _passwordService.GenerateSalt();
+                    senha.SenhaHash = _passwordService.HashPassword(modelUsuario.Senha, salt);
+                    senha.Salt = salt;
+                }
+
+                // Atualiza ou adiciona vínculos
+                foreach (var vinculoDTO in modelUsuario.Vinculos)
+                {
+                    var vinculo = await _context.Vinculos
+                        .FirstOrDefaultAsync(v => v.Id == vinculoDTO.VinculoId && v.UsuarioId == id);
+
+                    if (vinculo != null)
                     {
-                        UsuarioId = id,
-                        TipoUsuarioId = nivelAcesso.TipoUsuarioId,
-                        GranjaId = nivelAcesso.GranjaId ?? default(int)
-                    };
-                    _context.GranjasUsuariosTipos.Add(novoacesso);
+                        vinculo.RoleId = vinculoDTO.RoleId;
+                        vinculo.GranjaId = vinculoDTO.GranjaId ?? vinculo.GranjaId;
+                        vinculo.AgroindustriaId = vinculoDTO.AgroindustriaId ?? vinculo.AgroindustriaId;
+                    }
+                    else
+                    {
+                        // adiciona um novo vinculo se precisar
+                        var novoVinculo = new Vinculo
+                        {
+                            UsuarioId = id,
+                            RoleId = vinculoDTO.RoleId,
+                            GranjaId = vinculoDTO.GranjaId ?? default,
+                            AgroindustriaId = vinculoDTO.AgroindustriaId ?? default
+                        };
+                        _context.Vinculos.Add(novoVinculo);
+                    }
                 }
-            }
 
-            await _context.SaveChangesAsync();
-            return Ok(new { message = "Usuário e níveis de acesso atualizados com sucesso!" });
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Usuário e vínculos atualizados com sucesso!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Erro ao editar usuário: " + ex.Message);
+            }
         }
     }
 }

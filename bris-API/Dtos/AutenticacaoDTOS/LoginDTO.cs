@@ -9,7 +9,6 @@ namespace bris_API.DTOs
         public required string Email { get; set; }
 
         [Required(ErrorMessage = "A senha é obrigatória.")]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "A senha deve ter entre 6 e 100 caracteres.")]
         public required string Senha { get; set; }
     }
 }

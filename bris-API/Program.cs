@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -69,7 +71,7 @@ builder.Services.AddAuthentication(options =>
                     var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
                     var decryptedToken = tokenService.DecryptToken(encryptedToken);
 
-                    // Substitui o token descriptografado no contexto para a validação
+                    // Substitui o token descriptografado no contexto para validação
                     context.Token = decryptedToken;
                 }
                 catch (Exception ex)
@@ -82,38 +84,40 @@ builder.Services.AddAuthentication(options =>
             }
             return Task.CompletedTask;
         },
-        OnTokenValidated = context =>
+
+        OnTokenValidated = async context =>
         {
+            var token = context.SecurityToken as JwtSecurityToken;
+            if (token == null)
+            {
+                context.Fail("Token inválido!");
+                return;
+            }
+
+            var workingService = context.HttpContext.RequestServices.GetRequiredService<IWorkingService>();
+            var isValid = await workingService.ValidaUsuario(token.RawData); // Passa o token bruto para validação
+
+            if (!isValid)
+            {
+                context.Fail("Vínculo inválido ou expirado. Faça login novamente.");
+            }
+
+            // Validação de IP e User-Agent
             var currentIp = context.HttpContext.Connection.RemoteIpAddress?.ToString();
             var currentUserAgent = context.HttpContext.Request.Headers["User-Agent"].ToString();
-
-            // Recupera as claims de IP e User-Agent do token já validado
             var tokenIpClaim = context.Principal.FindFirst("UserIP")?.Value;
             var tokenUserAgentClaim = context.Principal.FindFirst("UserAgent")?.Value;
 
-            // Compara as claims do token com os valores atuais
             if (tokenIpClaim != currentIp || tokenUserAgentClaim != currentUserAgent)
             {
                 context.Fail("IP ou navegador não correspondentes com a geração do token.");
             }
-
-            return Task.CompletedTask;
         }
     };
-
 });
 
-// Configuração de autorização com policies dinâmicas
-using (var serviceProvider = builder.Services.BuildServiceProvider())
-{
-    var dbContext = serviceProvider.GetRequiredService<AppDbContext>();
-    var workingServices = serviceProvider.GetRequiredService<IWorkingService>();
-
-    builder.Services.AddAuthorization(options =>
-    {
-        workingServices.ConfigurePolicies(options, dbContext);
-    });
-}
+// adicionando os serviços de autorização sem configuração, a configuração é feita após a declaração do app abaixo: vvvv
+builder.Services.AddAuthorization();
 
 
 // Adicionando o swagger
@@ -121,7 +125,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "BRIS API", Version = "v1.1" });
 
-    // adicionando o token no swagger
+    // adicionando o token jwt no swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -154,12 +158,12 @@ builder.Logging.AddConsole(options =>
 {
     if (builder.Environment.IsDevelopment())
     {
-        options.FormatterName = ConsoleFormatterNames.Simple; // Formato simples para desenvolvimento
-        options.IncludeScopes = true; // Inclui o escopo para facilitar a depuração em dev
+        options.FormatterName = ConsoleFormatterNames.Simple; // formato simples para desenvolvimento
+        options.IncludeScopes = true; // incluindo o escopo para facilitar a depuração em dev
     }
     else if (builder.Environment.IsProduction())
     {
-        options.FormatterName = ConsoleFormatterNames.Systemd; // Formato systemd para produção
+        options.FormatterName = ConsoleFormatterNames.Systemd; // formato systemd para produção
     }
 });
 builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging")); // configura o logging a partir do appsettings.json
@@ -167,6 +171,16 @@ builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging")); /
 
 
 var app = builder.Build();
+
+// Configuração de autorização com policies dinâmicas
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var workingService = scope.ServiceProvider.GetRequiredService<IWorkingService>();
+
+    var options = app.Services.GetRequiredService<AuthorizationOptions>();
+    workingService.ConfigurePolicies(options, dbContext);
+}
 
 app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();

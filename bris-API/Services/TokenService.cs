@@ -33,6 +33,7 @@ namespace bris_API.Services
                     new Claim(JwtRegisteredClaimNames.Sub, userId),
                     new Claim("UserIP", userIp),
                     new Claim("UserAgent", userAgent),
+                    new Claim("AcessoLogin", "true"),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiresInMinutes"])),
@@ -42,7 +43,6 @@ namespace bris_API.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-
 
         // Gera um token com informações adicionais do vínculo selecionado pelo usuário
         public string GenerateTokenVinculo(string userId, string vinculoId, string role, string granjaId, string agroindustriaId, string userIp, string userAgent)

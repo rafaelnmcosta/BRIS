@@ -1,11 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 using bris_API.Data;
 using bris_API.Models;
 using bris_API.Services;
 using bris_API.DTOs;
-using Microsoft.AspNetCore.Authorization;
 
 namespace bris_API.Controllers
 {
@@ -28,7 +30,7 @@ namespace bris_API.Controllers
 
 
         [HttpPost("cadastro")]
-        public async Task<IActionResult> Cadastro([FromBody] CadastroDto modelUsuario)
+        public async Task<IActionResult> Cadastro([FromBody] AutoCadastroDto modelUsuario)
         {
             if (await _context.Usuarios.AnyAsync(u => u.Email == modelUsuario.Email))
                 return BadRequest("Já existe um usuário com esse email!");
@@ -59,7 +61,7 @@ namespace bris_API.Controllers
                 UsuarioId = usuario.Id,
                 GranjaId = null,
                 AgroindustriaId = null,
-                TipoUsuarioId = 98
+                RoleId = 98
             };
             _context.Vinculos.Add(novoAcesso);
 
@@ -80,71 +82,94 @@ namespace bris_API.Controllers
                 return Unauthorized();
             }
 
-            return Ok(new { usuario.Id });
+            // Obtém informações da requisição
+            var userIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var userAgent = Request.Headers["User-Agent"].ToString();
+
+            // Gera o token JWT
+            var token = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), userIp, userAgent);
+
+            // Retorna o token ao frontend
+            return Ok(new { token });
         }
 
-        [Authorize(Policy = "TodosUsuarios")]
-        [HttpGet("acessos/{id}")]
-        public async Task<IActionResult> GetAcessos(int id)
+
+        [Authorize(Policy = "AcessoLoginPolicy")]
+        [HttpGet("vinculos")]
+        public async Task<IActionResult> GetVinculos()
         {
-            // Verifica se o usuário existe
-            var usuarioExists = await _context.Usuarios.AnyAsync(u => u.Id == id);
-            if (!usuarioExists)
+            var userIdClaim = User.FindFirst(JwtRegisteredClaimNames.Sub);
+            if (userIdClaim == null)
             {
-                return NotFound("Usuário não encontrado");
+                return Unauthorized("Token inválido.");
             }
 
-            // Busca acessos com junção à esquerda na tabela Granjas
-            var acessos = await _context.Vinculos
-                .Where(v => v.UsuarioId == id)
-                .Join(_context.TiposUsuario,
-                    v => v.TipoUsuarioId,
-                    tipo => tipo.Id,
-                    (v, tipo) => new { v, tipo })
-                .GroupJoin(_context.Granjas,
-                    combined => combined.v.GranjaId,
-                    granja => granja.Id,
-                    (combined, granjas) => new { combined.v, combined.tipo, granja = granjas.FirstOrDefault() })
-                .Select(result => new AcessoDTO
-                {
-                    Id = result.v.Id,
-                    NomeTipo = result.tipo.Tipo,
-                    TipoId = result.v.TipoUsuarioId,
-                    NomeGranja = result.granja != null ? result.granja.NomePropriedade : null,
-                    GranjaId = result.v.GranjaId
-                })
+            var usuarioId = int.Parse(userIdClaim.Value); // id do usuario em formato int
+
+            var vinculos = await _context.Vinculos
+                .Where(v => v.UsuarioId == usuarioId)
+                .Include(v => v.Granja)
+                .Include(v => v.Agroindustria)
+                .Include(v => v.Role)
                 .ToListAsync();
 
-            return Ok(new { acessos });
-        }
-
-        [Authorize(Policy = "TodosUsuarios")]
-        [HttpPost("acessos/token/{id}/")]
-        public async Task<IActionResult> GenerateTokenVinculo(int id)
-        {
-            // Busca a entidade Vinculos pelo ID e inclui TipoUsuario para acessar o campo TIPO
-            var vinculo = await _context.Vinculos
-                .Include(v => v.Usuario)
-                .Include(v => v.Granja)
-                .Include(v => v.TipoUsuario)
-                .Include(v => v.Agroindustria)
-                .FirstOrDefaultAsync(v => v.Id == id);
-
-            if (vinculo == null)
+            if (!vinculos.Any())
             {
-                return NotFound("O usuário não possui nenhum vínculo registrado no sistema.");
+                return NotFound("Nenhum vínculo encontrado para este usuário.");
             }
 
-            var usuarioId = vinculo.UsuarioId.ToString();
-            var role = vinculo.TipoUsuario.Tipo.ToString();
-            var granjaId = vinculo.GranjaId.ToString();
-            var agroindustriaId = vinculo.AgroindustriaId.ToString();
-            var ipUsuario = HttpContext.Connection.RemoteIpAddress?.ToString();
-            var agentUsuario = HttpContext.Request.Headers["User-Agent"].ToString(); //navegador
+            var vinculosDTOS = vinculos.Select(v => new GetVinculoDTO
+            {
+                UsuarioId = v.UsuarioId,
+                VinculoId = v.Id,
+                Role = v.Role?.Nome ?? "Role não definida",
+                GranjaId = v.GranjaId,
+                NomeGranja = v.Granja?.NomePropriedade,
+                AgroindustriaId = v.AgroindustriaId,
+                NomeAgroindustria = v.Agroindustria?.NomeFantasia
+            }).ToList();
 
-            var token = _tokenService.GenerateTokenVinculo(usuarioId, role, granjaId, agroindustriaId, ipUsuario, agentUsuario);
+            return Ok(vinculosDTOS);
+        }
+        
+        [Authorize(Policy = "AcessoLoginPolicy")]
+        [HttpPost("vinculos/{id}")]
+        public async Task<IActionResult> SelecionarVinculo(int id)
+        {
+            // Obtendo o ID do usuário a partir do token atual
+            var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("Usuário não autenticado.");
+            }
 
-            // Retorna o token completo gerado
+            // Buscando o vínculo pelo ID e garantindo que o usuário tenha permissão
+            var vinculo = await _context.Vinculos
+                .Include(v => v.Role)
+                .Include(v => v.Granja)
+                .Include(v => v.Agroindustria)
+                .FirstOrDefaultAsync(v => v.Id == id && v.UsuarioId.ToString() == userId);
+
+            // Verificando se o vínculo existe
+            if (vinculo == null)
+            {
+                return NotFound("Vínculo não encontrado ou não pertence ao usuário autenticado.");
+            }
+
+            // Extraindo informações necessárias para gerar o token
+            var role = vinculo.Role?.Nome ?? string.Empty;
+            var vinculoId = vinculo.Id.ToString();
+            var granjaId = vinculo.Granja?.Id.ToString() ?? string.Empty;
+            var agroindustriaId = vinculo.Agroindustria?.Id.ToString() ?? string.Empty;
+
+            // Obtendo informações do IP e User Agent
+            var userIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var userAgent = Request.Headers["User-Agent"].ToString();
+
+            // Gerando o novo token
+            var token = _tokenService.GenerateTokenVinculo(userId, vinculoId, role, granjaId, agroindustriaId, userIp, userAgent);
+
+            // Retornando o token gerado
             return Ok(new { token });
         }
 
