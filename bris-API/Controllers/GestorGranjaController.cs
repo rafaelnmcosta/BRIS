@@ -15,6 +15,7 @@ namespace bris_API.Controllers
     public class GestorGranjaController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IPasswordService _passwordService;
 
         public GestorGranjaController(AppDbContext context, ITokenService tokenService)
         {
@@ -33,9 +34,9 @@ namespace bris_API.Controllers
                 return Unauthorized("GranjaId não encontrado no token.");
             }
 
-            var usuarios = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.GranjaId == int.Parse(granjaId))
-                .Select(gut => gut.Usuario)
+            var usuarios = await _context.Vinculos
+                .Where(v => v.GranjaId == int.Parse(granjaId))
+                .Select(v => v.Usuario)
                 .ToListAsync();
 
             return Ok(usuarios);
@@ -54,8 +55,8 @@ namespace bris_API.Controllers
             }
 
             var usuario = await _context.Usuarios
-                .Where(u => u.Id == id && _context.GranjasUsuariosTipos
-                    .Any(gut => gut.UsuarioId == u.Id && gut.GranjaId == int.Parse(granjaId)))
+                .Where(u => u.Id == id && _context.Vinculos
+                    .Any(v => v.UsuarioId == u.Id && v.GranjaId == int.Parse(granjaId)))
                 .FirstOrDefaultAsync();
 
             if (usuario == null)
@@ -79,8 +80,8 @@ namespace bris_API.Controllers
             }
 
             var usuario = await _context.Usuarios
-                .Where(u => u.Id == id && _context.GranjasUsuariosTipos
-                    .Any(gut => gut.UsuarioId == u.Id && gut.GranjaId == int.Parse(granjaId)))
+                .Where(u => u.Id == id && _context.Vinculos
+                    .Any(v => v.UsuarioId == u.Id && v.GranjaId == int.Parse(granjaId)))
                 .FirstOrDefaultAsync();
 
             if (usuario == null)
@@ -97,8 +98,8 @@ namespace bris_API.Controllers
             var senha = await _context.Senhas.FirstOrDefaultAsync(s => s.UsuarioId == id);
             if (senha != null)
             {
-                var salt = PasswordService.GenerateSalt();
-                senha.SenhaHash = PasswordService.HashPassword(modelUsuario.Senha, salt);
+                var salt = _passwordService.GenerateSalt();
+                senha.SenhaHash = _passwordService.HashPassword(modelUsuario.Senha, salt);
                 senha.Salt = salt;
             }
 
@@ -124,15 +125,14 @@ namespace bris_API.Controllers
                 Nome = modelUsuario.Nome,
                 Email = modelUsuario.Email,
                 CPF = modelUsuario.CPF,
-                AgroindustriaId = int.Parse(agroindustriaId)
             };
 
             _context.Usuarios.Add(novoUsuario);
             await _context.SaveChangesAsync();
 
             // Lógica para armazenar a senha
-            var salt = PasswordService.GenerateSalt();
-            var hash = PasswordService.HashPassword(modelUsuario.Senha, salt);
+            var salt = _passwordService.GenerateSalt();
+            var hash = _passwordService.HashPassword(modelUsuario.Senha, salt);
 
             var senha = new Senha
             {
@@ -144,15 +144,16 @@ namespace bris_API.Controllers
             _context.Senhas.Add(senha);
             await _context.SaveChangesAsync();
 
-            // Cria registro em GranjasUsuariosTipos
-            var granjaUsuarioTipo = new Vinculos
+            // Cria registro em Vinculos
+            var vinculo = new Vinculo
             {
                 UsuarioId = novoUsuario.Id,
                 GranjaId = int.Parse(granjaId),
-                TipoUsuarioId = 4 // O gestor da granja só cadastra novos técnicos
+                AgroindustriaId = int.Parse(agroindustriaId),
+                RoleId = 4 // O gestor da granja só cadastra novos técnicos
             };
 
-            _context.GranjasUsuariosTipos.Add(granjaUsuarioTipo);
+            _context.Vinculos.Add(vinculo);
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Usuário registrado com sucesso!" });
@@ -170,9 +171,9 @@ namespace bris_API.Controllers
                 return Unauthorized("GranjaId não encontrado no token.");
             }
 
-            var usuarios = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.GranjaId == int.Parse(granjaId) && (gut.TipoUsuarioId == 98 || gut.TipoUsuarioId == 99))
-                .Select(gut => gut.Usuario)
+            var usuarios = await _context.Vinculos
+                .Where(v => v.GranjaId == int.Parse(granjaId) && (v.RoleId == 98 || v.RoleId == 99))
+                .Select(v => v.Usuario)
                 .ToListAsync();
 
             return Ok(usuarios);
@@ -190,18 +191,18 @@ namespace bris_API.Controllers
                 return Unauthorized("GranjaId não encontrado no token.");
             }
 
-            var granjaUsuarioTipo = await _context.GranjasUsuariosTipos
-                .Where(gut => gut.UsuarioId == id && gut.GranjaId == int.Parse(granjaId) && (gut.TipoUsuarioId == 98 || gut.TipoUsuarioId == 99))
+            var vinculo = await _context.Vinculos
+                .Where(v => v.UsuarioId == id && v.GranjaId == int.Parse(granjaId) && (v.RoleId == 98 || v.RoleId == 99))
                 .FirstOrDefaultAsync();
 
-            if (granjaUsuarioTipo == null)
+            if (vinculo == null)
             {
                 return NotFound("Registro de ativação não encontrado ou não pertence à sua granja.");
             }
 
-            granjaUsuarioTipo.TipoUsuarioId = 4; // Gestor de Granja apenas ativa usuários para o tipo 4
+            vinculo.RoleId = 4; // Gestor de Granja apenas ativa usuários para o tipo 4
 
-            _context.Entry(granjaUsuarioTipo).State = EntityState.Modified;
+            _context.Entry(vinculo).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Usuário ativado com sucesso!" });

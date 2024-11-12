@@ -3,7 +3,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Jose;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace bris_API.Services
@@ -30,7 +29,7 @@ namespace bris_API.Services
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(JwtRegisteredClaimNames.Sub, userId),
+                    new Claim(ClaimTypes.NameIdentifier, userId),
                     new Claim("UserIP", userIp),
                     new Claim("UserAgent", userAgent),
                     new Claim("AcessoLogin", "true"),
@@ -45,7 +44,7 @@ namespace bris_API.Services
         }
 
         // Gera um token com informações adicionais do vínculo selecionado pelo usuário
-        public string GenerateTokenVinculo(string userId, string vinculoId, string role, string granjaId, string agroindustriaId, string userIp, string userAgent)
+        public string GenerateTokenVinculo(string vinculoId, string role, string userIp, string userAgent)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
@@ -54,11 +53,8 @@ namespace bris_API.Services
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(JwtRegisteredClaimNames.Sub, userId),
-                    new Claim("VinculoId", vinculoId),
+                    new Claim(ClaimTypes.NameIdentifier, vinculoId),
                     new Claim(ClaimTypes.Role, role),
-                    new Claim("GranjaId", granjaId),
-                    new Claim("AgroindustriaId", agroindustriaId),
                     new Claim("UserIP", userIp),
                     new Claim("UserAgent", userAgent),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())

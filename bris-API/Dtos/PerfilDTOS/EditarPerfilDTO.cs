@@ -2,7 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace bris_API.DTOs
 {
-    public class PerfilDto
+    public class EditarPerfilDTO
+    
     {
         [Required(ErrorMessage = "O nome é obrigatório.")]
         [StringLength(100, ErrorMessage = "O nome deve ter no máximo 100 caracteres.")]
@@ -17,12 +18,7 @@ namespace bris_API.DTOs
         [RegularExpression(@"^\d{11}$", ErrorMessage = "O CPF deve conter apenas números.")]
         public required string CPF { get; set; }
 
-        [Required(ErrorMessage = "O tipo de usuário é obrigatório.")]
-        public required string TipoUsuario { get; set; }
-
-        [Required(ErrorMessage = "O nome da Agroindústria é obrigatório.")]
-        public required string NomeAgroindustria { get; set; }
-
-        public string? NomeGranja { get; set; }   
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "A senha deve ter entre 6 e 100 caracteres.")]
+        public required string Senha { get; set; }
     }
 }

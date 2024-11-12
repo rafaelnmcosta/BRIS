@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace bris_API.DTOs
 {
-    public class AutoCadastroDto
+    public class AutoCadastroDTO
     {
         [Required(ErrorMessage = "O nome é obrigatório.")]
         [StringLength(100, ErrorMessage = "O nome deve ter no máximo 100 caracteres.")]

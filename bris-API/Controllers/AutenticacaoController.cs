@@ -30,7 +30,7 @@ namespace bris_API.Controllers
 
 
         [HttpPost("cadastro")]
-        public async Task<IActionResult> Cadastro([FromBody] AutoCadastroDto modelUsuario)
+        public async Task<IActionResult> Cadastro([FromBody] AutoCadastroDTO modelUsuario)
         {
             if (await _context.Usuarios.AnyAsync(u => u.Email == modelUsuario.Email))
                 return BadRequest("Já existe um usuário com esse email!");
@@ -98,13 +98,13 @@ namespace bris_API.Controllers
         [HttpGet("vinculos")]
         public async Task<IActionResult> GetVinculos()
         {
-            var userIdClaim = User.FindFirst(JwtRegisteredClaimNames.Sub);
-            if (userIdClaim == null)
+            var usuarioClaimId = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (usuarioClaimId == null)
             {
                 return Unauthorized("Token inválido.");
             }
 
-            var usuarioId = int.Parse(userIdClaim.Value); // id do usuario em formato int
+            var usuarioId = int.Parse(usuarioClaimId.Value); // id do usuario em formato int
 
             var vinculos = await _context.Vinculos
                 .Where(v => v.UsuarioId == usuarioId)
@@ -120,12 +120,8 @@ namespace bris_API.Controllers
 
             var vinculosDTOS = vinculos.Select(v => new GetVinculoDTO
             {
-                UsuarioId = v.UsuarioId,
-                VinculoId = v.Id,
-                Role = v.Role?.Nome ?? "Role não definida",
-                GranjaId = v.GranjaId,
+                Role = v.Role?.Nome ?? "!!! Role não definida !!!",
                 NomeGranja = v.Granja?.NomePropriedade,
-                AgroindustriaId = v.AgroindustriaId,
                 NomeAgroindustria = v.Agroindustria?.NomeFantasia
             }).ToList();
 
@@ -137,7 +133,7 @@ namespace bris_API.Controllers
         public async Task<IActionResult> SelecionarVinculo(int id)
         {
             // Obtendo o ID do usuário a partir do token atual
-            var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
             {
                 return Unauthorized("Usuário não autenticado.");
@@ -167,7 +163,7 @@ namespace bris_API.Controllers
             var userAgent = Request.Headers["User-Agent"].ToString();
 
             // Gerando o novo token
-            var token = _tokenService.GenerateTokenVinculo(userId, vinculoId, role, granjaId, agroindustriaId, userIp, userAgent);
+            var token = _tokenService.GenerateTokenVinculo(vinculoId, role, userIp, userAgent);
 
             // Retornando o token gerado
             return Ok(new { token });

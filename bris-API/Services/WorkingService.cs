@@ -45,17 +45,13 @@ namespace bris_API.Services
             // Obtém os valores das claims no token
             var vinculoIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "vinculoId")?.Value;
             var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            var granjaIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "granjaId")?.Value;
-            var agroindustriaIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "agroindustriaId")?.Value;
 
             // Valida se as claims foram não nulas foram extraídas corretamente
             if (string.IsNullOrEmpty(vinculoIdClaim) || string.IsNullOrEmpty(roleClaim))
                 return false;
 
-            // Valida se os IDs são valores numéricos válidos
-            if (!int.TryParse(vinculoIdClaim, out int vinculoId) ||
-                (granjaIdClaim != null && !int.TryParse(granjaIdClaim, out int granjaId)) ||
-                (agroindustriaIdClaim != null && !int.TryParse(agroindustriaIdClaim, out int agroindustriaId)))
+            // Valida se o ID do vinculo é um valor numérico válido
+            if (!int.TryParse(vinculoIdClaim, out int vinculoId))
                 return false;
 
             // Verifica se o vínculo ainda existe no banco e se as informações coincidem
@@ -63,13 +59,7 @@ namespace bris_API.Services
                 .Include(v => v.Role)
                 .FirstOrDefaultAsync(v => v.Id == vinculoId);
 
-            // pega os valores de id de granja e 
-            granjaId = int.Parse(granjaIdClaim);
-            agroindustriaId = int.Parse(agroindustriaIdClaim);
-
-            if (vinculo == null || vinculo.Role.Nome != roleClaim || // se a role for null ou diferente
-                (granjaIdClaim != null && vinculo.GranjaId != granjaId) || // se a granja (não sendo null) for diferente
-                (agroindustriaIdClaim != null && vinculo.AgroindustriaId != agroindustriaId)) // verifica agroindustria (não sendo null)
+            if (vinculo == null || vinculo.Role.Nome != roleClaim)// false se a role for null ou diferente
             {
                 return false;
             }

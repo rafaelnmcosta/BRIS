@@ -9,16 +9,11 @@ namespace bris_API.Models
         public string? Email { get; set; }
         public string? CPF { get; set; }
         
+        // Ignora sempre a senha ao gerar um json pra evitar leaks em caso de bug
         [JsonIgnore]
         public Senha? Senha { get; set; }
-
-        [JsonIgnore]
         public ICollection<Dose>? Doses { get; set; }
-
-        [JsonIgnore]
         public ICollection<Animal>? Animais { get; set; }
-
-        [JsonIgnore]
         public ICollection<Vinculo>? Vinculos { get; set; }
     }
 }

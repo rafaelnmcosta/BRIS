@@ -15,6 +15,7 @@ namespace bris_API.Controllers
     public class PerfilController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly PasswordService _passwordService;
 
         public PerfilController(AppDbContext context)
         {
@@ -25,43 +26,23 @@ namespace bris_API.Controllers
         [HttpGet()]
         public async Task<IActionResult> GetPerfil()
         {
-            // Extraindo o UsuarioId do token JWT
-            var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var tipoUsuario = User.FindFirstValue(ClaimTypes.Role);
+            var vinculoId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            // Buscando o usuário
-            var usuario = await _context.Usuarios
-                .Include(u => u.Agroindustria)
-                .FirstOrDefaultAsync(u => u.Id == usuarioId);
+            var vinculo = await _context.Vinculos
+                .Include(v => v.Role)
+                .Include(v => v.Granja)
+                .Include(v => v.Agroindustria)
+                .Include(v => v.Usuario)
+                .FirstOrDefaultAsync(v => v.Id == int.Parse(vinculoId));
 
-            if (usuario == null)
+            var dadosPerfil = new GetPerfilDTO
             {
-                return NotFound("Usuário não encontrado.");
-            }
-            
-            // Buscando o registro de GranjasUsuariosTipos correspondente
-            var granjaUsuarioTipo = await _context.GranjasUsuariosTipos
-                .Include(gut => gut.TipoUsuario)
-                .Include(gut => gut.Granja)
-                .Include(gut => gut.Usuario)
-                .FirstOrDefaultAsync(gut => gut.UsuarioId == usuarioId && gut.TipoUsuario.Tipo == tipoUsuario);
-        
-            if (granjaUsuarioTipo == null)
-            {
-                return Unauthorized("Usuário não autorizado ou não associado a uma granja.");
-            }
-
-            // Construindo a resposta
-            var dadosPerfil = new PerfilDto
-            {
-                Nome = usuario.Nome,
-                Email = usuario.Email,
-                CPF = usuario.CPF,
-                TipoUsuario = tipoUsuario,
-                NomeAgroindustria = usuario.Agroindustria.NomeFantasia,
-                NomeGranja = (granjaUsuarioTipo.TipoUsuario.Tipo == "TECNICO" || granjaUsuarioTipo.TipoUsuario.Tipo == "GESTOR_GRANJA")
-                            ? granjaUsuarioTipo.Granja?.NomePropriedade
-                            : null
+                Nome = vinculo.Usuario.Nome,
+                Email = vinculo.Usuario.Email,
+                CPF = vinculo.Usuario.CPF,
+                Role = vinculo.Role.Nome,
+                NomeAgroindustria = (vinculo.Role.Nome == "ADMIN") ? null : vinculo.Agroindustria.NomeFantasia,
+                NomeGranja = (vinculo.Role.Nome == "ADMIN" || vinculo.Role.Nome == "GESTOR_AGRO") ? null : vinculo.Granja.NomePropriedade
             };
 
 
@@ -70,29 +51,29 @@ namespace bris_API.Controllers
 
         [Authorize(Policy = "TodosUsuarios")]
         [HttpPut("editar")]
-        public async Task<IActionResult> EditarPerfil([FromBody] CadastroDto cadastroDto)
+        public async Task<IActionResult> EditarPerfil([FromBody] EditarPerfilDTO modelPerfil)
         {
-            var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var vinculoId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var vinculo = await _context.Vinculos
+                .Include(v => v.Usuario)
+                .FirstOrDefaultAsync(v => v.Id == int.Parse(vinculoId));
             
+            // Seleciona o usuário referente ao vínculo
+            var usuario = vinculo.Usuario;
 
-            var usuario = await _context.Usuarios.FindAsync(usuarioId);
-            if (usuario == null)
-            {
-                return NotFound();
-            }
-
-            // Atualiza as informações do usuário
-            usuario.Nome = cadastroDto.Nome;
-            usuario.Email = cadastroDto.Email;
-            usuario.CPF = cadastroDto.CPF;
+            // Atualiza as informações do usuário com os valores do DTO (se não preechidos no front, virão com valor anterior)
+            usuario.Nome = modelPerfil.Nome;
+            usuario.Email = modelPerfil.Email;
+            usuario.CPF = modelPerfil.CPF;
 
             // Atualiza a senha, se fornecida
-            if (!string.IsNullOrEmpty(cadastroDto.Senha))
+            if (!string.IsNullOrEmpty(modelPerfil.Senha))
             {
-                var salt = PasswordService.GenerateSalt();
-                var hash = PasswordService.HashPassword(cadastroDto.Senha, salt);
+                var salt = _passwordService.GenerateSalt();
+                var hash = _passwordService.HashPassword(modelPerfil.Senha, salt);
 
-                var senha = await _context.Senhas.FirstOrDefaultAsync(s => s.UsuarioId == usuarioId);
+                var senha = await _context.Senhas.FirstOrDefaultAsync(s => s.UsuarioId == usuario.Id);
                 if (senha != null)
                 {
                     senha.SenhaHash = hash;
@@ -102,7 +83,7 @@ namespace bris_API.Controllers
                 {
                     senha = new Senha
                     {
-                        UsuarioId = usuarioId,
+                        UsuarioId = usuario.Id,
                         SenhaHash = hash,
                         Salt = salt
                     };

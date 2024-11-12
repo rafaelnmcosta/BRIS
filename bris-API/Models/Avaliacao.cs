@@ -15,8 +15,6 @@ namespace bris_API.Models
             3: interrompida;
         */
         public bool? ResultadoFinal { get; set; }
-
-        [JsonIgnore]
         public ICollection<Semana>? Semanas { get; set; }
         public int ProximaDoseSemana { get; set; }
         public int ProximaDoseOrdem { get; set; }

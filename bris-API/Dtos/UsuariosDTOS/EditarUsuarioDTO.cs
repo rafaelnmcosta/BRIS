@@ -21,6 +21,7 @@ namespace bris_API.DTOs
         [StringLength(100, MinimumLength = 6, ErrorMessage = "A senha deve ter entre 6 e 100 caracteres.")]
         public required string Senha { get; set; }
 
-        public List<VinculoDTO> Vinculos { get; set; } = new();
+        [Required(ErrorMessage = "A lista de vínculos é obrigatória.")]
+        public List<VinculoDTO> Vinculos { get; set; }
     }
 }
