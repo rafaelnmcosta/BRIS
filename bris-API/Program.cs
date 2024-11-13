@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.OpenApi.Models;
@@ -24,7 +23,6 @@ builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPopulateDbService, PopulateDbService>();
 builder.Services.AddScoped<IResultsService, ResultsService>();
-builder.Services.AddScoped<IWorkingService, WorkingService>();
 
 // injeção de dependência das interfaces dos controllers
 builder.Services.AddScoped<IAutenticacaoController, AutenticacaoController>();
@@ -77,6 +75,8 @@ builder.Services.AddAuthentication(options =>
 
         OnTokenValidated = async context =>
         {
+            var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
+            
             var token = context.SecurityToken as JwtSecurityToken;
             if (token == null)
             {
@@ -88,16 +88,14 @@ builder.Services.AddAuthentication(options =>
             var timeToExpire = token.ValidTo - DateTime.UtcNow;
             if (timeToExpire.TotalMinutes < double.Parse(builder.Configuration["Jwt:RenewInMinutesLeft"])) // expira em menos de 5 minutos
             {
-                var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
                 var newToken = tokenService.GenerateTokenVinculo(context.Principal.FindFirst(ClaimTypes.NameIdentifier).Value, 
                                                                 context.Principal.FindFirst("UserIP").Value, 
                                                                 context.Principal.FindFirst("UserAgent").Value);
                 tokenService.SetCookieToken(context.HttpContext, newToken);
             }
 
-            // Continuação das validações (IP e User-Agent)
-            var workingService = context.HttpContext.RequestServices.GetRequiredService<IWorkingService>();
-            var isValid = await workingService.ValidaUsuario(token.RawData);
+            // Continuação das validações (consistência, IP e User-Agent)
+            var isValid = await tokenService.ValidaUsuario(token.RawData);
 
             if (!isValid)
             {
@@ -117,8 +115,31 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// adicionando os serviços de autorização sem configuração, a configuração é feita após a declaração do app abaixo: vvvv
-builder.Services.AddAuthorization();
+// 
+builder.Services.AddAuthorization(options =>
+{
+    // Adicionando a política específica de AcessoLogin
+    options.AddPolicy("AcessoLoginPolicy", policy => policy.RequireClaim("AcessoLogin", "true"));
+
+    // Acessa o banco de dados para pegar as policies registradas e adicioná-las à aplicação
+    using (var scope = builder.Services.BuildServiceProvider().CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var policies = dbContext.Policy.Include(p => p.PolicyRoles).ThenInclude(pr => pr.Role).ToList();
+
+        foreach (var policy in policies)
+        {
+            Console.WriteLine("\n------------------------- POLICY RETIRADA DO BANCO DE DADOS:\n" + policy);
+            options.AddPolicy(policy.Nome, policyBuilder =>
+            {
+                var roleNames = policy.PolicyRoles.Select(pr => pr.Role.Nome).ToArray();
+                policyBuilder.RequireRole(roleNames);
+            });
+        }
+    }
+});
+
 
 
 // Adicionando o swagger
@@ -169,19 +190,7 @@ builder.Logging.AddConsole(options =>
 });
 builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging")); // configura o logging a partir do appsettings.json
 
-
-
 var app = builder.Build();
-
-// Configuração de autorização com policies dinâmicas
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    var workingService = scope.ServiceProvider.GetRequiredService<IWorkingService>();
-
-    var options = app.Services.GetRequiredService<AuthorizationOptions>();
-    workingService.ConfigurePolicies(options, dbContext);
-}
 
 app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();

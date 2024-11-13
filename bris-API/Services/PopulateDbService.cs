@@ -19,6 +19,7 @@ namespace bris_API.Services
             SeedGranja(modelBuilder);
             SeedAdmin(modelBuilder);
             SeedVinculos(modelBuilder);
+            SeedPolicies(modelBuilder);
         }
 
         public void SeedRoles(ModelBuilder modelBuilder)
@@ -113,7 +114,7 @@ namespace bris_API.Services
         private void SeedVinculos(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Vinculo>().HasData(
-                new Vinculo { Id = 1, UsuarioId = 1, GranjaId = 1, RoleId = 1 }
+                new Vinculo { Id = 1, UsuarioId = 1, RoleId = 1 }
             );
         }
     }
