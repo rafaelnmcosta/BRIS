@@ -17,11 +17,7 @@ namespace bris_API.DTOs
         [RegularExpression(@"^\d{11}$", ErrorMessage = "O CPF deve conter apenas números.")]
         public required string CPF { get; set; }
 
-        [Required(ErrorMessage = "A senha é obrigatória.")]
         [StringLength(100, MinimumLength = 6, ErrorMessage = "A senha deve ter entre 6 e 100 caracteres.")]
-        public required string Senha { get; set; }
-
-        [Required(ErrorMessage = "A lista de vínculos é obrigatória.")]
-        public List<VinculoDTO> Vinculos { get; set; }
+        public string Senha { get; set; }
     }
 }
