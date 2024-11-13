@@ -2,13 +2,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.OpenApi.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 using bris_API.Data;
 using bris_API.Services;
+using bris_API.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +25,11 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPopulateDbService, PopulateDbService>();
 builder.Services.AddScoped<IResultsService, ResultsService>();
 builder.Services.AddScoped<IWorkingService, WorkingService>();
+
+// injeção de dependência das interfaces dos controllers
+builder.Services.AddScoped<IAutenticacaoController, AutenticacaoController>();
+builder.Services.AddScoped<IUsuariosController, UsuariosController>();
+builder.Services.AddScoped<IPerfilController, PerfilController>();
 
 // adicionando os controllers
 builder.Services.AddControllers();
@@ -58,30 +65,13 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 
-    // Intercepta o token antes da validação para descriptografá-lo
+    // Intercepta o token para a validação
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
         {
-            var encryptedToken = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            if (!string.IsNullOrEmpty(encryptedToken))
-            {
-                try
-                {
-                    var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
-                    var decryptedToken = tokenService.DecryptToken(encryptedToken);
-
-                    // Substitui o token descriptografado no contexto para validação
-                    context.Token = decryptedToken;
-                }
-                catch (Exception ex)
-                {
-                    // Adiciona um log de erro se a descriptografia falhar
-                    var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "Falha ao descriptografar o token. Token inválido!");
-                    context.Fail("Token inválido!");
-                }
-            }
+            // Buscando o token JWT a partir do cookie HTTP-Only
+            context.Token = context.Request.Cookies["auth_token"];
             return Task.CompletedTask;
         },
 
@@ -94,15 +84,26 @@ builder.Services.AddAuthentication(options =>
                 return;
             }
 
+            // Lógica para renovar o token
+            var timeToExpire = token.ValidTo - DateTime.UtcNow;
+            if (timeToExpire.TotalMinutes < double.Parse(builder.Configuration["Jwt:RenewInMinutesLeft"])) // expira em menos de 5 minutos
+            {
+                var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
+                var newToken = tokenService.GenerateTokenVinculo(context.Principal.FindFirst(ClaimTypes.NameIdentifier).Value, 
+                                                                context.Principal.FindFirst("UserIP").Value, 
+                                                                context.Principal.FindFirst("UserAgent").Value);
+                tokenService.SetCookieToken(context.HttpContext, newToken);
+            }
+
+            // Continuação das validações (IP e User-Agent)
             var workingService = context.HttpContext.RequestServices.GetRequiredService<IWorkingService>();
-            var isValid = await workingService.ValidaUsuario(token.RawData); // Passa o token bruto para validação
+            var isValid = await workingService.ValidaUsuario(token.RawData);
 
             if (!isValid)
             {
                 context.Fail("Vínculo inválido ou expirado. Faça login novamente.");
             }
 
-            // Validação de IP e User-Agent
             var currentIp = context.HttpContext.Connection.RemoteIpAddress?.ToString();
             var currentUserAgent = context.HttpContext.Request.Headers["User-Agent"].ToString();
             var tokenIpClaim = context.Principal.FindFirst("UserIP")?.Value;

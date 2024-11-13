@@ -1,18 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 using bris_API.Data;
 using bris_API.Models;
 using bris_API.Services;
 using bris_API.DTOs;
-using System.Security.Claims;
 
 namespace bris_API.Controllers
 {
     [Route("api/usuarios")]
     [ApiController]
-    public class UsuariosController : ControllerBase
+    public class UsuariosController : ControllerBase, IUsuariosController
     {
         private readonly AppDbContext _context;
         private readonly IPasswordService _passwordService;

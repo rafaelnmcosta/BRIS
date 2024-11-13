@@ -10,13 +10,10 @@ namespace bris_API.Services
     public class TokenService : ITokenService
     {
         private readonly IConfiguration _configuration;
-        private readonly byte[] _encryptionKey;
 
         public TokenService(IConfiguration configuration)
         {
             _configuration = configuration;
-            // Gerando a chave de encriptação para usar nas funções de encriptação e decriptação
-            _encryptionKey = GenerateEncryptionArray(_configuration["Jwt:EncryptionKey"]);
         }
 
         // Gera um token básico de login contendo apenas o ID do usuário
@@ -43,8 +40,8 @@ namespace bris_API.Services
             return tokenHandler.WriteToken(token);
         }
 
-        // Gera um token com informações adicionais do vínculo selecionado pelo usuário
-        public string GenerateTokenVinculo(string vinculoId, string role, string userIp, string userAgent)
+        // Gera um token com informações do vínculo selecionado pelo usuário
+        public string GenerateTokenVinculo(string vinculoId, string userIp, string userAgent)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
@@ -54,7 +51,6 @@ namespace bris_API.Services
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, vinculoId),
-                    new Claim(ClaimTypes.Role, role),
                     new Claim("UserIP", userIp),
                     new Claim("UserAgent", userAgent),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
@@ -67,52 +63,16 @@ namespace bris_API.Services
             return tokenHandler.WriteToken(token);
         }
 
-        // Converte a chave de encriptação de string para um array de bytes
-        public byte[] GenerateEncryptionArray(string key)
+        // Adiciona o token ao cookie http-only no contexto http
+        public void SetCookieToken(HttpContext context, string token)
         {
-            return Encoding.UTF8.GetBytes(key);
-        }
-
-        // Encripta o token usando JWE com Jose.JWT
-        public string EncryptToken(string token)
-        {
-            return JWT.Encode(token, _encryptionKey, JweAlgorithm.A256GCMKW, JweEncryption.A256GCM);
-        }
-
-        // Decripta o token encriptado para obter o JWT original
-        public string DecryptToken(string encryptedToken)
-        {
-            return JWT.Decode(encryptedToken, _encryptionKey);
-        }
-
-        // decripta o token, valida, obtém os claims e retorna as claims apenas se o usuário for válido no sistema
-        public ClaimsPrincipal ValidateToken(string token, string currentIp, string currentUserAgent)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
-
-            var validationParameters = new TokenValidationParameters
+            context.Response.Cookies.Append("auth_token", token, new CookieOptions
             {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = _configuration["Jwt:Issuer"],
-                ValidAudience = _configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(key)
-            };
-            var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
-
-            // Verifica se o IP e o User-Agent do token coincidem com a requisição atual
-            var ipClaim = principal.FindFirst("UserIP")?.Value;
-            var agentClaim = principal.FindFirst("UserAgent")?.Value;
-
-            if (ipClaim != currentIp || agentClaim != currentUserAgent)
-            {
-                throw new SecurityTokenException("IP ou navegador não correspondentes com a geração do token.");
-            }
-
-            return principal;
+                HttpOnly = true,
+                Secure = true, // Caso esteja em produção com HTTPS
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiresInMinutes"]))
+            });
         }
     }
 }

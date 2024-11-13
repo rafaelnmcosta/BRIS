@@ -43,12 +43,12 @@ namespace bris_API.Services
                 return false;
 
             // Obtém os valores das claims no token
-            var vinculoIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "vinculoId")?.Value;
-            var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            var acessoLogin = jwtToken.Claims.FirstOrDefault(c => c.Type == "AcessoLogin")?.Value;
+            var vinculoIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            // Valida se as claims foram não nulas foram extraídas corretamente
-            if (string.IsNullOrEmpty(vinculoIdClaim) || string.IsNullOrEmpty(roleClaim))
-                return false;
+            // Verifica se o token é de um usuário que acabou de fazer login (pula a validação)
+            if (string.IsNullOrEmpty(acessoLogin))
+                return true;
 
             // Valida se o ID do vinculo é um valor numérico válido
             if (!int.TryParse(vinculoIdClaim, out int vinculoId))
@@ -59,7 +59,7 @@ namespace bris_API.Services
                 .Include(v => v.Role)
                 .FirstOrDefaultAsync(v => v.Id == vinculoId);
 
-            if (vinculo == null || vinculo.Role.Nome != roleClaim)// false se a role for null ou diferente
+            if (vinculo == null)
             {
                 return false;
             }

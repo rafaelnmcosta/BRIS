@@ -41,12 +41,10 @@ namespace bris_API.Services
             {
                 { "VisualizaTotal", new[] { "ADMIN" } },
                 { "VisualizaAgroindustria", new[] { "ADMIN", "GESTOR_AGRO", "VISUALIZADOR" } },
-                { "VisualizaGranja", new[] { "ADMIN", "GESTOR_AGRO", "GESTOR_GRANJA", "VISUALIZADOR" } },
                 { "VisualizaUsuarios", new[] { "ADMIN", "GESTOR_AGRO", "GESTOR_GRANJA", "VISUALIZADOR" } },
                 { "VisualizaAnimais", new[] { "ADMIN", "GESTOR_AGRO", "GESTOR_GRANJA", "VISUALIZADOR", "TECNICO" } },
                 { "GerenciaTotal", new[] { "ADMIN" } },
                 { "GerenciaAgroindustria", new[] { "ADMIN", "GESTOR_AGRO" } },
-                { "GerenciaGranja", new[] { "ADMIN", "GESTOR_AGRO", "GESTOR_GRANJA" } },
                 { "GerenciaUsuarios", new[] { "ADMIN", "GESTOR_AGRO", "GESTOR_GRANJA" } },
                 { "GerenciaAnimais", new[] { "ADMIN", "GESTOR_GRANJA", "TECNICO" } },
                 { "TodosUsuarios", new[] { "ADMIN", "GESTOR_AGRO", "GESTOR_GRANJA", "VISUALIZADOR", "TECNICO" } }
