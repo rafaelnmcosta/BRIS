@@ -4,18 +4,20 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using bris_API.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 
 namespace bris_API.Services
 {
     public class TokenService : ITokenService
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _dbContext;
         private readonly IConfiguration _configuration;
 
-        public TokenService(IConfiguration configuration)
+        public TokenService(IConfiguration configuration, AppDbContext dbContext)
         {
             _configuration = configuration;
+            _dbContext = dbContext;
         }
 
         // Gera um token básico de login contendo apenas o ID do usuário
@@ -32,10 +34,12 @@ namespace bris_API.Services
                     new Claim("UserIP", userIp),
                     new Claim("UserAgent", userAgent),
                     new Claim("AcessoLogin", "true"),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiresInMinutes"])),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                
+                Issuer = _configuration["Jwt:Issuer"],
+                Audience = _configuration["Jwt:Audience"]
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -55,60 +59,111 @@ namespace bris_API.Services
                     new Claim(ClaimTypes.NameIdentifier, vinculoId),
                     new Claim("UserIP", userIp),
                     new Claim("UserAgent", userAgent),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiresInMinutes"])),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                
+                Issuer = _configuration["Jwt:Issuer"],
+                Audience = _configuration["Jwt:Audience"]
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
 
+
         // Adiciona o token ao cookie http-only no contexto http
         public void SetCookieToken(HttpContext context, string token)
         {
+            var isSecure = bool.Parse(_configuration["CookieSecure"]);
             context.Response.Cookies.Append("auth_token", token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true, // Caso esteja em produção com HTTPS
+                Secure = isSecure, // Usa https ou não dependendo do ambiente
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiresInMinutes"]))
             });
         }
         
-        // Valida as informações do usuário contidas no token
-        public async Task<bool> ValidaUsuario(string token)
+        // Valida as informações do usuário contidas no context
+        public async Task ValidaContext(TokenValidatedContext context)
         {
-            // Extrai informações do token
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadToken(token) as JwtSecurityToken;
+            Console.WriteLine($"\n\ntoken na ValidaContext:{context.SecurityToken}\n");
 
-            if (jwtToken == null)
-                return false;
+            var acessoLogin = context.Principal.FindFirst("AcessoLogin")?.Value;
 
-            // Obtém os valores das claims no token
-            var acessoLogin = jwtToken.Claims.FirstOrDefault(c => c.Type == "AcessoLogin")?.Value;
-            var vinculoIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            // Pula a validação se o usuário acabou de fazer login está escolhendo o vínculo ainda
+            if (string.IsNullOrEmpty(acessoLogin)){
 
-            // Verifica se o token é de um usuário que acabou de fazer login (pula a validação)
-            if (string.IsNullOrEmpty(acessoLogin))
-                return true;
+                // Valida se o Ip e o Agent da requisição são iguais aos presentes no token
+                var currentIp = context.HttpContext.Connection.RemoteIpAddress?.ToString();
+                var currentUserAgent = context.HttpContext.Request.Headers["User-Agent"].ToString();
+                var tokenIpClaim = context.Principal.FindFirst("UserIP")?.Value;
+                var tokenUserAgentClaim = context.Principal.FindFirst("UserAgent")?.Value;
 
-            // Valida se o ID do vinculo é um valor numérico válido
-            if (!int.TryParse(vinculoIdClaim, out int vinculoId))
-                return false;
+                if (tokenIpClaim != currentIp || tokenUserAgentClaim != currentUserAgent)
+                {
+                    context.Fail("IP ou navegador não correspondentes com a geração do token.");
+                }
 
-            // Verifica se o vínculo ainda existe no banco
-            var vinculo = await _context.Vinculos
-                .FirstOrDefaultAsync(v => v.Id == vinculoId);
+                var vinculoIdClaim = context.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (vinculo == null)
-            {
-                return false;
+                // Valida se o ID do vinculo é um valor numérico válido
+                if (!int.TryParse(vinculoIdClaim, out int vinculoId)){
+                    context.Fail("O Id contido no token não é um valor numérico válido!");
+                }
+
+                // Valida se o vínculo ainda existe no banco e se sim define sua Role no contexto da requisição
+                try
+                {
+                    var vinculo = await _dbContext.Vinculos
+                    .Include(v => v.Role)
+                    .FirstOrDefaultAsync(v => v.Id == vinculoId);
+
+                    if (vinculo == null)
+                    {
+                        Console.WriteLine($"Erro: Vínculo com ID {vinculoId} não encontrado.");
+                        context.Fail("Id do vínculo presente no token não existe no banco de dados!");
+                    }
+                    else
+                    {
+                        var identity = context.Principal.Identity as ClaimsIdentity;
+                        identity?.AddClaim(new Claim(ClaimTypes.Role, vinculo.Role.Nome));
+                        Console.WriteLine($"\nRole do usuário adicionada ao contexto: {vinculo.Role.Nome}");
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Erro ao validar vínculo no banco de dados: {ex.Message}");
+                    context.Fail("Erro interno ao validar o vínculo.");
+                }
             }
 
-            return true;
+
+        }
+
+        public async Task RenovaToken(TokenValidatedContext context)
+        {
+            var token = context.SecurityToken;
+            var timeToExpire = token.ValidTo - DateTime.UtcNow;
+
+            // Só roda se o token expirar em menos que o prazo configurado
+            if (timeToExpire.TotalMinutes < double.Parse(_configuration["Jwt:RenewInMinutesLeft"]))
+            {
+                var userId = context.Principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userIp = context.Principal.FindFirst("UserIP").Value;
+                var userAgent = context.Principal.FindFirst("UserAgent").Value;
+                var acessoLogin = context.Principal.FindFirst("AcessoLogin")?.Value;
+
+                // gera o token correspondente ao que existia anteriormente
+                string newToken = string.IsNullOrEmpty(acessoLogin) 
+                    ? GenerateTokenVinculo(userId, userIp, userAgent) 
+                    : GenerateTokenLogin(userId, userIp, userAgent);
+
+                SetCookieToken(context.HttpContext, newToken);
+                Console.WriteLine($"Token renovado com sucesso para o usuário: {userId}");
+            }
         }
     }
 }

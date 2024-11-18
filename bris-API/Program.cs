@@ -44,7 +44,7 @@ builder.Services.AddCors(options =>
         });
 });
 
-// Configuração da Autenticação JWT com validação de IP e User-Agent
+// Configuração da Autenticação JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -52,6 +52,18 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    // Verifica se tudo foi preenchido corretamente no arquivo de appsettings.json
+    if (
+        string.IsNullOrEmpty(builder.Configuration["Jwt:Issuer"]) ||
+        string.IsNullOrEmpty(builder.Configuration["Jwt:Audience"]) ||
+        string.IsNullOrEmpty(builder.Configuration["Jwt:Key"]) ||
+        string.IsNullOrEmpty(builder.Configuration["Jwt:ExpiresInMinutes"]) ||
+        string.IsNullOrEmpty(builder.Configuration["Jwt:RenewInMinutesLeft"])
+    )
+    {
+        throw new Exception("Configurações de JWT ausentes ou inválidas.");
+    }
+
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -68,54 +80,34 @@ builder.Services.AddAuthentication(options =>
     {
         OnMessageReceived = context =>
         {
-            // Buscando o token JWT a partir do cookie HTTP-Only
-            context.Token = context.Request.Cookies["auth_token"];
+            var token = context.Request.Cookies["auth_token"];
+
+            if (string.IsNullOrEmpty(token))
+            {
+                Console.WriteLine("Token não encontrado no cookie.");
+            }
+            else
+            {
+                Console.WriteLine($"Token capturado: {token}");
+            }
+
+            context.Token = token;
+
             return Task.CompletedTask;
         },
+
 
         OnTokenValidated = async context =>
         {
             var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
             
-            var token = context.SecurityToken as JwtSecurityToken;
-            if (token == null)
-            {
-                context.Fail("Token inválido!");
-                return;
-            }
-
-            // Lógica para renovar o token
-            var timeToExpire = token.ValidTo - DateTime.UtcNow;
-            if (timeToExpire.TotalMinutes < double.Parse(builder.Configuration["Jwt:RenewInMinutesLeft"])) // expira em menos de 5 minutos
-            {
-                var newToken = tokenService.GenerateTokenVinculo(context.Principal.FindFirst(ClaimTypes.NameIdentifier).Value, 
-                                                                context.Principal.FindFirst("UserIP").Value, 
-                                                                context.Principal.FindFirst("UserAgent").Value);
-                tokenService.SetCookieToken(context.HttpContext, newToken);
-            }
-
-            // Continuação das validações (consistência, IP e User-Agent)
-            var isValid = await tokenService.ValidaUsuario(token.RawData);
-
-            if (!isValid)
-            {
-                context.Fail("Vínculo inválido ou expirado. Faça login novamente.");
-            }
-
-            var currentIp = context.HttpContext.Connection.RemoteIpAddress?.ToString();
-            var currentUserAgent = context.HttpContext.Request.Headers["User-Agent"].ToString();
-            var tokenIpClaim = context.Principal.FindFirst("UserIP")?.Value;
-            var tokenUserAgentClaim = context.Principal.FindFirst("UserAgent")?.Value;
-
-            if (tokenIpClaim != currentIp || tokenUserAgentClaim != currentUserAgent)
-            {
-                context.Fail("IP ou navegador não correspondentes com a geração do token.");
-            }
+            // Valida os dados do token
+            await tokenService.ValidaContext(context);
+            await tokenService.RenovaToken(context);
         }
     };
 });
 
-// 
 builder.Services.AddAuthorization(options =>
 {
     // Adicionando a política específica de AcessoLogin
@@ -130,11 +122,11 @@ builder.Services.AddAuthorization(options =>
 
         foreach (var policy in policies)
         {
-            Console.WriteLine("\n------------------------- POLICY RETIRADA DO BANCO DE DADOS:\n" + policy);
             options.AddPolicy(policy.Nome, policyBuilder =>
             {
                 var roleNames = policy.PolicyRoles.Select(pr => pr.Role.Nome).ToArray();
                 policyBuilder.RequireRole(roleNames);
+                Console.WriteLine($"\nPolicy: {policy.Nome}\nRoles: {roleNames}\n");
             });
         }
     }
@@ -145,7 +137,7 @@ builder.Services.AddAuthorization(options =>
 // Adicionando o swagger
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "BRIS API", Version = "v1.1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "BRIS API", Version = "v1.1" });
 
     // adicionando o token jwt no swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

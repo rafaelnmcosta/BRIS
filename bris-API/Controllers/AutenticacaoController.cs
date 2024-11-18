@@ -185,9 +185,10 @@ namespace bris_API.Controllers
             try
             {
                 var usuarioClaimId = User.FindFirst(ClaimTypes.NameIdentifier);
+                Console.WriteLine("usuarioClaimId = " + usuarioClaimId.Value);
                 if (usuarioClaimId == null)
                 {
-                    return Unauthorized("Token inválido.");
+                    return Unauthorized("Token inválido. (Id na claim do token é null)");
                 }
     
                 var usuarioId = int.Parse(usuarioClaimId.Value); // id do usuario em formato int

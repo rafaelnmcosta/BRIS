@@ -5,7 +5,6 @@ namespace bris_API.Models {
         public string? RazaoSocial { get; set; }
         public string? CNPJ { get; set; }
         public ICollection<Granja>? Granjas { get; set; }
-        public ICollection<Usuario>? Usuarios { get; set; }
         public ICollection<Vinculo>? Vinculos { get; set; }
         public bool Ativo { get; set; }
     }    
