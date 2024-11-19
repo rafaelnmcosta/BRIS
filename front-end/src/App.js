@@ -1,34 +1,40 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import 'antd/dist/reset.css';
-
 import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './services/AuthContext';
 
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Teste from './pages/Teste';
 import Header from './components/molecules/Header';
+import PageWrapper from './components/PageWrapper';
+
+import Login from './pages/Login';
+import AutoCadastro from './pages/AutoCadastro';
+import ListaVinculos from './pages/ListaVinculos';
+import Home from './pages/Home';
+import Teste from './pages/Teste';
 
 function App() {
   return (
-      <Router>
-        <AuthProvider>
-          <Header/>
+    <Router>
+      <AuthProvider>
+        <Header />
+        <PageWrapper>
           <Routes>
             {/* Rotas públicas */}
             <Route path='/login' element={<Login />} />
-            <Route path='/teste'element={<Teste/>} />
-            
+            <Route path='/cadastro' element={<AutoCadastro />} />
+            <Route path='/teste' element={<Teste />} />
+              <Route path='/vinculos' element={<ListaVinculos />} />
+
             {/* Rotas protegidas dentro da PrivateRoute*/}
             <Route element={<PrivateRoute />}>
               <Route path='/home' element={<Home />} />
             </Route>
 
           </Routes>
-        </AuthProvider>
-      </Router>
+        </PageWrapper>
+      </AuthProvider>
+    </Router>
   );
 }
 

@@ -22,9 +22,12 @@ const endpoints = {
   autenticacao: {
     cadastro: `${API_BASE_URL}/auth/cadastro`,
     login: `${API_BASE_URL}/auth/login`,
-    listarAcessos: (id) => `${API_BASE_URL}/auth/acessos/${id}`,
-    receberToken: (id) => `${API_BASE_URL}/auth/acessos/token/${id}`,
-    recuperarSenha: `${API_BASE_URL}/auth/recuperar-senha`
+    logout: `${API_BASE_URL}/auth/logout`,
+    listarVinculosParaTrocar: `${API_BASE_URL}/auth/trocar-vinculo`,
+    listarVinculos: `${API_BASE_URL}/auth/vinculos`,
+    escolherVinculo: (id) => `${API_BASE_URL}/auth/vinculos/${id}`,
+    recuperarSenha: `${API_BASE_URL}/auth/recuperar-senha`,
+    checarStatus: `${API_BASE_URL}/auth/check`
   },
   avaliacoes: {
     listar: `${API_BASE_URL}/avalicoes`,
@@ -35,31 +38,6 @@ const endpoints = {
     finalizar: (id) => `${API_BASE_URL}/avaliacoes/finaliza/${id}`,
     interromper: (id) => `${API_BASE_URL}/avaliacoes/interrompe/${id}`,
     reativar: (id) => `${API_BASE_URL}/avaliacoes/${id}/reativar`
-  },
-  gestorAgro: {
-    listarAnimais: `${API_BASE_URL}/ga/animais`,
-    detalhesAnimal: (id) => `${API_BASE_URL}/ga/animais/${id}`,
-    listarUsuarios: `${API_BASE_URL}/ga/usuarios`,
-    detalhesUsuario: (id) => `${API_BASE_URL}/ga/usuarios/${id}`,
-    editarUsuario: (id) => `${API_BASE_URL}/ga/usuarios/${id}/editar`,
-    cadastrarUsuario: `${API_BASE_URL}/ga/usuarios/cadastrar`,
-    listarUsuariosInativos: `${API_BASE_URL}/ga/usuarios/ativar`,
-    ativarUsuario: (id) => `${API_BASE_URL}/ga/usuarios/ativar/${id}`,
-    listarGranjas: `${API_BASE_URL}/ga/granjas`,
-    listarGranjasInativas: `${API_BASE_URL}/ga/granjas/ativar`,
-    ativarGranja: (id) => `${API_BASE_URL}/ga/granjas/ativar/${id}`,
-    detalhesGranja: (id) => `${API_BASE_URL}/ga/granjas/${id}`,
-    editarGranja: (id) => `${API_BASE_URL}/ga/granjas/${id}/editar`,
-    cadastrarGranja: `${API_BASE_URL}/granjas/cadastrar`,
-    desativarGranja: (id) => `${API_BASE_URL}/granjas/${id}/desativar`
-  },
-  gestorGranja: {
-    listarUsuarios: `${API_BASE_URL}/gg/usuarios`,
-    detalhesUsuario: (id) => `${API_BASE_URL}/gg/usuarios/${id}`,
-    editarUsuario: (id) => `${API_BASE_URL}/gg/usuarios/${id}/editar`,
-    cadastrarUsuario: `${API_BASE_URL}/gg/usuarios/cadastrar`,
-    listarUsuariosInativos: `${API_BASE_URL}/gg/usuarios/ativar`,
-    ativarUsuario: (id) => `${API_BASE_URL}/gg/usuarios/ativar/${id}`,
   },
   granjas: {
     listar: `${API_BASE_URL}/granjas`,
@@ -78,9 +56,14 @@ const endpoints = {
     listarUsuarios: `${API_BASE_URL}/usuarios`,
     cadastrarUsuario: `${API_BASE_URL}/usuarios/cadastrar`,
     detalhesUsuario: (id) => `${API_BASE_URL}/usuarios/${id}`,
-    listarUsuariosInativos: `${API_BASE_URL}/usuarios/ativar`,
+    editarUsuario: (id) => `${API_BASE_URL}/usuarios/editar/${id}`,
+    listarUsuariosPendentes: `${API_BASE_URL}/usuarios/ativar`,
     ativarUsuario: (id) => `${API_BASE_URL}/usuarios/ativar/${id}`,
-    editarUsuario: (id) => `${API_BASE_URL}/usuarios/${id}/editar`,
+    listarUsuariosInativos: `${API_BASE_URL}/usuarios/reativar`,
+    reativarUsuario: (id) => `${API_BASE_URL}/usuarios/reativar/${id}`,
+    listarVinculosUsuario: (id) => `${API_BASE_URL}/usuarios/vinculos/${id}`,
+    editarVinculoUsuario: (id) => `${API_BASE_URL}/usuarios/vinculos/editar/${id}`,
+    adicionarVinculoUsuario: (id) => `${API_BASE_URL}/usuarios/novo-vinculo/${id}`
   }
 };
 

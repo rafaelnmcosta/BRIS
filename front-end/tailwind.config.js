@@ -19,6 +19,7 @@ module.exports = {
           light: '#F7F7F7',
           dark: '#9E9E9E',
         },
+        'background-custom': '#BFDAAA',
       },
     },
   },

@@ -40,7 +40,9 @@ builder.Services.AddCors(options =>
         {
             builder.WithOrigins("http://localhost:3000")
                    .AllowAnyHeader()
-                   .AllowAnyMethod();
+                   .AllowAnyMethod()
+                   .AllowCredentials()
+                   ;
         });
 });
 
@@ -89,9 +91,8 @@ builder.Services.AddAuthentication(options =>
             else
             {
                 Console.WriteLine($"Token capturado: {token}");
+                context.Token = token;
             }
-
-            context.Token = token;
 
             return Task.CompletedTask;
         },

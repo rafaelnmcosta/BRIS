@@ -7,7 +7,7 @@ const Header = () => {
   const { isAuthenticated, logout } = useAuth();
 
   return (
-    <header className="flex justify-between items-center px-8 py-2 border-b border-gray-300">
+    <header className="fixed top-0 left-0 w-full flex justify-between items-center px-8 py-2 border-b border-gray-300 bg-white shadow-md z-50">
         <div className="flex items-center">
             <img src={logo} alt="Logo" className="h-12  " />
         </div>

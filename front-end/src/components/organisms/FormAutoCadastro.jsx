@@ -5,7 +5,7 @@ import { MailOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
 
 const FormAutoCadastro = () => {
   return (
-    <div className="flex flex-col items-center justify-center bg-white rounded-lg shadow-lg p-8 w-1/3">
+    <div className="flex flex-col items-center justify-center bg-white rounded-3xl shadow-lg p-8 w-1/3">
       <h2 className="text-green-dark text-3xl font-bold mb-2">CADASTRO</h2>
       <p className="text-green-dark mb-4">
         Já possui cadastro? <span className="text-green-dark">Pode entrar </span><a className="font-bold text-green-dark hover:text-green-light" href="/login">aqui!</a>

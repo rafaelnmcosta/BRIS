@@ -1,8 +1,8 @@
 import React from 'react';
 import { Card } from 'antd';
-import { Link } from 'react-router-dom';
 
 const CardInfo = ({ entidade, tipoEntidade }) => {
+  console.log('entidade:', entidade);
   const renderCardContent = () => {
     switch (tipoEntidade) {
       case 'Agroindustria':
@@ -43,20 +43,19 @@ const CardInfo = ({ entidade, tipoEntidade }) => {
       case 'Vinculo':
         return (
           <>
-            <p>Tipo de Usuário: {entidade.TipoUsuario}</p>
-            <p>Granja: {entidade.Granja ? entidade.Granja.NomePropriedade : 'N/A'}</p>
-            <p>Agroindústria: {entidade.Agroindustria ? entidade.Agroindustria.NomeFantasia : 'N/A'}</p>
+            <p>Tipo de Usuário: {entidade.role.toLowerCase()}</p>
+            <p>Granja: {entidade.nomeGranja ? entidade.nomeGranja : ''}</p>
+            <p>Agroindústria: {entidade.nomeAgroindustria ? entidade.nomeAgroindustria : ''}</p>
           </>
         );
       default:
-        return <p>Entidade desconhecida</p>;
+        return <p>entidade desconhecida</p>;
     }
   };
 
   return (
     <Card
-      title={`${tipoEntidade} id: ${entidade.Id}`}
-      extra={<Link to={`/${tipoEntidade.toLowerCase()}/${entidade.Id}`}>Mais</Link>}
+      title={`${tipoEntidade}`}
       className="shadow-lg hover:shadow-2xl transition-all duration-300"
     >
       {renderCardContent()}
