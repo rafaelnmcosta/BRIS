@@ -77,7 +77,7 @@ namespace bris_API.Controllers
                                         (Role == "GESTOR_GRANJA" && v.GranjaId == granjaId)) // Apenas os vinculos na mesma granja
                             .Select(v => new GetVinculoDTO
                             {
-                                VinculoId = v.Id,
+                                Id = v.Id,
                                 Role = v.Role.Nome,
                                 NomeAgroindustria = v.Agroindustria.NomeFantasia,
                                 NomeGranja = v.Granja.NomePropriedade
@@ -198,7 +198,7 @@ namespace bris_API.Controllers
                                     (Role == "GESTOR_GRANJA" && v.GranjaId == granjaId))
                         .Select(v => new GetVinculoDTO
                         {
-                            VinculoId = v.Id,
+                            Id = v.Id,
                             Role = v.Role.Nome,
                             NomeGranja = v.Granja?.NomePropriedade,
                             NomeAgroindustria = v.Agroindustria?.NomeFantasia
@@ -332,7 +332,7 @@ namespace bris_API.Controllers
                                     (Role == "GESTOR_GRANJA" && v.GranjaId == granjaId)))
                         .Select(v => new GetVinculoDTO
                         {
-                            VinculoId = v.Id,
+                            Id = v.Id,
                             Role = v.Role.Nome,
                             NomeAgroindustria = v.Agroindustria != null ? v.Agroindustria.NomeFantasia : null,
                             NomeGranja = v.Granja != null ? v.Granja.NomePropriedade : null
@@ -394,7 +394,7 @@ namespace bris_API.Controllers
                 // Retorna o vínculo atualizado
                 return Ok(new GetVinculoDTO
                 {
-                    VinculoId = vinculo.Id,
+                    Id = vinculo.Id,
                     Role = vinculo.Role.Nome,
                     NomeGranja = vinculo.Granja?.NomePropriedade,
                     NomeAgroindustria = vinculo.Agroindustria?.NomeFantasia
@@ -461,7 +461,7 @@ namespace bris_API.Controllers
                                     (Role == "GESTOR_GRANJA" && v.GranjaId == granjaId)))
                         .Select(v => new GetVinculoDTO
                         {
-                            VinculoId = v.Id,
+                            Id = v.Id,
                             Role = v.Role.Nome,
                             NomeAgroindustria = v.Agroindustria != null ? v.Agroindustria.NomeFantasia : null,
                             NomeGranja = v.Granja != null ? v.Granja.NomePropriedade : null
@@ -521,7 +521,7 @@ namespace bris_API.Controllers
 
                 return Ok(new GetVinculoDTO
                 {
-                    VinculoId = vinculo.Id,
+                    Id = vinculo.Id,
                     Role = vinculo.Role.Nome,
                     NomeGranja = vinculo.Granja?.NomePropriedade,
                     NomeAgroindustria = vinculo.Agroindustria?.NomeFantasia
@@ -575,7 +575,7 @@ namespace bris_API.Controllers
                 var vinculos = await vinculosQuery
                     .Select(v => new GetVinculoDTO
                     {
-                        VinculoId = v.Id,
+                        Id = v.Id,
                         Role = v.Role.Nome,
                         NomeAgroindustria = v.Agroindustria != null ? v.Agroindustria.NomeFantasia : null,
                         NomeGranja = v.Granja != null ? v.Granja.NomePropriedade : null

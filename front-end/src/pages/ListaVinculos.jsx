@@ -8,11 +8,9 @@ const ListaVinculos = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        console.log("useEffect de vinculos foi chamado!");
         const fetchVinculos = async () => {
             try {
-                const response = await autenticacao.listarVinculos(); // Endpoint para buscar vínculos
-                console.log("vinculos:", response);
+                const response = await autenticacao.listarVinculos();
                 setVinculos(response);
             } catch (err) {
                 setError('Erro ao carregar os vínculos.');

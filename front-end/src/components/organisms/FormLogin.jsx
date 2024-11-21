@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import InputSemBordaComLabel from '../molecules/InputSemBordaComLabel';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import BotaoPrimario from '../atoms/BotaoPrimario';
 
 const FormLogin = ({ handleLogin }) => {
   const [email, setEmail] = useState('');
@@ -8,13 +9,11 @@ const FormLogin = ({ handleLogin }) => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log("\n---------------------------Entrou no onSubmit---------------------------");
-    console.log("\nemail no onSubmit: ", email, "\nsenha no onSubmit: ", senha);
     handleLogin({ email, senha });
   };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-white rounded-3xl shadow-lg p-10 w-1/4">
+    <div className="flex flex-col items-center justify-center bg-white rounded-3xl shadow-lg p-16">
       <h2 className="text-green-dark text-3xl font-bold mb-4">LOGIN</h2>
       <form className="w-full max-w-xs" onSubmit={onSubmit}>
         <InputSemBordaComLabel
@@ -40,13 +39,14 @@ const FormLogin = ({ handleLogin }) => {
         </div>
 
         <div className="flex flex-col items-center justify-center">
-          {/* Botão HTML padrão */}
-          <button
-            type="submit"  // Garantindo que o botão seja do tipo submit
+          <BotaoPrimario
+            texto="Entrar"
+            type="submit"
+
             className="bg-green hover:!bg-green-dark text-white font-bold px-10 rounded-full h-10"
           >
             Entrar
-          </button>
+          </BotaoPrimario>
         </div>
       </form>
 

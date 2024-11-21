@@ -152,7 +152,7 @@ namespace bris_API.Controllers
 
                 var vinculosDTOS = vinculos.Select(v => new GetVinculoDTO
                 {
-                    VinculoId = v.Id,
+                    Id = v.Id,
                     Role = v.Role?.Nome ?? "!!! Role não definida !!!",
                     NomeGranja = v.Granja?.NomePropriedade,
                     NomeAgroindustria = v.Agroindustria?.NomeFantasia
@@ -185,7 +185,7 @@ namespace bris_API.Controllers
             try
             {
                 var usuarioClaimId = User.FindFirst(ClaimTypes.NameIdentifier);
-                Console.WriteLine("usuarioClaimId = " + usuarioClaimId.Value);
+                Console.WriteLine("Vinculos para o usuarioClaimId = " + usuarioClaimId.Value);
                 if (usuarioClaimId == null)
                 {
                     return Unauthorized("Token inválido. (Id na claim do token é null)");
@@ -207,7 +207,7 @@ namespace bris_API.Controllers
 
                 var vinculosDTOS = vinculos.Select(v => new GetVinculoDTO
                 {
-                    VinculoId = v.Id,
+                    Id = v.Id,
                     Role = v.Role?.Nome ?? "!!! Role não definida !!!",
                     NomeGranja = v.Granja?.NomePropriedade,
                     NomeAgroindustria = v.Agroindustria?.NomeFantasia
@@ -317,8 +317,7 @@ namespace bris_API.Controllers
         }
 
         [HttpGet("check")]
-        //[Authorize] // Garante que o usuário deve estar autenticado para acessar este endpoint
-        public IActionResult CheckLogin()
+        public IActionResult CheckStatus()
         {
             try
             {
@@ -326,16 +325,30 @@ namespace bris_API.Controllers
 
                 if (string.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new { message = "Usuário não autenticado." });
+                    return Unauthorized(new { status = "invalido" });
                 }
-                
-                return Ok(new { message = "Usuário autenticado." });
+
+                // Verificando se o token contém a claim "acessoLogin"
+                var acessoLoginClaim = User.FindFirst("acessoLogin");
+                if (acessoLoginClaim != null)
+                {
+                    return Ok(new { status = "logado" });
+                }
+
+                // Caso contrário, o token é considerado um token de vínculo
+                return Ok(new { status = "autenticado" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Erro ao verificar autenticação.", details = ex.Message });
+                return StatusCode(500, new
+                {
+                    status = "erro",
+                    message = "Erro ao verificar status de autenticação.",
+                    details = ex.Message
+                });
             }
         }
+
 
     }
 }

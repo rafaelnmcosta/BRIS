@@ -1,65 +1,112 @@
 import React from 'react';
-import { Card } from 'antd';
+import BotaoSecundario from '../atoms/BotaoSecundario';
+import { useNavigate } from 'react-router-dom';
+import { autenticacao } from '../../api/autenticacaoAPI';
 
 const CardInfo = ({ entidade, tipoEntidade }) => {
-  console.log('entidade:', entidade);
+  const navigate = useNavigate();
+
+  const handleRedirect = async () => {
+    switch (tipoEntidade) {
+      case 'Agroindústria':
+        navigate(`/agroindustrias/${entidade.id}`);
+        break;
+      case 'Animal':
+        navigate(`/animais/${entidade.id}`);
+        break;
+      case 'Granja':
+        navigate(`/granjas/${entidade.id}`);
+        break;
+      case 'Usuário':
+        navigate(`/usuarios/${entidade.id}`);
+        break;
+      case 'Avaliação':
+        navigate(`/avaliacoes/${entidade.id}`);
+        break;
+      case 'Vínculo':
+        try {
+          await autenticacao.escolherVinculo(entidade.id);
+          navigate('/home');
+        } catch (error) {
+          console.error('Erro ao escolher vínculo:', error);
+          alert('Não foi possível selecionar o vínculo. Tente novamente.');
+        }
+        break;
+      default:
+        console.warn('Tipo de entidade desconhecido:', tipoEntidade);
+        alert('Tipo de entidade não reconhecido.');
+    }
+  };
+
   const renderCardContent = () => {
     switch (tipoEntidade) {
-      case 'Agroindustria':
+      case 'Agroindústria':
         return (
           <>
-            <p>Nome Fantasia: {entidade.NomeFantasia}</p>
-            <p>CNPJ: {entidade.CNPJ}</p>
+            <p className='text-green-dark'>Nome Fantasia: {entidade.nomeFantasia}</p>
+            <p className='text-green-dark'>CNPJ: {entidade.CNPJ}</p>
           </>
         );
       case 'Animal':
         return (
           <>
-            <p>Linhagem: {entidade.Linhagem}</p>
-            <p>Granja: {entidade.Granja ? entidade.Granja.NomePropriedade : 'N/A'}</p>
+            <p className='text-green-dark'>Linhagem: {entidade.linhagem}</p>
+            <p className='text-green-dark'>Granja: {entidade.granja ? entidade.granja.NomePropriedade : 'N/A'}</p>
           </>
         );
       case 'Granja':
         return (
           <>
-            <p>Nome da Propriedade: {entidade.NomePropriedade}</p>
-            <p>CNPJ: {entidade.CNPJ}</p>
+            <p className='text-green-dark'>Nome da Propriedade: {entidade.nomePropriedade}</p>
+            <p className='text-green-dark'>CNPJ: {entidade.CNPJ}</p>
           </>
         );
-      case 'Usuario':
+      case 'Usuário':
         return (
           <>
-            <p>Nome: {entidade.Nome}</p>
-            <p>Email: {entidade.Email}</p>
+            <p className='text-green-dark'>Nome: {entidade.nome}</p>
+            <p className='text-green-dark'>Email: {entidade.email}</p>
           </>
         );
-      case 'Avaliacao':
+      case 'Avaliação':
         return (
           <>
-            <p>Animal ID: {entidade.AnimalId}</p>
-            <p>Status: {entidade.Status}</p>
+            <p className='text-green-dark'>Identificação do animal: {entidade.animalId}</p>
+            <p className='text-green-dark'>Status: {entidade.status}</p>
           </>
         );
-      case 'Vinculo':
+      case 'Vínculo':
+        const roleMap = {
+          ADMIN: 'Administrador',
+          GESTOR_AGRO: 'Gestor de Agroindústria',
+          GESTOR_GRANJA: 'Gestor de Granja',
+          TECNICO: 'Técnico',
+          VISUALIZADOR: 'Visualizador',
+        };
+        const role = roleMap[entidade.role] || 'Desconhecido';
+
         return (
           <>
-            <p>Tipo de Usuário: {entidade.role.toLowerCase()}</p>
-            <p>Granja: {entidade.nomeGranja ? entidade.nomeGranja : ''}</p>
-            <p>Agroindústria: {entidade.nomeAgroindustria ? entidade.nomeAgroindustria : ''}</p>
+            <p className='text-green-dark'>Perfil: {role}</p>
+            {entidade.nomeGranja && <p className='text-green-dark'>Granja: {entidade.nomeGranja}</p>}
+            {entidade.nomeAgroindustria && <p className='text-green-dark'>Agroindústria: {entidade.nomeAgroindustria}</p>}
           </>
         );
       default:
-        return <p>entidade desconhecida</p>;
+        return <p className='text-green-dark'>Entidade desconhecida</p>;
     }
   };
 
   return (
-    <Card
-      title={`${tipoEntidade}`}
-      className="shadow-lg hover:shadow-2xl transition-all duration-300"
-    >
-      {renderCardContent()}
-    </Card>
+    <div className="flex items-center justify-between p-4 mb-4 bg-white shadow-lg rounded-lg w-full">
+      <div className="flex flex-col space-y-2">
+        <h3 className="font-bold text-lg text-green-dark">{tipoEntidade}</h3>
+        <div className="pl-4">
+          {renderCardContent()}
+        </div>
+      </div>
+      <BotaoSecundario texto="Acessar" onClick={handleRedirect} />
+    </div>
   );
 };
 

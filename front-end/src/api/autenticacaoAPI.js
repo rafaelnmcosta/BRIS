@@ -13,8 +13,6 @@ export const autenticacao = {
     },
 
     login: async ({ email, senha }) => {
-        console.log("---------------------------Entrou na api---------------------------");
-        console.log("\nemail na api: ", email, "\nsenha na api: ", senha);
         try {
             const response = await api.post(endpoints.autenticacao.login, { email, senha });
             return response;
@@ -65,7 +63,6 @@ export const autenticacao = {
     },
 
     listarVinculos: async () => {
-        console.log("---------------------------Entrou na api---------------------------");
         try {
             const response = await api.get(endpoints.autenticacao.listarVinculos);
             return response.data;
@@ -78,17 +75,9 @@ export const autenticacao = {
     verificarAutenticacao: async () => {
         try {
             const response = await api.get(endpoints.autenticacao.checarStatus);
-            if (response.status === 200) {
-                console.log('Usuário autenticado:', response.data);
-                return true;
-            }
+            return response.data.status; // Retorna "logado", "autenticado" ou "invalido"
         } catch (error) {
-            if (error.response && error.response.status === 401) {
-                console.log('Usuário não autenticado.');
-            } else {
-                console.error('Erro ao verificar status:', error.message);
-            }
-            return false;
+          return false; // Em caso de erro (ex.: 401), retorna false
         }
     },
 };
