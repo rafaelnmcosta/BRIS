@@ -1,15 +1,13 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../services/AuthContext';
 
 const PrivateRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, isLogged, loading } = useAuth();
 
-  if (loading) {
-    return <div>Carregando...</div>;
-  }
+  if (loading) return <div>Carregando...</div>;
 
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  return isAuthenticated && isLogged ? <Outlet/> : <Navigate to="/login" />;
 };
 
 

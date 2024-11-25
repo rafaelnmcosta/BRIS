@@ -35,7 +35,7 @@ export const autenticacao = {
     escolherVinculo: async (id) => {
         try {
             const response = await api.post(endpoints.autenticacao.escolherVinculo(id));
-            return response.data;
+            return response;
         } catch (error) {
             console.error('Erro ao escolher vínculo:', error);
             throw error.response ? error.response.data : error;

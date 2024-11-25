@@ -23,12 +23,12 @@ function App() {
             {/* Rotas públicas */}
             <Route path='/login' element={<Login />} />
             <Route path='/cadastro' element={<AutoCadastro />} />
-            <Route path='/teste' element={<Teste />} />
-              <Route path='/vinculos' element={<ListaVinculos />} />
+            <Route path='/vinculos' element={<ListaVinculos />} />
 
             {/* Rotas protegidas dentro da PrivateRoute*/}
             <Route element={<PrivateRoute />}>
               <Route path='/home' element={<Home />} />
+              <Route path='/teste' element={<Teste />} />
             </Route>
 
           </Routes>

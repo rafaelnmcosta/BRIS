@@ -1,9 +1,10 @@
 import React from 'react';
 import BotaoSecundario from '../atoms/BotaoSecundario';
 import { useNavigate } from 'react-router-dom';
-import { autenticacao } from '../../api/autenticacaoAPI';
+import { useAuth } from '../../services/AuthContext';
 
 const CardInfo = ({ entidade, tipoEntidade }) => {
+  const { escolherVinculo } = useAuth();
   const navigate = useNavigate();
 
   const handleRedirect = async () => {
@@ -25,8 +26,7 @@ const CardInfo = ({ entidade, tipoEntidade }) => {
         break;
       case 'Vínculo':
         try {
-          await autenticacao.escolherVinculo(entidade.id);
-          navigate('/home');
+          await escolherVinculo(entidade.id);
         } catch (error) {
           console.error('Erro ao escolher vínculo:', error);
           alert('Não foi possível selecionar o vínculo. Tente novamente.');
