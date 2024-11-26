@@ -52,16 +52,6 @@ export const autenticacao = {
         }
     },
 
-    listarVinculosParaTrocar: async () => {
-        try {
-            const response = await api.get(endpoints.autenticacao.listarVinculosParaTrocar);
-            return response.data;
-        } catch (error) {
-            console.error('Erro ao listar vínculos para trocar:', error);
-            throw error.response ? error.response.data : error;
-        }
-    },
-
     listarVinculos: async () => {
         try {
             const response = await api.get(endpoints.autenticacao.listarVinculos);
@@ -75,7 +65,16 @@ export const autenticacao = {
     verificarAutenticacao: async () => {
         try {
             const response = await api.get(endpoints.autenticacao.checarStatus);
-            return response.data.status; // Retorna "logado", "autenticado" ou "invalido"
+            console.log(response.data)
+            return response.data;
+            // response.data tem o seguinte formato:
+            // {status = logado}, para usuários que só têm token de login
+            // {
+            //  status = autenticado,
+            //  role = NOME 
+            // }                  para usuários com token de vínculo
+            // ou 
+            // {status = invalido} caso não haja token válido
         } catch (error) {
           return false; // Em caso de erro (ex.: 401), retorna false
         }

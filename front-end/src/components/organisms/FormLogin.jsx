@@ -17,8 +17,8 @@ const FormLogin = ({ handleLogin }) => {
       <h2 className="text-green-dark text-3xl font-bold mb-4">LOGIN</h2>
       <form className="w-full max-w-xs" onSubmit={onSubmit}>
         <InputSemBordaComLabel
-          label="Usuário"
-          placeholder="seu e-mail cadastrado"
+          label="E-mail"
+          placeholder="exemplo@email.com"
           icone={<UserOutlined className="text-green-dark" />}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -27,7 +27,7 @@ const FormLogin = ({ handleLogin }) => {
         <InputSemBordaComLabel
           label="Senha"
           type="password"
-          placeholder="sua senha"
+          placeholder="******"
           icone={<LockOutlined className="text-green-dark" />}
           value={senha}
           onChange={(e) => setSenha(e.target.value)}

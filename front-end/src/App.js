@@ -1,11 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import PrivateRoute from './components/PrivateRoute';
+import LoggedRoute from './components/serviceComponents/LoggedRoute';
+import AuthenticatedRoute from './components/serviceComponents/AuthenticatedRoute';
 import { AuthProvider } from './services/AuthContext';
 
 import Header from './components/molecules/Header';
-import PageWrapper from './components/PageWrapper';
+import PageWrapper from './components/serviceComponents/PageWrapper';
 
 import Login from './pages/Login';
 import AutoCadastro from './pages/AutoCadastro';
@@ -23,19 +24,23 @@ function App() {
             {/* Rotas públicas */}
             <Route path='/login' element={<Login />} />
             <Route path='/cadastro' element={<AutoCadastro />} />
-            <Route path='/vinculos' element={<ListaVinculos />} />
 
-            {/* Rotas protegidas dentro da PrivateRoute*/}
-            <Route element={<PrivateRoute />}>
+            {/* Rotas protegidas por isLogged */}
+            <Route element={<LoggedRoute />}>
+              <Route path='/vinculos' element={<ListaVinculos />} />
+            </Route>
+
+            {/* Rotas protegidas por isAuthenticated */}
+            <Route element={<AuthenticatedRoute />}>
               <Route path='/home' element={<Home />} />
               <Route path='/teste' element={<Teste />} />
             </Route>
-
           </Routes>
         </PageWrapper>
       </AuthProvider>
     </Router>
   );
 }
+
 
 export default App;

@@ -11,33 +11,32 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [isLogged, setIsLogged] = useState(false); // Usuário fez login?
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Usuário escolheu vínculo?
+  const [userType, setUserType] = useState(null); // Estado para armazenar o tipo de usuário
   const [loading, setLoading] = useState(true); // Indicador de carregamento
   const navigate = useNavigate();
 
   // Chama `checkAuth` na inicialização do componente
   useEffect(() => {
-    if (loading) {
-      checkAuth();
-    }
-  }, [loading]);
+    if (loading) checkAuth();
+    if (isLogged && !isAuthenticated) navigate('/vinculos');
+  }, [loading, isAuthenticated, isLogged, navigate]);
 
 const checkAuth = async () => {
   try {
-    const status = await autenticacao.verificarAutenticacao();
+    const resposta = await autenticacao.verificarAutenticacao();
+    console.log("Resposta da checkAuth: ", resposta)
 
-    switch (status) {
+    switch (resposta.status) {
       case 'autenticado':
-        console.log("autenticado");
         setIsLogged(true);
         setIsAuthenticated(true);
+        setUserType(resposta.role); // Atualiza o tipo de usuário
         break;
       case 'logado':
-        console.log("logado");
         setIsLogged(true);
         setIsAuthenticated(false);
         break;
       default:
-        console.log("default");
         setIsLogged(false);
         setIsAuthenticated(false);
         break;
@@ -56,7 +55,6 @@ const login = async ({ email, senha }) => {
     const response = await autenticacao.login({ email, senha });
     if (response.status === 200) {
       await checkAuth();
-      console.log("Login bem-sucedido. Redirecionando para /vinculos...");
       navigate('/vinculos');
     }
   } catch (error) {
@@ -68,10 +66,8 @@ const login = async ({ email, senha }) => {
 const escolherVinculo = async (id) => {
   try {
     const response = await autenticacao.escolherVinculo(id);
-    console.log("rodou a chamada de api: ", response);
     if (response.status === 200) {
       await checkAuth();
-      console.log("Vínculo selecionado. Redirecionando para /home...");
       navigate('/home');
     }
   } catch (error) {
@@ -84,7 +80,6 @@ const logout = async () => {
   try {
     await autenticacao.logout();
     await checkAuth();
-    console.log("Usuário deslogado. Redirecionando para /login...");
     navigate('/login');
   } catch (error) {
     console.error('Erro ao fazer logout:', error);
@@ -96,10 +91,11 @@ return (
     value={{
       isLogged,
       isAuthenticated,
+      userType,
+      loading,
       login,
       escolherVinculo,
       logout,
-      loading,
     }}
   >
     {children}
