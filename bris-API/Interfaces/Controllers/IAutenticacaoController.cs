@@ -10,7 +10,6 @@ namespace bris_API.Controllers
         Task<IActionResult> Logout();
         Task<IActionResult> GetVinculos();
         Task<IActionResult> SelecionarVinculo(int id);
-        Task<IActionResult> TrocarVinculo();
         Task<IActionResult> ProcessarRecuperacaoSenha(RecuperarSenhaDto model);
         public IActionResult CheckStatus();
     }

@@ -101,7 +101,7 @@ builder.Services.AddAuthentication(options =>
         OnTokenValidated = async context =>
         {
             var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
-            
+
             // Valida os dados do token
             await tokenService.ValidaContext(context);
             await tokenService.RenovaToken(context);
@@ -111,9 +111,6 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    // Adicionando a política específica de AcessoLogin
-    options.AddPolicy("AcessoLoginPolicy", policy => policy.RequireClaim("AcessoLogin", "true"));
-
     // Acessa o banco de dados para pegar as policies registradas e adicioná-las à aplicação
     using (var scope = builder.Services.BuildServiceProvider().CreateScope())
     {
@@ -127,10 +124,25 @@ builder.Services.AddAuthorization(options =>
             {
                 var roleNames = policy.PolicyRoles.Select(pr => pr.Role.Nome).ToArray();
                 policyBuilder.RequireRole(roleNames);
-                Console.WriteLine($"\nPolicy: {policy.Nome}\nRoles: {roleNames}\n");
             });
         }
     }
+
+    // Adicionando a política específica de AcessoLogin
+    options.AddPolicy("AcessoLoginPolicy", policy => policy.RequireClaim("AcessoLogin", "true"));
+
+
+    // Policy de operação OU entre AcessoLogin e TodosUsuarios (para as listas de vinculos) 
+    options.AddPolicy("AcessoLoginOuTodosUsuarios", policy =>
+    {
+        policy.RequireAssertion(context =>
+            // Verifica se o token é de login
+            context.User.HasClaim(c => c.Type == "AcessoLogin" && c.Value == "true")
+            ||
+            // Se não é de login, verifica se o token tem qualquer valor na claim "role"
+            context.User.HasClaim(c => c.Type == ClaimTypes.Role && !string.IsNullOrEmpty(c.Value))
+        );
+    });
 });
 
 
@@ -189,7 +201,7 @@ app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSwagger();
-app.UseSwaggerUI(c =>{c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");});
+app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1"); });
 
 app.MapControllers();
 

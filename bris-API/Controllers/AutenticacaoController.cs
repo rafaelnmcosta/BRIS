@@ -124,96 +124,92 @@ namespace bris_API.Controllers
             }
         }
 
-        [Authorize(Policy = "TodosUsuarios")]
-        [HttpGet("trocar-vinculo")]
-        public async Task<IActionResult> TrocarVinculo()
-        {
-            try
-            {
-                var vinculoId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-
-                // Pega o Id do usuário através do vínculo dele
-                var vinculoAtual = await _context.Vinculos
-                    .FirstOrDefaultAsync(v => v.Id == vinculoId);
-                var usuarioId = vinculoAtual.UsuarioId;
-
-                // Busca os outros vínculos do usuário no banco
-                var vinculos = await _context.Vinculos
-                    .Where(v => v.UsuarioId == usuarioId)
-                    .Include(v => v.Granja)
-                    .Include(v => v.Agroindustria)
-                    .Include(v => v.Role)
-                    .ToListAsync();
-
-                if (!vinculos.Any())
-                {
-                    return NotFound("Nenhum vínculo encontrado para este usuário.");
-                }
-
-                var vinculosDTOS = vinculos.Select(v => new GetVinculoDTO
-                {
-                    Id = v.Id,
-                    Role = v.Role?.Nome ?? "!!! Role não definida !!!",
-                    NomeGranja = v.Granja?.NomePropriedade,
-                    NomeAgroindustria = v.Agroindustria?.NomeFantasia
-                }).ToList();
-
-                // Remove o token anterior
-                HttpContext.Response.Cookies.Delete("auth_token");
-
-                // Obtém informações da requisição para gerar o token para a seleção de vínculo
-                var userIp = HttpContext.Connection.RemoteIpAddress?.ToString();
-                var userAgent = Request.Headers["User-Agent"].ToString();
-
-                // Gera o novo token e o adiciona ao cookie
-                var token = _tokenService.GenerateTokenLogin(usuarioId.ToString(), userIp, userAgent);
-                _tokenService.SetCookieToken(HttpContext, token);
-
-                // retorna a lista de vínculos do usuário para que ele possa selecionar um novo
-                return Ok(vinculosDTOS);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Erro ao trocar o vínculo ativo: " + ex.Message);
-            }
-        }
-
-        [Authorize(Policy = "AcessoLoginPolicy")]
+        [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
         [HttpGet("vinculos")]
         public async Task<IActionResult> GetVinculos()
         {
             try
             {
-                var usuarioClaimId = User.FindFirst(ClaimTypes.NameIdentifier);
-                Console.WriteLine("Vinculos para o usuarioClaimId = " + usuarioClaimId.Value);
-                if (usuarioClaimId == null)
+                Console.WriteLine("Entrou na getVinculos");
+                // Obtém o ID do usuário ou vínculo do token
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userIdClaim))
                 {
                     return Unauthorized("Token inválido. (Id na claim do token é null)");
                 }
 
-                var usuarioId = int.Parse(usuarioClaimId.Value); // id do usuario em formato int
+                // Verifica se é um token de acesso ou de vínculo
+                var isAcessoLogin = User.HasClaim("AcessoLogin", "true");
 
-                var vinculos = await _context.Vinculos
-                    .Where(v => v.UsuarioId == usuarioId)
-                    .Include(v => v.Granja)
-                    .Include(v => v.Agroindustria)
-                    .Include(v => v.Role)
-                    .ToListAsync();
-
-                if (!vinculos.Any())
+                if (isAcessoLogin)
                 {
-                    return NotFound("Nenhum vínculo encontrado para este usuário.");
+                    // Token de acesso: trabalhar com usuário
+                    Console.WriteLine("Token de acesso detectado.");
+                    var usuarioId = int.Parse(userIdClaim);
+
+                    // Busca os vínculos associados ao usuário
+                    var vinculos = await _context.Vinculos
+                        .Where(v => v.UsuarioId == usuarioId)
+                        .Include(v => v.Granja)
+                        .Include(v => v.Agroindustria)
+                        .Include(v => v.Role)
+                        .ToListAsync();
+
+                    if (!vinculos.Any())
+                    {
+                        return NotFound("Nenhum vínculo encontrado para este usuário.");
+                    }
+
+                    var vinculosDTOS = vinculos.Select(v => new GetVinculoDTO
+                    {
+                        Id = v.Id,
+                        Role = v.Role?.Nome ?? "!!! Role não definida !!!",
+                        NomeGranja = v.Granja?.NomePropriedade,
+                        NomeAgroindustria = v.Agroindustria?.NomeFantasia
+                    }).ToList();
+
+                    return Ok(vinculosDTOS);
                 }
-
-                var vinculosDTOS = vinculos.Select(v => new GetVinculoDTO
+                else
                 {
-                    Id = v.Id,
-                    Role = v.Role?.Nome ?? "!!! Role não definida !!!",
-                    NomeGranja = v.Granja?.NomePropriedade,
-                    NomeAgroindustria = v.Agroindustria?.NomeFantasia
-                }).ToList();
+                    // Token de vínculo: trabalhar com vínculo específico
+                    Console.WriteLine("Token de vínculo detectado.");
+                    var vinculoId = int.Parse(userIdClaim);
 
-                return Ok(vinculosDTOS);
+                    // Busca o vínculo atual
+                    var vinculoAtual = await _context.Vinculos
+                        .FirstOrDefaultAsync(v => v.Id == vinculoId);
+
+                    if (vinculoAtual == null)
+                    {
+                        return NotFound("Vínculo atual não encontrado.");
+                    }
+
+                    // Busca os outros vínculos do mesmo usuário
+                    var usuarioId = vinculoAtual.UsuarioId;
+                    var vinculos = await _context.Vinculos
+                        .Where(v => v.UsuarioId == usuarioId)
+                        .Include(v => v.Granja)
+                        .Include(v => v.Agroindustria)
+                        .Include(v => v.Role)
+                        .ToListAsync();
+
+                    if (!vinculos.Any())
+                    {
+                        return NotFound("Nenhum outro vínculo encontrado para este usuário.");
+                    }
+
+                    var vinculosDTOS = vinculos.Select(v => new GetVinculoDTO
+                    {
+                        Id = v.Id,
+                        Role = v.Role?.Nome ?? "!!! Role não definida !!!",
+                        NomeGranja = v.Granja?.NomePropriedade,
+                        NomeAgroindustria = v.Agroindustria?.NomeFantasia
+                    }).ToList();
+
+                    return Ok(vinculosDTOS);
+                }
             }
             catch (Exception ex)
             {
@@ -221,49 +217,76 @@ namespace bris_API.Controllers
             }
         }
 
-        [Authorize(Policy = "AcessoLoginPolicy")]
+        [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
         [HttpPost("vinculos/{id}")]
         public async Task<IActionResult> SelecionarVinculo(int id)
         {
             try
             {
-                // Obtem o ID do usuário a partir do token atual
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId == null)
+                // Obtem o valor de NameIdentifier do token
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim))
                 {
                     return Unauthorized("Usuário não autenticado.");
                 }
 
-                // Busca o vínculo pelo ID e garante que o usuário tenha permissão
+                // Verifica o tipo de token pela presença da claim "acessoLogin"
+                var isAcessoLogin = User.HasClaim("AcessoLogin", "true");
+
+                int usuarioId;
+
+                if (isAcessoLogin)
+                {
+                    // Token de acesso: o NameIdentifier é o ID do usuário
+                    Console.WriteLine("Token de acesso detectado. NameIdentifier é o ID do usuário.");
+                    usuarioId = int.Parse(userIdClaim);
+                }
+                else
+                {
+                    // Token de vínculo: o NameIdentifier é o ID do vínculo
+                    Console.WriteLine("Token de vínculo detectado. NameIdentifier é o ID do vínculo.");
+                    var vinculoIdClaim = int.Parse(userIdClaim);
+
+                    // Busca o vínculo atual para obter o ID do usuário associado
+                    var vinculoAtual = await _context.Vinculos
+                        .FirstOrDefaultAsync(v => v.Id == vinculoIdClaim);
+
+                    if (vinculoAtual == null)
+                    {
+                        return Unauthorized("Vínculo atual não encontrado.");
+                    }
+
+                    usuarioId = vinculoAtual.UsuarioId;
+                }
+
+                // Busca o vínculo selecionado pelo ID e verifica se pertence ao mesmo usuário
                 var vinculo = await _context.Vinculos
                     .Include(v => v.Role)
                     .Include(v => v.Granja)
                     .Include(v => v.Agroindustria)
-                    .FirstOrDefaultAsync(v => v.Id == id && v.UsuarioId.ToString() == userId);
+                    .FirstOrDefaultAsync(v => v.Id == id && v.UsuarioId == usuarioId);
 
-                // Verifica se o vínculo existe
+                // Verifica se o vínculo foi encontrado
                 if (vinculo == null)
                 {
-                    return NotFound("Vínculo não encontrado ou não pertence ao usuário autenticado.");
+                    return NotFound("Vínculo não encontrado ou não pertence ao mesmo usuário.");
                 }
 
-                // Extrai informações necessárias para gerar o token
-                var role = vinculo.Role?.Nome ?? string.Empty;
-                var vinculoId = vinculo.Id.ToString();
-                var granjaId = vinculo.Granja?.Id.ToString() ?? string.Empty;
-                var agroindustriaId = vinculo.Agroindustria?.Id.ToString() ?? string.Empty;
+                // Informações para o retorno
+                var role = vinculo.Role?.Nome ?? "!!! Role não definida !!!";
 
-                // Obtem informações do IP e User Agent
+                // Extrai informações necessárias para gerar o token
+                var vinculoId = vinculo.Id.ToString();
                 var userIp = HttpContext.Connection.RemoteIpAddress?.ToString();
                 var userAgent = Request.Headers["User-Agent"].ToString();
 
-                // Gera o novo token
+                // Gera o token
                 var token = _tokenService.GenerateTokenVinculo(vinculoId, userIp, userAgent);
 
-                // Configura o cookie HTTP-Only para o token gerado
+                // Configura o cookie HTTP-Only com o novo token
                 _tokenService.SetCookieToken(HttpContext, token);
 
-                // Retorna a Role escolhida pelo usuário
+                // Retorna a Role escolhida
                 return Ok(new { Role = role });
             }
             catch (Exception ex)
@@ -271,6 +294,7 @@ namespace bris_API.Controllers
                 return StatusCode(500, "Erro ao selecionar vínculo: " + ex.Message);
             }
         }
+
 
         // Rota POST para processar o email e redefinir a senha
         [HttpPost("recuperar-senha")]
@@ -321,9 +345,10 @@ namespace bris_API.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                if (string.IsNullOrEmpty(userId))
+                if (string.IsNullOrEmpty(userIdClaim))
                 {
                     return Unauthorized(new { status = "invalido" });
                 }
@@ -335,8 +360,13 @@ namespace bris_API.Controllers
                     return Ok(new { status = "logado" });
                 }
 
+
                 // Caso contrário, o token é considerado um token de vínculo
-                return Ok(new { status = "autenticado" });
+                return Ok(new
+                {
+                    status = "autenticado",
+                    role = roleClaim
+                });
             }
             catch (Exception ex)
             {
@@ -348,7 +378,6 @@ namespace bris_API.Controllers
                 });
             }
         }
-
 
     }
 }
