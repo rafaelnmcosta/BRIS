@@ -1,45 +1,58 @@
 import React from 'react';
 import InputSemBordaComLabel from '../molecules/InputSemBordaComLabel';
 import BotaoPrimario from '../atoms/BotaoPrimario';
-import { MailOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
+import { MailOutlined, LockOutlined, UserOutlined, PhoneOutlined, IdcardOutlined } from '@ant-design/icons';
 
 const FormAutoCadastro = () => {
   return (
-    <div className="flex flex-col items-center justify-center bg-white rounded-3xl shadow-lg py-16 px-20">
-      <h2 className="text-green-dark text-3xl font-bold mb-2">CADASTRO</h2>
-      <p className="text-green-dark mb-4">
-        Já possui cadastro? <span className="text-green-dark">Pode entrar </span><a className="font-bold text-green-dark hover:text-green-light" href="/login">aqui!</a>
-      </p>
-      <form className="w-full max-w-full">
-        <InputSemBordaComLabel 
+    <div className="bg-white shadow-lg pt-12 px-20 min-h-screen max-h-full flex flex-col items-start">
+      <h2 className="text-green-dark text-3xl font-bold mb-4">CADASTRO</h2>
+      <form className="w-full">
+        <InputSemBordaComLabel
           label="Nome"
-          placeholder="seu nome completo" 
-          icone={<UserOutlined className="text-green-dark" />} 
+          placeholder="Como você prefere ser chamado?"
+          icone={<UserOutlined className="text-green-dark" />}
         />
 
-        <InputSemBordaComLabel 
+        <InputSemBordaComLabel
           label="E-mail"
           type="email"
-          placeholder="seu e-mail"
-          icone={<MailOutlined className="text-green-dark" />} 
+          placeholder="exemplo@email.com"
+          icone={<MailOutlined className="text-green-dark" />}
         />
 
-        <InputSemBordaComLabel 
+        <InputSemBordaComLabel
+          label="CPF"
+          placeholder="XXX.XXX.XXX-XX"
+          icone={<IdcardOutlined className="text-green-dark" />}
+        />
+
+        <InputSemBordaComLabel
+          label="Telefone"
+          type="tel"
+          placeholder="(XX) XXXXX-XXXX"
+          icone={<PhoneOutlined className="text-green-dark" />}
+        />
+
+        <InputSemBordaComLabel
           label="Senha"
           type="password"
-          placeholder="sua senha"
+          placeholder="******"
           icone={<LockOutlined className="text-green-dark" />}
         />
 
-        <InputSemBordaComLabel 
+        <InputSemBordaComLabel
           label="Confirme sua senha"
           type="password"
-          placeholder="confirme sua senha"
+          placeholder="******"
           icone={<LockOutlined className="text-green-dark" />}
         />
 
-        <div className="flex flex-col items-center justify-center mt-10">
-          <BotaoPrimario texto="Cadastrar" />
+        <div className="my-10">
+          <BotaoPrimario
+            texto="Cadastrar"
+            type="submit"
+          />
         </div>
       </form>
     </div>

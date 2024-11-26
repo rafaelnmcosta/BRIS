@@ -276,69 +276,29 @@ namespace bris_API.Controllers
             }
         }
 
-        [Authorize(Policy = "GerenciaUsuarios")]
+        [Authorize(Policy = "GerenciaTotal")]
         [HttpGet("ativar")]
         public async Task<IActionResult> GetUsuariosPendentes()
         {
             try
             {
-                var Role = User.FindFirst(ClaimTypes.Role)?.Value;
-                var vinculoId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-
-                // Obtém AgroindustriaId e GranjaId do vínculo do usuário que está fazendo a requisição
-                var agroindustriaId = _context.Vinculos
-                    .Where(v => v.Id == vinculoId)
-                    .Select(v => v.AgroindustriaId)
-                    .FirstOrDefault();
-
-                var granjaId = _context.Vinculos
-                    .Where(v => v.Id == vinculoId)
-                    .Select(v => v.GranjaId)
-                    .FirstOrDefault();
-
                 // Consulta os usuários não ativados (com vínculo cuja Role é "PENDENTE")
-                IQueryable<Usuario> usuariosPendentesQuery = _context.Usuarios
+                var usuariosPendentes = await _context.Usuarios
                     .Include(u => u.Vinculos)
                         .ThenInclude(v => v.Role)
                     .Include(u => u.Vinculos)
                         .ThenInclude(v => v.Granja)
                     .Include(u => u.Vinculos)
                         .ThenInclude(v => v.Agroindustria)
-                    .Where(u => u.Vinculos.Any(v => v.Role.Nome == "PENDENTE"));
+                    .Where(u => u.Vinculos.Any(v => v.Role.Nome == "PENDENTE"))
+                    .Select(u => new GetUsuarioPendenteDTO
+                    {
+                        Nome = u.Nome,
+                        Email = u.Email,
+                        CPF = u.CPF,
+                    })
+                    .ToListAsync();
 
-                // Aplica filtros de acordo com a Role do usuário
-                if (Role == "GESTOR_AGRO")
-                {
-                    usuariosPendentesQuery = usuariosPendentesQuery
-                        .Where(u => u.Vinculos.Any(v => v.AgroindustriaId == agroindustriaId));
-                }
-                else if (Role == "GESTOR_GRANJA")
-                {
-                    usuariosPendentesQuery = usuariosPendentesQuery
-                        .Where(u => u.Vinculos.Any(v => v.GranjaId == granjaId));
-                }
-
-                // Executa a consulta e transforma em GetUsuarioDTO com o filtro de vínculos aplicados
-                var usuariosPendentes = await usuariosPendentesQuery
-                .Select(u => new GetUsuarioDTO
-                {
-                    Nome = u.Nome,
-                    Email = u.Email,
-                    CPF = u.CPF,
-                    Vinculos = u.Vinculos
-                        .Where(v => v.Role.Nome == "PENDENTE" &&
-                                (Role == "ADMIN" ||
-                                    (Role == "GESTOR_AGRO" && v.AgroindustriaId == agroindustriaId) ||
-                                    (Role == "GESTOR_GRANJA" && v.GranjaId == granjaId)))
-                        .Select(v => new GetVinculoDTO
-                        {
-                            Id = v.Id,
-                            Role = v.Role.Nome,
-                            NomeAgroindustria = v.Agroindustria != null ? v.Agroindustria.NomeFantasia : null,
-                            NomeGranja = v.Granja != null ? v.Granja.NomePropriedade : null
-                        }).ToList()
-                })
-                .ToListAsync();
 
                 return Ok(usuariosPendentes);
             }
@@ -348,25 +308,12 @@ namespace bris_API.Controllers
             }
         }
 
-        [Authorize(Policy = "GerenciaUsuarios")]
+        [Authorize(Policy = "GerenciaTotal")]
         [HttpPost("ativar/{id}")]
         public async Task<IActionResult> AtivarUsuarioPendente(int id, [FromBody] AtivarUsuarioDto modelAtivar)
         {
             try
-            {    
-                var Role = User.FindFirst(ClaimTypes.Role)?.Value;
-                var vinculoId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-
-                var agroindustriaId = _context.Vinculos
-                    .Where(v => v.Id == vinculoId)
-                    .Select(v => v.AgroindustriaId)
-                    .FirstOrDefault();
-
-                var granjaId = _context.Vinculos
-                    .Where(v => v.Id == vinculoId)
-                    .Select(v => v.GranjaId)
-                    .FirstOrDefault();
-
+            {
                 // Busca o primeiro vínculo correspondente na tabela Vinculos com a Role "PENDENTE"
                 var vinculo = await _context.Vinculos
                     .Include(v => v.Role)
@@ -375,13 +322,6 @@ namespace bris_API.Controllers
                 if (vinculo == null)
                 {
                     return NotFound("Usuário não encontrado!");
-                }
-
-                // Verificações de permissão com base no Role do usuário autenticado
-                if ((Role == "GESTOR_AGRO" && vinculo.AgroindustriaId != agroindustriaId) ||
-                    (Role == "GESTOR_GRANJA" && vinculo.GranjaId != granjaId))
-                {
-                    return Forbid("Você não tem permissão para ativar este usuário.");
                 }
 
                 // Atualizar o vínculo com os novos valores do DTO
@@ -483,7 +423,7 @@ namespace bris_API.Controllers
         public async Task<IActionResult> ReativarUsuarioInativo(int id, [FromBody] AtivarUsuarioDto modelAtivar)
         {
             try
-            {    
+            {
                 var Role = User.FindFirst(ClaimTypes.Role)?.Value;
                 var vinculoId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
 

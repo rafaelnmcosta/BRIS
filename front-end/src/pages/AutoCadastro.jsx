@@ -8,14 +8,14 @@ const AutoCadastro = () => {
 
   const handleAutoCadastro = async (formData) => {
     try {
-      const { nome, email, senha, confirmSenha } = formData;
+      const { nome, email, tel, senha, confirmSenha } = formData;
 
       if (senha !== confirmSenha) {
         alert('As senhas não coincidem!');
         return;
       }
 
-      await autenticacao.autoCadastro({ nome, email, senha });
+      await autenticacao.autoCadastro({ nome, email, tel, senha });
       alert('Cadastro realizado com sucesso!');
       navigate('/login'); // Redireciona para a página de login
     } catch (error) {

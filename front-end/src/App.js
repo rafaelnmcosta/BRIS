@@ -5,7 +5,7 @@ import LoggedRoute from './components/serviceComponents/LoggedRoute';
 import AuthenticatedRoute from './components/serviceComponents/AuthenticatedRoute';
 import { AuthProvider } from './services/AuthContext';
 
-import Header from './components/molecules/Header';
+import Header from './components/organisms/Header';
 import PageWrapper from './components/serviceComponents/PageWrapper';
 
 import Login from './pages/Login';
@@ -19,24 +19,22 @@ function App() {
     <Router>
       <AuthProvider>
         <Header />
-        <PageWrapper>
-          <Routes>
-            {/* Rotas públicas */}
-            <Route path='/login' element={<Login />} />
-            <Route path='/cadastro' element={<AutoCadastro />} />
+        <Routes>
+          {/* Rotas públicas */}
+          <Route path='/cadastro' element={<AutoCadastro />} />
+          <Route path='/login' element={<Login />} />
 
-            {/* Rotas protegidas por isLogged */}
-            <Route element={<LoggedRoute />}>
-              <Route path='/vinculos' element={<ListaVinculos />} />
-            </Route>
+          {/* Rotas protegidas por isLogged */}
+          <Route element={<LoggedRoute />}>
+            <Route path='/vinculos' element={<ListaVinculos />} />
+          </Route>
 
-            {/* Rotas protegidas por isAuthenticated */}
-            <Route element={<AuthenticatedRoute />}>
-              <Route path='/home' element={<Home />} />
-              <Route path='/teste' element={<Teste />} />
-            </Route>
-          </Routes>
-        </PageWrapper>
+          {/* Rotas protegidas por isAuthenticated */}
+          <Route element={<AuthenticatedRoute />}>
+            <Route path='/home' element={<Home />} />
+            <Route path='/teste' element={<Teste />} />
+          </Route>
+        </Routes>
       </AuthProvider>
     </Router>
   );

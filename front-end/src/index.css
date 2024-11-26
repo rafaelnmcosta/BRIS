@@ -4,6 +4,16 @@
 
 @import url('https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap');
 
-body {
+html, body, #root {
   @apply font-sans;
+  height: auto; /* Permite que o tamanho seja definido com base no conteúdo */
+  min-height: 100%; /* Garante altura mínima caso o conteúdo seja pequeno */
+  margin: 0;
+  padding: 0;
+  background-color: #BFDAAA; /* Substitua pela sua cor de fundo */
+}
+
+#root {
+  @apply pt-16 px-16; /* 4rem de padding no topo e laterais (16 Tailwind = 4rem) */
+  box-sizing: border-box; /* Garante que o padding não afete o cálculo da largura total */
 }

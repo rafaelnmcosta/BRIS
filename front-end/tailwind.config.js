@@ -7,8 +7,9 @@ module.exports = {
     extend: {
       colors: {
         green: {
-          DEFAULT: '#4CAF00', // Verde de realce
-          //DEFAULT: '#C9D6BB', // Verde secundario
+          DEFAULT: '#21AE44', // Verde de realce
+          // DEFAULT: '#4CAF00', // Verde de realce
+          // DEFAULT: '#C9D6BB', // Verde clariiin
           light: '#A8E6A1',  // Verde claro
           dark: '#2E7D32',   // Verde escuro
         },
