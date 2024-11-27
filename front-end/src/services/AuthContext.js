@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { autenticacao } from '../api/autenticacaoAPI'; // Importando a API de autenticação
+import { autenticacao } from '../api/autenticacaoAPI';
+import { useNotification } from './NotificationContext'; // Importando o contexto de notificação
 
 const AuthContext = createContext();
 
@@ -9,96 +10,113 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [isLogged, setIsLogged] = useState(false); // Usuário fez login?
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Usuário escolheu vínculo?
-  const [userType, setUserType] = useState(null); // Estado para armazenar o tipo de usuário
-  const [loading, setLoading] = useState(true); // Indicador de carregamento
+  const [isLogged, setIsLogged] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userType, setUserType] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const abrirNotificacao = useNotification(); // Acessando o contexto de notificações
 
-  // Chama `checkAuth` na inicialização do componente
+  const checkAuth = useCallback(async () => {
+    try {
+      const resposta = await autenticacao.verificarAutenticacao();
+      console.log('Resposta da checkAuth: ', resposta);
+
+      switch (resposta.status) {
+        case 'autenticado':
+          setIsLogged(true);
+          setIsAuthenticated(true);
+          setUserType(resposta.role);
+          break;
+        case 'logado':
+          setIsLogged(true);
+          setIsAuthenticated(false);
+          break;
+        default:
+          setIsLogged(false);
+          setIsAuthenticated(false);
+          break;
+      }
+    } catch (error) {
+      abrirNotificacao('error', 'Erro de autenticação', 'Não foi possível verificar a autenticação.');
+      setIsAuthenticated(false);
+      setIsLogged(false);
+    } finally {
+      setLoading(false);
+    }
+  }, [abrirNotificacao]);
+
   useEffect(() => {
     if (loading) checkAuth();
     if (isLogged && !isAuthenticated) navigate('/vinculos');
-  }, [loading, isAuthenticated, isLogged, navigate]);
-
-const checkAuth = async () => {
-  try {
-    const resposta = await autenticacao.verificarAutenticacao();
-    console.log("Resposta da checkAuth: ", resposta)
-
-    switch (resposta.status) {
-      case 'autenticado':
-        setIsLogged(true);
-        setIsAuthenticated(true);
-        setUserType(resposta.role); // Atualiza o tipo de usuário
-        break;
-      case 'logado':
-        setIsLogged(true);
-        setIsAuthenticated(false);
-        break;
-      default:
-        setIsLogged(false);
-        setIsAuthenticated(false);
-        break;
+  }, [loading, isAuthenticated, isLogged, navigate, checkAuth]);
+  
+  const login = async ({ email, senha }) => {
+    try {
+      const response = await autenticacao.login({ email, senha });
+      if (response.status === 200) {
+        abrirNotificacao('success', 'Login bem-sucedido!', 'Você foi autenticado com sucesso.');
+        await checkAuth();
+        navigate('/vinculos');
+      }
+    } catch (error) {
+      console.log("Erro completo:", error);
+  
+      // Verificando se o erro possui as propriedades esperadas
+      if (error.errors) {
+        Object.keys(error.errors).forEach((campo) => {
+          error.errors[campo].forEach((mensagem) => {
+            abrirNotificacao('error', 'Erro de validação', mensagem);
+          });
+        });
+      } else if (error.status === 400) {
+        abrirNotificacao('error', 'Erro de validação', 'Verifique os campos e tente novamente.');
+      } else {
+        abrirNotificacao('error', 'Erro inesperado', 'Algo deu errado. Por favor, tente novamente.');
+      }
     }
-  } catch (error) {
-    console.error('Erro ao verificar autenticação:', error);
-    setIsAuthenticated(false);
-    setIsLogged(false);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+  
+  
 
-const login = async ({ email, senha }) => {
-  try {
-    const response = await autenticacao.login({ email, senha });
-    if (response.status === 200) {
+  const escolherVinculo = async (id) => {
+    try {
+      const response = await autenticacao.escolherVinculo(id);
+      if (response.status === 200) {
+        abrirNotificacao('success', 'Vínculo selecionado!', 'Você escolheu seu vínculo com sucesso.');
+        await checkAuth();
+        navigate('/home');
+      }
+    } catch (error) {
+      abrirNotificacao('error', 'Erro ao selecionar vínculo', 'Não foi possível selecionar o vínculo.');
+      throw error;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await autenticacao.logout();
+      abrirNotificacao('success', 'Logout realizado', 'Você saiu do sistema com sucesso.');
       await checkAuth();
-      navigate('/vinculos');
+      navigate('/login');
+    } catch (error) {
+      abrirNotificacao('error', 'Erro ao fazer logout', 'Não foi possível realizar o logout.');
     }
-  } catch (error) {
-    console.error('Erro ao fazer login:', error);
-    throw error;
-  }
-};
+  };
 
-const escolherVinculo = async (id) => {
-  try {
-    const response = await autenticacao.escolherVinculo(id);
-    if (response.status === 200) {
-      await checkAuth();
-      navigate('/home');
-    }
-  } catch (error) {
-    console.error('Erro ao selecionar vínculo:', error);
-    throw error;
-  }
-};
-
-const logout = async () => {
-  try {
-    await autenticacao.logout();
-    await checkAuth();
-    navigate('/login');
-  } catch (error) {
-    console.error('Erro ao fazer logout:', error);
-  }
-};
-
-return (
-  <AuthContext.Provider
-    value={{
-      isLogged,
-      isAuthenticated,
-      userType,
-      loading,
-      login,
-      escolherVinculo,
-      logout,
-    }}
-  >
-    {children}
-  </AuthContext.Provider>
-);
+  return (
+    <AuthContext.Provider
+      value={{
+        isLogged,
+        isAuthenticated,
+        userType,
+        loading,
+        login,
+        escolherVinculo,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
