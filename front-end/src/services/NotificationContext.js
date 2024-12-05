@@ -14,7 +14,8 @@ export const NotificationProvider = ({ children }) => {
     notification[type]({
       message: title,
       description: descricao,
-      placement: 'top', // Define onde a notificação será exibida
+      placement: 'topRight',
+      duration: 2,
     });
   };
 

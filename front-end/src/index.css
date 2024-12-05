@@ -6,11 +6,11 @@
 
 html, body, #root {
   @apply font-sans;
-  height: auto; /* Permite que o tamanho seja definido com base no conteúdo */
-  min-height: 100%; /* Garante altura mínima caso o conteúdo seja pequeno */
+  height: auto;
+  min-height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #BFDAAA; /* Substitua pela sua cor de fundo */
+  background-color: #BFDAAA;
 }
 
 #root {

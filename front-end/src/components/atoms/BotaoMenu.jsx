@@ -1,12 +1,14 @@
 import React from 'react';
-import { Button } from 'antd';
 
 const BotaoMenu = ({ texto, onClick }) => {
   return (
     <div>
-      <Button type="primary" onClick={onClick} className="bg-green hover:!bg-green-dark text-white px-10 h-16">
+      <button
+        onClick={onClick}
+        className="bg-green-dark hover:!bg-green text-white px-10 h-28 w-80 rounded-md duration-200"
+      >
         {texto}
-      </Button>
+      </button>
     </div>
   );
 };
