@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import TemplateListaVinculos from '../components/templates/TemplateListaVinculos';
+import TemplateLista from '../components/templates/TemplateLista';
 import { autenticacao } from '../api/autenticacaoAPI';
 import { useAuth } from '../services/AuthContext';
 
@@ -33,7 +33,7 @@ const ListaVinculos = () => {
         return <p className="text-red-500">{error}</p>;
     }
 
-    return <TemplateListaVinculos vinculos={vinculos} />;
+    return <TemplateLista tipo={"Vínculo"} lista={vinculos} />;
 };
 
 export default ListaVinculos;

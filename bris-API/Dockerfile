@@ -12,4 +12,4 @@ RUN dotnet publish "bris-API.csproj" -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
-ENTRYPOINT dotnet bris-API.dll --urls "http://0.0.0.0:80"
+ENTRYPOINT ["dotnet", "bris-API.dll", "--urls", "http://0.0.0.0:80"]

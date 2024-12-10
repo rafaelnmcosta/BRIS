@@ -3,76 +3,76 @@ import BotaoSecundario from '../atoms/BotaoSecundario';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
 
-const CardInfo = ({ entidade, tipoEntidade }) => {
+const CardInfo = ({ item, tipo }) => {
   const { escolherVinculo } = useAuth();
   const navigate = useNavigate();
 
   const handleRedirect = async () => {
-    switch (tipoEntidade) {
+    switch (tipo) {
       case 'Agroindústria':
-        navigate(`/agroindustrias/${entidade.id}`);
+        navigate(`/agroindustrias/${item.id}`);
         break;
       case 'Animal':
-        navigate(`/animais/${entidade.id}`);
+        navigate(`/animais/${item.id}`);
         break;
       case 'Granja':
-        navigate(`/granjas/${entidade.id}`);
+        navigate(`/granjas/${item.id}`);
         break;
       case 'Usuário':
-        navigate(`/usuarios/${entidade.id}`);
+        navigate(`/usuarios/${item.id}`);
         break;
       case 'Avaliação':
-        navigate(`/avaliacoes/${entidade.id}`);
+        navigate(`/avaliacoes/${item.id}`);
         break;
       case 'Vínculo':
         try {
-          await escolherVinculo(entidade.id);
+          await escolherVinculo(item.id);
         } catch (error) {
           console.error('Erro ao escolher vínculo:', error);
           alert('Não foi possível selecionar o vínculo. Tente novamente.');
         }
         break;
       default:
-        console.warn('Tipo de entidade desconhecido:', tipoEntidade);
-        alert('Tipo de entidade não reconhecido.');
+        console.warn('Tipo de item desconhecido:', tipo);
+        alert('Tipo de item não reconhecido.');
     }
   };
 
   const renderCardContent = () => {
-    switch (tipoEntidade) {
+    switch (tipo) {
       case 'Agroindústria':
         return (
           <>
-            <p className='text-green-dark'>Nome Fantasia: {entidade.nomeFantasia}</p>
-            <p className='text-green-dark'>CNPJ: {entidade.CNPJ}</p>
+            <p className='text-green-dark'>Nome Fantasia: {item.nomeFantasia}</p>
+            <p className='text-green-dark'>CNPJ: {item.CNPJ}</p>
           </>
         );
       case 'Animal':
         return (
           <>
-            <p className='text-green-dark'>Linhagem: {entidade.linhagem}</p>
-            <p className='text-green-dark'>Granja: {entidade.granja ? entidade.granja.NomePropriedade : 'N/A'}</p>
+            <p className='text-green-dark'>Linhagem: {item.linhagem}</p>
+            <p className='text-green-dark'>Granja: {item.granja ? item.granja.NomePropriedade : 'N/A'}</p>
           </>
         );
       case 'Granja':
         return (
           <>
-            <p className='text-green-dark'>Nome da Propriedade: {entidade.nomePropriedade}</p>
-            <p className='text-green-dark'>CNPJ: {entidade.CNPJ}</p>
+            <p className='text-green-dark'>Nome da Propriedade: {item.nomePropriedade}</p>
+            <p className='text-green-dark'>CNPJ: {item.CNPJ}</p>
           </>
         );
       case 'Usuário':
         return (
           <>
-            <p className='text-green-dark'>Nome: {entidade.nome}</p>
-            <p className='text-green-dark'>Email: {entidade.email}</p>
+            <p className='text-green-dark'>Nome: {item.nome}</p>
+            <p className='text-green-dark'>Email: {item.email}</p>
           </>
         );
       case 'Avaliação':
         return (
           <>
-            <p className='text-green-dark'>Identificação do animal: {entidade.animalId}</p>
-            <p className='text-green-dark'>Status: {entidade.status}</p>
+            <p className='text-green-dark'>Identificação do animal: {item.animalId}</p>
+            <p className='text-green-dark'>Status: {item.status}</p>
           </>
         );
       case 'Vínculo':
@@ -83,24 +83,24 @@ const CardInfo = ({ entidade, tipoEntidade }) => {
           TECNICO: 'Técnico',
           VISUALIZADOR: 'Visualizador',
         };
-        const role = roleMap[entidade.role] || 'Desconhecido';
+        const role = roleMap[item.role] || 'Desconhecido';
 
         return (
           <>
             <p className='text-green-dark'>Perfil: {role}</p>
-            {entidade.nomeGranja && <p className='text-green-dark'>Granja: {entidade.nomeGranja}</p>}
-            {entidade.nomeAgroindustria && <p className='text-green-dark'>Agroindústria: {entidade.nomeAgroindustria}</p>}
+            {item.nomeGranja && <p className='text-green-dark'>Granja: {item.nomeGranja}</p>}
+            {item.nomeAgroindustria && <p className='text-green-dark'>Agroindústria: {item.nomeAgroindustria}</p>}
           </>
         );
       default:
-        return <p className='text-green-dark'>Entidade desconhecida</p>;
+        return <p className='text-green-dark'>item desconhecido</p>;
     }
   };
 
   return (
     <div className="flex items-center justify-between p-4 mb-4 bg-white shadow-lg rounded-lg w-full">
       <div className="flex flex-col space-y-2">
-        <h3 className="font-bold text-lg text-green-dark">{tipoEntidade}</h3>
+        <h3 className="font-bold text-lg text-green-dark">{tipo}</h3>
         <div className="pl-4">
           {renderCardContent()}
         </div>

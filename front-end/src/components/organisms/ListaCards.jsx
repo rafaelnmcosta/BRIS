@@ -1,11 +1,11 @@
 import React from 'react';
 import CardInfo from '../molecules/CardInfo';
 
-const ListaCards = ({ tipoEntidade, lista }) => {
+const ListaCards = ({ tipo, lista }) => {
   return (
     <div className="grid grid-cols-1">
       {lista.map((item) => (
-        <CardInfo  key={item.id} entidade={item} tipoEntidade={tipoEntidade}/>
+        <CardInfo  key={item.id} item={item} tipo={tipo}/>
       ))}
     </div>
   );
