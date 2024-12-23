@@ -7,6 +7,10 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      USER_BRIS: ${USER_BRIS}
+      PASSWORD_BRIS: ${PASSWORD_BRIS}
+      USER_IMPERIUM: ${USER_IMPERIUM}
+      PASSWORD_IMPERIUM: ${PASSWORD_IMPERIUM}
     volumes:
       - ./init.sh:/docker-entrypoint-initdb.d/init.sh
       - ${DATA_VOLUME_PATH}:/var/lib/postgresql/data
@@ -18,3 +22,4 @@ services:
 networks:
   software-rural-net:
     driver: bridge
+    name: software-rural-net
