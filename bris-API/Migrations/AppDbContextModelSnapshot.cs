@@ -581,8 +581,8 @@ namespace bris_API.Migrations
                         new
                         {
                             Id = 1,
-                            Salt = "s91hRJFr1WMKFEi+autXuA==",
-                            SenhaHash = "m0RFcbkJGFZbQKgnK9ca8Qzt2FPSJeRhOL0lkk9WE/k=",
+                            Salt = "9FhpLh/nji1hcdTuZQOzEg==",
+                            SenhaHash = "4S98GHhgGhbX1BS+wp3r2XsGSKwPXTjRvII+af7X5rw=",
                             UsuarioId = 1
                         });
                 });
@@ -602,6 +602,9 @@ namespace bris_API.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Nome")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Telefone")
                         .HasColumnType("text");
 
                     b.HasKey("Id");

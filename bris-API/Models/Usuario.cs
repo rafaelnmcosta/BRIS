@@ -8,6 +8,7 @@ namespace bris_API.Models
         public string? Nome { get; set; }
         public string? Email { get; set; }
         public string? CPF { get; set; }
+        public string? Telefone { get; set; }
         
         // Ignora sempre a senha ao gerar um json pra evitar leaks em caso de bug
         [JsonIgnore]

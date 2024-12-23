@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace bris_API.Migrations
 {
     /// <inheritdoc />
-    public partial class ModeloInicial : Migration
+    public partial class modeloInicial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -66,7 +66,8 @@ namespace bris_API.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Nome = table.Column<string>(type: "text", nullable: true),
                     Email = table.Column<string>(type: "text", nullable: true),
-                    CPF = table.Column<string>(type: "text", nullable: true)
+                    CPF = table.Column<string>(type: "text", nullable: true),
+                    Telefone = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -323,8 +324,8 @@ namespace bris_API.Migrations
 
             migrationBuilder.InsertData(
                 table: "Usuarios",
-                columns: new[] { "Id", "CPF", "Email", "Nome" },
-                values: new object[] { 1, "00000000000", "admin@gmail.com", "Admin" });
+                columns: new[] { "Id", "CPF", "Email", "Nome", "Telefone" },
+                values: new object[] { 1, "00000000000", "admin@gmail.com", "Admin", null });
 
             migrationBuilder.InsertData(
                 table: "Granjas",
@@ -368,7 +369,7 @@ namespace bris_API.Migrations
             migrationBuilder.InsertData(
                 table: "Senhas",
                 columns: new[] { "Id", "Salt", "SenhaHash", "UsuarioId" },
-                values: new object[] { 1, "s91hRJFr1WMKFEi+autXuA==", "m0RFcbkJGFZbQKgnK9ca8Qzt2FPSJeRhOL0lkk9WE/k=", 1 });
+                values: new object[] { 1, "9FhpLh/nji1hcdTuZQOzEg==", "4S98GHhgGhbX1BS+wp3r2XsGSKwPXTjRvII+af7X5rw=", 1 });
 
             migrationBuilder.InsertData(
                 table: "Vinculos",
