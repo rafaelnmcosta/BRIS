@@ -9,8 +9,6 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production  # ambiente para a api
       - ASPNETCORE_URLS=http://+:5000
-    depends_on:
-      - db
     networks:
       - software-rural-net
 
@@ -35,8 +33,6 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production # ambiente para as migrations
     networks:
       - software-rural-net
-    depends_on:
-      - db  # Garantir que o banco de dados esteja rodando antes das migrations
 
 networks:
   software-rural-net:
