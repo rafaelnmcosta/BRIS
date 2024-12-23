@@ -8,6 +8,7 @@ services:
       - "5000:80" 
     environment:
       - ASPNETCORE_ENVIRONMENT=Production  # ambiente para a api
+      - ASPNETCORE_URLS=http://+:5000
     depends_on:
       - db
     networks:
