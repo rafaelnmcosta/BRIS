@@ -34,10 +34,10 @@ builder.Services.AddControllers();
 // Configuração do CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
+    options.AddPolicy("AllowSpecificOrigin",
         builder =>
         {
-            builder.AllowAnyOrigin()
+            builder.WithOrigins("http://200.137.215.116:443")
                    .AllowAnyHeader()
                    .AllowAnyMethod()
                    .AllowCredentials()
@@ -196,7 +196,7 @@ builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging")); /
 
 var app = builder.Build();
 
-app.UseCors("AllowAll");
+app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSwagger();
