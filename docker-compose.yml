@@ -8,7 +8,7 @@ services:
       - "5000:80" 
     environment:
       - ASPNETCORE_ENVIRONMENT=Production  # ambiente para a api
-      - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_URLS=http://+:80
     networks:
       - software-rural-net
 
@@ -36,4 +36,4 @@ services:
 
 networks:
   software-rural-net:
-    external: true  # Usar a rede criada pelo arquivo docker-compose.db.yml
+    external: true  # Usa a rede criada pelo arquivo docker-compose.db.yml (que monta o banco de dados)
