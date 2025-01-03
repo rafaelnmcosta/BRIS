@@ -79,7 +79,7 @@ namespace bris_API.Services
             context.Response.Cookies.Append("auth_token", token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = false, // Usa https ou não dependendo do ambiente
+                Secure = isSecure, // Usa https ou não dependendo do ambiente
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiresInMinutes"]))
             });

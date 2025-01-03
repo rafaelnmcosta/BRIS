@@ -18,7 +18,9 @@ services:
       context: ./front-end
       dockerfile: Dockerfile
     ports:
-      - "443:80" 
+      - "443:443"
+    volumes:
+      - ./ssl:/etc/nginx/ssl:ro  # :ro significa read-only por segurança
     environment:
       - NODE_ENV=production # ambiente para o frontend
     networks:
