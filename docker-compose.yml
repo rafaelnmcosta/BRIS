@@ -1,6 +1,6 @@
 services:
   # Serviço para a API .NET
-  api:
+  backend:
     build:
       context: ./bris-API
       dockerfile: Dockerfile

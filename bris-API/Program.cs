@@ -37,13 +37,16 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin",
         builder =>
         {
-            builder.WithOrigins("http://200.137.215.116:443")
-                   .AllowAnyHeader()
-                   .AllowAnyMethod()
-                   .AllowCredentials()
-                   ;
+            builder.WithOrigins(
+                //"https://localhost:443", // Local
+                "https://frontend:443" // Serviço do proxy reverso no docker-compose
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
         });
 });
+
 
 // Configuração da Autenticação JWT
 builder.Services.AddAuthentication(options =>
