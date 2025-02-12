@@ -23,16 +23,16 @@ pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4:latest
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}  # Email de login do pgAdmin
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}  # Senha de login do pgAdmin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     ports:
-      - "5050:80"  # Mapeia a porta 5050 do host para a porta 80 do container (pgAdmin)
+      - "5050:80"
     volumes:
-      - /home/iury/docker/pgadmin:/var/lib/pgadmin  # Persistência de dados
+      - ${DATA_PGADMIN_VOLUME_PATH}:/var/lib/pgadmin
     networks:
       - software-rural-net
     depends_on:
-      - db  # Espera o banco de dados estar disponível antes de iniciar
+      - db
 
 networks:
   software-rural-net:
