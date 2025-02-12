@@ -1,6 +1,7 @@
 services:
   # Serviço para a API .NET
-  backend:
+  backend-bris:
+    container_name: backend-bris
     build:
       context: ./bris-API
       dockerfile: Dockerfile
@@ -13,7 +14,8 @@ services:
       - software-rural-net
 
   # Serviço para o Frontend React
-  frontend:
+  frontend-bris:
+    container_name: frontend-bris
     build:
       context: ./front-end
       dockerfile: Dockerfile
@@ -27,7 +29,8 @@ services:
       - software-rural-net
 
 # Serviço de migrations
-  migrations:
+  migrations-bris:
+    container_name: migrations-bris
     build:
       context: ./bris-API
       dockerfile: Dockerfile.migrations  # Especifica o Dockerfile para migrations

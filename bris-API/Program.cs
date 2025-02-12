@@ -38,8 +38,7 @@ builder.Services.AddCors(options =>
         builder =>
         {
             builder.WithOrigins(
-                //"https://localhost:443", // Local
-                "https://frontend:443" // Serviço do proxy reverso no docker-compose
+                "https://frontend-bris:443" // Serviço do proxy reverso no docker-compose
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
@@ -201,9 +200,9 @@ var app = builder.Build();
 
 app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
-app.UseAuthorization();
-app.UseSwagger();
-app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1"); });
+    app.UseAuthorization();
+    app.UseSwagger();
+    app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1"); });
 
 app.MapControllers();
 
