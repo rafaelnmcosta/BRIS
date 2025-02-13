@@ -19,20 +19,20 @@ services:
     networks:
       - software-rural-net
 
-pgadmin:
-    container_name: pgadmin
-    image: dpage/pgadmin4:latest
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
-    ports:
-      - "5050:80"
-    volumes:
-      - ${DATA_PGADMIN_VOLUME_PATH}:/var/lib/pgadmin
-    networks:
-      - software-rural-net
-    depends_on:
-      - db
+  pgadmin:
+      container_name: pgadmin
+      image: dpage/pgadmin4:latest
+      environment:
+        PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
+        PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      ports:
+        - "5050:80"
+      volumes:
+        - ${DATA_PGADMIN_VOLUME_PATH}:/var/lib/pgadmin
+      networks:
+        - software-rural-net
+      depends_on:
+        - db
 
 networks:
   software-rural-net:
