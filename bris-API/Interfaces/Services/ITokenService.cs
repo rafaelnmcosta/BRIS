@@ -8,6 +8,6 @@ namespace bris_API.Services
         string GenerateTokenVinculo(string vinculoId, string userIp, string userAgent);
         void SetCookieToken(HttpContext context, string token);
         Task ValidaContext(TokenValidatedContext context);
-        Task RenovaToken(TokenValidatedContext context);
+        void RenovaToken(TokenValidatedContext context);
     }
 }

@@ -48,10 +48,6 @@ const Header = () => {
                             </li>
                             <li className="text-green-dark">|</li>
                             <li>
-                                <Link to="/cadastro" className="text-green-dark font-bold hover:text-green-light">Cadastro</Link>
-                            </li>
-                            <li className="text-green-dark">|</li>
-                            <li>
                                 <Link to="/login" className="text-green-dark font-bold hover:text-green-light">Login</Link>
                             </li>
                         </>

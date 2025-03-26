@@ -65,18 +65,25 @@ export const autenticacao = {
     verificarAutenticacao: async () => {
         try {
             const response = await api.get(endpoints.autenticacao.checarStatus);
-            console.log(response.data)
+            console.log(response.data);
+            
+            if (response.data.status === 'autenticado') {
+                return {
+                    status: response.data.status,
+                    role: response.data.role,
+                    granja: response.data.granja,
+                    agroindustria: response.data.agroindustria,
+                    usuarioNome: response.data.usuarioNome
+                };
+            } else if (response.data.status === 'logado') {
+                return {
+                    status: response.data.status,
+                    userId: response.data.userId
+                };
+            }
             return response.data;
-            // response.data tem o seguinte formato:
-            // {status = logado}, para usuários que só têm token de login
-            // {
-            //  status = autenticado,
-            //  role = NOME 
-            // }                  para usuários com token de vínculo
-            // ou 
-            // {status = invalido} caso não haja token válido
         } catch (error) {
-          return false; // Em caso de erro (ex.: 401), retorna false
+            return false;
         }
     },
 };

@@ -107,7 +107,11 @@ builder.Services.AddAuthentication(options =>
 
             // Valida os dados do token
             await tokenService.ValidaContext(context);
-            await tokenService.RenovaToken(context);
+            // Se ValidaContext não falhou, renova o token se necessário
+            if (context.Result?.Succeeded != false) 
+            {
+                tokenService.RenovaToken(context);
+            }
         }
     };
 });

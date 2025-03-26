@@ -12,10 +12,10 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [isLogged, setIsLogged] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userType, setUserType] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const abrirNotificacao = useNotification(); // Acessando o contexto de notificações
+  const abrirNotificacao = useNotification();
 
   const checkAuth = useCallback(async () => {
     try {
@@ -26,30 +26,42 @@ export const AuthProvider = ({ children }) => {
         case 'autenticado':
           setIsLogged(true);
           setIsAuthenticated(true);
-          setUserType(resposta.role);
+          setUserData({ // Armazena todos os dados do usuário
+            role: resposta.role,
+            granja: resposta.granja,
+            agroindustria: resposta.agroindustria,
+            nome: resposta.usuarioNome
+          });
           break;
+          
         case 'logado':
           setIsLogged(true);
           setIsAuthenticated(false);
+          setUserData(null); // Limpa dados anteriores
           break;
+          
         default:
           setIsLogged(false);
           setIsAuthenticated(false);
-          break;
+          setUserData(null);
       }
     } catch (error) {
       abrirNotificacao('error', 'Erro de autenticação', 'Não foi possível verificar a autenticação.');
       setIsAuthenticated(false);
       setIsLogged(false);
+      setUserData(null);
     } finally {
       setLoading(false);
     }
   }, [abrirNotificacao]);
 
   useEffect(() => {
-    if (loading) checkAuth();
+    checkAuth();
+  }, [checkAuth]); // Executa apenas na montagem do componente
+
+  useEffect(() => {
     if (isLogged && !isAuthenticated) navigate('/vinculos');
-  }, [loading, isAuthenticated, isLogged, navigate, checkAuth]);
+  }, [isAuthenticated, isLogged, navigate]);
   
   const login = async ({ email, senha }) => {
     try {
@@ -76,8 +88,6 @@ export const AuthProvider = ({ children }) => {
       }
     }
   };
-  
-  
 
   const escolherVinculo = async (id) => {
     try {
@@ -109,7 +119,7 @@ export const AuthProvider = ({ children }) => {
       value={{
         isLogged,
         isAuthenticated,
-        userType,
+        userData, // Disponibiliza os dados completos do usuário
         loading,
         login,
         escolherVinculo,

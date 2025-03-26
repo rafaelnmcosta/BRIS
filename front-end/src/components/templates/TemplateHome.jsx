@@ -1,13 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../services/AuthContext';
 import BotaoMenu from '../atoms/BotaoMenu';
 import BotaoOff from '../atoms/BotaoOff';
 
-const TemplateHome = ({ userType }) => {
+const TemplateHome = () => {
     const navigate = useNavigate();
+    const { userData, loading } = useAuth();
 
     const renderBotoes = () => {
-        switch (userType) {
+        switch (userData.role) {
             case 'ADMIN':
                 return (
                     <>
@@ -46,24 +48,13 @@ const TemplateHome = ({ userType }) => {
         }
     };
 
-    const renderBemVindo = () => {
-        switch (userType) {
-            case 'ADMIN':
-                return 'Bem-vindo, Administrador!';
-            case 'GESTOR_AGRO':
-                return 'Bem-vindo, Gestor de Agroindústria!';
-            case 'GESTOR_GRANJA':
-                return 'Bem-vindo, Gestor de Granja!';
-            case 'TECNICO':
-                return 'Bem-vindo, Técnico!';
-            default:
-                return 'Bem-vindo! (sem role)';
-        }
-    };
+    if (loading) {
+        return <div>Carregando...</div>;
+    }
 
     return (
         <div className="pt-8">
-            <h1 className="text-2xl font-bold mb-4 text-green-dark">{renderBemVindo()}</h1>
+            <h1 className="text-2xl font-bold mb-4 text-green-dark">Bem-vindo, {userData.nome}!</h1>
             <div className="flex flex-wrap justify-center gap-4 pt-8">
                 {renderBotoes()}
             </div>

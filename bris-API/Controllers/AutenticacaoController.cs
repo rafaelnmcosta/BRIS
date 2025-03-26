@@ -345,27 +345,34 @@ namespace bris_API.Controllers
         {
             try
             {
-                var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var claims = new
+                {
+                    Role = User.FindFirst(ClaimTypes.Role)?.Value,
+                    Granja = User.FindFirst("Granja")?.Value,
+                    Agroindustria = User.FindFirst("Agroindustria")?.Value,
+                    UsuarioNome = User.FindFirst("UsuarioNome")?.Value,
+                    UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                };
 
-                if (string.IsNullOrEmpty(userIdClaim))
+                if (string.IsNullOrEmpty(claims.UserId))
                 {
                     return Unauthorized(new { status = "invalido" });
                 }
 
-                // Verificando se o token contém a claim "acessoLogin"
-                var acessoLoginClaim = User.FindFirst("acessoLogin");
-                if (acessoLoginClaim != null)
+                // Token de acesso (AcessoLogin)
+                if (User.HasClaim("AcessoLogin", "true"))
                 {
                     return Ok(new { status = "logado" });
                 }
 
-
-                // Caso contrário, o token é considerado um token de vínculo
+                // Token de vínculo (autenticado)
                 return Ok(new
                 {
                     status = "autenticado",
-                    role = roleClaim
+                    claims.Role,
+                    claims.Granja,
+                    claims.Agroindustria,
+                    claims.UsuarioNome
                 });
             }
             catch (Exception ex)
@@ -378,6 +385,5 @@ namespace bris_API.Controllers
                 });
             }
         }
-
     }
 }

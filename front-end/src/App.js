@@ -12,7 +12,6 @@ import Header from './components/organisms/Header';
 
 // imports de paginas
 import Login from './pages/Login';
-import AutoCadastro from './pages/AutoCadastro';
 import ListaVinculos from './pages/ListaVinculos';
 import Home from './pages/Home';
 import Teste from './pages/Teste';
@@ -26,7 +25,6 @@ function App() {
           <Header />
           <Routes>
             {/* Rotas públicas */}
-            <Route path='/cadastro' element={<AutoCadastro />} />
             <Route path='/login' element={<Login />} />
 
             {/* Rotas protegidas por isLogged */}

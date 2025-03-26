@@ -75,16 +75,27 @@ namespace bris_API.Services
         // Adiciona o token ao cookie http-only no contexto http
         public void SetCookieToken(HttpContext context, string token)
         {
-            var isSecure = bool.Parse(_configuration["CookieSecure"]);
+            // Tratamento seguro para CookieSecure
+            if (!bool.TryParse(_configuration["CookieSecure"], out var isSecure))
+            {
+                isSecure = true;
+            }
+
+            // Tratamento seguro para Expires
+            if (!double.TryParse(_configuration["Jwt:ExpiresInMinutes"], out var expiresMinutes))
+            {
+                expiresMinutes = 60; // Valor padrão seguro
+            }
+
             context.Response.Cookies.Append("auth_token", token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = isSecure, // Usa https ou não dependendo do ambiente
+                Secure = isSecure,
                 SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiresInMinutes"]))
+                Expires = DateTime.UtcNow.AddMinutes(expiresMinutes)
             });
         }
-        
+
         // Valida as informações do usuário contidas no context
         public async Task ValidaContext(TokenValidatedContext context)
         {
@@ -117,7 +128,11 @@ namespace bris_API.Services
                 try
                 {
                     var vinculo = await _dbContext.Vinculos
-                    .Include(v => v.Role)
+                    .AsNoTracking()
+                    .Include(v => v.Role)          // Carrega a Role
+                    .Include(v => v.Granja)        // Carrega a Granja relacionada
+                    .Include(v => v.Agroindustria) // Carrega a Agroindústria
+                    .Include(v => v.Usuario)       // Carrega o Usuário
                     .FirstOrDefaultAsync(v => v.Id == vinculoId);
 
                     if (vinculo == null)
@@ -128,8 +143,12 @@ namespace bris_API.Services
                     else
                     {
                         var identity = context.Principal.Identity as ClaimsIdentity;
-                        identity?.AddClaim(new Claim(ClaimTypes.Role, vinculo.Role.Nome));
-                        Console.WriteLine($"\nRole do usuário adicionada ao contexto: {vinculo.Role.Nome}");
+                        identity?.AddClaim(new Claim(ClaimTypes.Role, vinculo.Role?.Nome ?? "N/A"));
+                        identity?.AddClaim(new Claim("Granja", vinculo.Granja?.NomePropriedade ?? "N/A"));
+                        identity?.AddClaim(new Claim("Agroindustria", vinculo.Agroindustria?.NomeFantasia ?? "N/A"));
+                        identity?.AddClaim(new Claim("UsuarioNome", vinculo.Usuario?.Nome ?? "N/A"));
+                        
+                        Console.WriteLine("Claims adicionadas com sucesso!");
                     }
 
                 }
@@ -143,26 +162,39 @@ namespace bris_API.Services
 
         }
 
-        public async Task RenovaToken(TokenValidatedContext context)
+        public void RenovaToken(TokenValidatedContext context)
         {
-            var token = context.SecurityToken;
-            var timeToExpire = token.ValidTo - DateTime.UtcNow;
 
-            // Só roda se o token expirar em menos que o prazo configurado
-            if (timeToExpire.TotalMinutes < double.Parse(_configuration["Jwt:RenewInMinutesLeft"]))
+            Console.WriteLine($"\n\ntoken na RenovaToken:{context.SecurityToken}\n");
+
+            var timeToExpire = context.SecurityToken.ValidTo - DateTime.UtcNow;
+
+            // Configuração de renovação
+            if (!double.TryParse(_configuration["Jwt:RenewInMinutesLeft"], out var renewThreshold))
             {
-                var userId = context.Principal.FindFirst(ClaimTypes.NameIdentifier).Value;
-                var userIp = context.Principal.FindFirst("UserIP").Value;
-                var userAgent = context.Principal.FindFirst("UserAgent").Value;
-                var acessoLogin = context.Principal.FindFirst("AcessoLogin")?.Value;
+                renewThreshold = 5; // Valor padrão se a configuração falhar
+            }
 
-                // gera o token correspondente ao que existia anteriormente
+            if (timeToExpire.TotalMinutes < renewThreshold)
+            {
+                // Validação das claims obrigatórias
+                var userId = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                    ?? throw new SecurityTokenException("Claim 'NameIdentifier' ausente.");
+                
+                var userIp = context.Principal?.FindFirst("UserIP")?.Value 
+                    ?? throw new SecurityTokenException("Claim 'UserIP' ausente.");
+                
+                var userAgent = context.Principal?.FindFirst("UserAgent")?.Value 
+                    ?? throw new SecurityTokenException("Claim 'UserAgent' ausente.");
+
+                // Geração do novo token
+                var acessoLogin = context.Principal?.FindFirst("AcessoLogin")?.Value;
                 string newToken = string.IsNullOrEmpty(acessoLogin) 
                     ? GenerateTokenVinculo(userId, userIp, userAgent) 
                     : GenerateTokenLogin(userId, userIp, userAgent);
 
                 SetCookieToken(context.HttpContext, newToken);
-                Console.WriteLine($"Token renovado com sucesso para o usuário: {userId}");
+                Console.WriteLine($"Token renovado para o usuário: {userId}");
             }
         }
     }
