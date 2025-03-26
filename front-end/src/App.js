@@ -16,6 +16,7 @@ import AutoCadastro from './pages/AutoCadastro';
 import ListaVinculos from './pages/ListaVinculos';
 import Home from './pages/Home';
 import Teste from './pages/Teste';
+import TabelaUsuarios from './pages/TabelaUsuarios';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
             <Route element={<AuthenticatedRoute />}>
               <Route path='/home' element={<Home />} />
               <Route path='/teste' element={<Teste />} />
+              <Route path='/usuarios' element={<TabelaUsuarios />} />
             </Route>
           </Routes>
         </AuthProvider>
