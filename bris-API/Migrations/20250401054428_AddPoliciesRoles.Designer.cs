@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using bris_API.Data;
@@ -11,9 +12,11 @@ using bris_API.Data;
 namespace bris_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250401054428_AddPoliciesRoles")]
+    partial class AddPoliciesRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,26 +51,6 @@ namespace bris_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Agroindustrias");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Ativo = true,
-                            CNPJ = "00000000000100",
-                            DataCadastro = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(2364),
-                            NomeFantasia = "Agroindustria Default",
-                            RazaoSocial = "Agroindustria Default"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Ativo = true,
-                            CNPJ = "11111111000111",
-                            DataCadastro = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(2371),
-                            NomeFantasia = "Agroindustria Nova",
-                            RazaoSocial = "Agroindustria Nova"
-                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Animal", b =>
@@ -210,48 +193,6 @@ namespace bris_API.Migrations
                     b.HasIndex("AgroindustriaId");
 
                     b.ToTable("Granjas");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AgroindustriaId = 1,
-                            Ativo = true,
-                            CNPJ = "99999999000199",
-                            DataCadastro = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(2427),
-                            Endereco = "Rua teste 1",
-                            NomePropriedade = "Granja Teste 1"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            AgroindustriaId = 1,
-                            Ativo = true,
-                            CNPJ = "99999999000122",
-                            DataCadastro = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(2434),
-                            Endereco = "Rua teste 2",
-                            NomePropriedade = "Granja Teste 2"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            AgroindustriaId = 2,
-                            Ativo = true,
-                            CNPJ = "88888888000133",
-                            DataCadastro = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(2438),
-                            Endereco = "Rua nova 1",
-                            NomePropriedade = "Granja Nova 1"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            AgroindustriaId = 2,
-                            Ativo = true,
-                            CNPJ = "88888888000144",
-                            DataCadastro = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(2441),
-                            Endereco = "Rua nova 2",
-                            NomePropriedade = "Granja Nova 2"
-                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Policy", b =>
@@ -626,43 +567,6 @@ namespace bris_API.Migrations
                         .IsUnique();
 
                     b.ToTable("Senhas");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Salt = "yOQWFM0EJZr+f/Gj9fqK4w==",
-                            SenhaHash = "MzVSe/GhHMr3eggdjkPm0GDPTLy1C2xDOyZqlgVHc2Y=",
-                            UsuarioId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Salt = "yOQWFM0EJZr+f/Gj9fqK4w==",
-                            SenhaHash = "MzVSe/GhHMr3eggdjkPm0GDPTLy1C2xDOyZqlgVHc2Y=",
-                            UsuarioId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Salt = "yOQWFM0EJZr+f/Gj9fqK4w==",
-                            SenhaHash = "MzVSe/GhHMr3eggdjkPm0GDPTLy1C2xDOyZqlgVHc2Y=",
-                            UsuarioId = 3
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Salt = "yOQWFM0EJZr+f/Gj9fqK4w==",
-                            SenhaHash = "MzVSe/GhHMr3eggdjkPm0GDPTLy1C2xDOyZqlgVHc2Y=",
-                            UsuarioId = 4
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Salt = "yOQWFM0EJZr+f/Gj9fqK4w==",
-                            SenhaHash = "MzVSe/GhHMr3eggdjkPm0GDPTLy1C2xDOyZqlgVHc2Y=",
-                            UsuarioId = 5
-                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Usuario", b =>
@@ -694,48 +598,6 @@ namespace bris_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Usuarios");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CPF = "00000000000",
-                            DataCadastro = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(4092),
-                            Email = "admin@gmail.com",
-                            Nome = "Admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CPF = "11111111111",
-                            DataCadastro = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(4098),
-                            Email = "gestor_granja@gmail.com",
-                            Nome = "Gestor Granja"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CPF = "22222222222",
-                            DataCadastro = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(4101),
-                            Email = "gestor_agro@gmail.com",
-                            Nome = "Gestor Agro"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CPF = "33333333333",
-                            DataCadastro = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(4103),
-                            Email = "tecnico@gmail.com",
-                            Nome = "Tecnico"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CPF = "44444444444",
-                            DataCadastro = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(4106),
-                            Email = "visualizador@gmail.com",
-                            Nome = "Visualizador"
-                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Vinculo", b =>
@@ -772,50 +634,6 @@ namespace bris_API.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("Vinculos");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            DataCriacao = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(4258),
-                            RoleId = 1,
-                            UsuarioId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            AgroindustriaId = 1,
-                            DataCriacao = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(4264),
-                            GranjaId = 1,
-                            RoleId = 2,
-                            UsuarioId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            AgroindustriaId = 1,
-                            DataCriacao = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(4267),
-                            RoleId = 3,
-                            UsuarioId = 3
-                        },
-                        new
-                        {
-                            Id = 4,
-                            AgroindustriaId = 1,
-                            DataCriacao = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(4270),
-                            GranjaId = 1,
-                            RoleId = 4,
-                            UsuarioId = 4
-                        },
-                        new
-                        {
-                            Id = 5,
-                            AgroindustriaId = 1,
-                            DataCriacao = new DateTime(2025, 4, 1, 5, 48, 29, 181, DateTimeKind.Utc).AddTicks(4272),
-                            GranjaId = 1,
-                            RoleId = 5,
-                            UsuarioId = 5
-                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Animal", b =>

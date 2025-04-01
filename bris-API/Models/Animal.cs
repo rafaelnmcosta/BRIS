@@ -12,6 +12,7 @@ namespace bris_API.Models
         public int UsuarioResponsavelId { get; set; }
         public Usuario? Usuario { get; set;}
         public ICollection<Avaliacao>? Avaliacoes {get; set;}
+        public DateTime DataCadastro { get; set; } = DateTime.UtcNow;
         public bool Ativo { get; set; }
     }
 }

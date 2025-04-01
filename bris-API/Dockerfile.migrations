@@ -1,17 +1,21 @@
 # Estágio: Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["bris-API.csproj", "./"]
-RUN dotnet restore "./bris-API.csproj"
 
-# Instalar o dotnet-ef CLI globalmente
+# Cache de dependências
+COPY ["*.csproj", "./"]
+RUN dotnet restore
+
+# Instalação do EF Core CLI
 RUN dotnet tool install --global dotnet-ef
-
-# Adicionar o caminho do dotnet-ef ao PATH
 ENV PATH="$PATH:/root/.dotnet/tools"
 
-# Copiar o restante do código
+# Build da aplicação
 COPY . .
+RUN dotnet build -c Release
 
-# Comando para rodar migrations
-ENTRYPOINT ["dotnet", "ef", "database", "update"]
+# Script de entrada universal
+COPY entrypoint_migrations.sh .
+RUN chmod +x entrypoint_migrations.sh
+
+ENTRYPOINT ["./entrypoint_migrations.sh"]

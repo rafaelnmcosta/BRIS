@@ -9,5 +9,6 @@ namespace bris_API.Models {
         public Granja? Granja { get; set; }
         public int? AgroindustriaId { get; set; }
         public Agroindustria? Agroindustria { get; set; }
+        public DateTime DataCriacao{ get; set; } = DateTime.UtcNow;
     }
 }

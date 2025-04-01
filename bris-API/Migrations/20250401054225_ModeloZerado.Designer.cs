@@ -12,8 +12,8 @@ using bris_API.Data;
 namespace bris_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241223164627_modeloInicial")]
-    partial class modeloInicial
+    [Migration("20250401054225_ModeloZerado")]
+    partial class ModeloZerado
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,6 +39,9 @@ namespace bris_API.Migrations
                     b.Property<string>("CNPJ")
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("NomeFantasia")
                         .HasColumnType("text");
 
@@ -48,16 +51,6 @@ namespace bris_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Agroindustrias");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Ativo = true,
-                            CNPJ = "00000000000100",
-                            NomeFantasia = "Agroindustria Default",
-                            RazaoSocial = "Agroindustria Default"
-                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Animal", b =>
@@ -70,6 +63,9 @@ namespace bris_API.Migrations
 
                     b.Property<bool>("Ativo")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("GranjaId")
                         .HasColumnType("integer");
@@ -183,6 +179,9 @@ namespace bris_API.Migrations
                     b.Property<string>("CNPJ")
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Endereco")
                         .HasColumnType("text");
 
@@ -194,17 +193,6 @@ namespace bris_API.Migrations
                     b.HasIndex("AgroindustriaId");
 
                     b.ToTable("Granjas");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AgroindustriaId = 1,
-                            Ativo = true,
-                            CNPJ = "99999999000199",
-                            Endereco = "Rua teste",
-                            NomePropriedade = "Granja Teste"
-                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Policy", b =>
@@ -224,62 +212,6 @@ namespace bris_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Policy");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Descricao = "Policy para VisualizaTotal",
-                            Nome = "VisualizaTotal"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Descricao = "Policy para VisualizaAgroindustria",
-                            Nome = "VisualizaAgroindustria"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Descricao = "Policy para VisualizaUsuarios",
-                            Nome = "VisualizaUsuarios"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Descricao = "Policy para VisualizaAnimais",
-                            Nome = "VisualizaAnimais"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Descricao = "Policy para GerenciaTotal",
-                            Nome = "GerenciaTotal"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Descricao = "Policy para GerenciaAgroindustria",
-                            Nome = "GerenciaAgroindustria"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Descricao = "Policy para GerenciaUsuarios",
-                            Nome = "GerenciaUsuarios"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Descricao = "Policy para GerenciaAnimais",
-                            Nome = "GerenciaAnimais"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Descricao = "Policy para TodosUsuarios",
-                            Nome = "TodosUsuarios"
-                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.PolicyRole", b =>
@@ -303,170 +235,6 @@ namespace bris_API.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("PolicyRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 11,
-                            PolicyId = 1,
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = 21,
-                            PolicyId = 2,
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = 23,
-                            PolicyId = 2,
-                            RoleId = 3
-                        },
-                        new
-                        {
-                            Id = 25,
-                            PolicyId = 2,
-                            RoleId = 5
-                        },
-                        new
-                        {
-                            Id = 31,
-                            PolicyId = 3,
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = 33,
-                            PolicyId = 3,
-                            RoleId = 3
-                        },
-                        new
-                        {
-                            Id = 32,
-                            PolicyId = 3,
-                            RoleId = 2
-                        },
-                        new
-                        {
-                            Id = 35,
-                            PolicyId = 3,
-                            RoleId = 5
-                        },
-                        new
-                        {
-                            Id = 41,
-                            PolicyId = 4,
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = 43,
-                            PolicyId = 4,
-                            RoleId = 3
-                        },
-                        new
-                        {
-                            Id = 42,
-                            PolicyId = 4,
-                            RoleId = 2
-                        },
-                        new
-                        {
-                            Id = 45,
-                            PolicyId = 4,
-                            RoleId = 5
-                        },
-                        new
-                        {
-                            Id = 44,
-                            PolicyId = 4,
-                            RoleId = 4
-                        },
-                        new
-                        {
-                            Id = 51,
-                            PolicyId = 5,
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = 61,
-                            PolicyId = 6,
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = 63,
-                            PolicyId = 6,
-                            RoleId = 3
-                        },
-                        new
-                        {
-                            Id = 71,
-                            PolicyId = 7,
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = 73,
-                            PolicyId = 7,
-                            RoleId = 3
-                        },
-                        new
-                        {
-                            Id = 72,
-                            PolicyId = 7,
-                            RoleId = 2
-                        },
-                        new
-                        {
-                            Id = 81,
-                            PolicyId = 8,
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = 82,
-                            PolicyId = 8,
-                            RoleId = 2
-                        },
-                        new
-                        {
-                            Id = 84,
-                            PolicyId = 8,
-                            RoleId = 4
-                        },
-                        new
-                        {
-                            Id = 91,
-                            PolicyId = 9,
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = 93,
-                            PolicyId = 9,
-                            RoleId = 3
-                        },
-                        new
-                        {
-                            Id = 92,
-                            PolicyId = 9,
-                            RoleId = 2
-                        },
-                        new
-                        {
-                            Id = 95,
-                            PolicyId = 9,
-                            RoleId = 5
-                        },
-                        new
-                        {
-                            Id = 94,
-                            PolicyId = 9,
-                            RoleId = 4
-                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Role", b =>
@@ -486,50 +254,6 @@ namespace bris_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Descricao = "Administrador do sistema",
-                            Nome = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Descricao = "Gestor de granjas",
-                            Nome = "GESTOR_GRANJA"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Descricao = "Gestor de agroindústrias",
-                            Nome = "GESTOR_AGRO"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Descricao = "Técnico da granja",
-                            Nome = "TECNICO"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Descricao = "Usuário com acesso somente de visualização ao sistema",
-                            Nome = "VISUALIZADOR"
-                        },
-                        new
-                        {
-                            Id = 98,
-                            Descricao = "Usuário pendente de ativação",
-                            Nome = "PENDENTE"
-                        },
-                        new
-                        {
-                            Id = 99,
-                            Descricao = "Usuário inativo",
-                            Nome = "INATIVO"
-                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Semana", b =>
@@ -579,15 +303,6 @@ namespace bris_API.Migrations
                         .IsUnique();
 
                     b.ToTable("Senhas");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Salt = "9FhpLh/nji1hcdTuZQOzEg==",
-                            SenhaHash = "4S98GHhgGhbX1BS+wp3r2XsGSKwPXTjRvII+af7X5rw=",
-                            UsuarioId = 1
-                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Usuario", b =>
@@ -601,6 +316,9 @@ namespace bris_API.Migrations
                     b.Property<string>("CPF")
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
@@ -610,18 +328,12 @@ namespace bris_API.Migrations
                     b.Property<string>("Telefone")
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("UltimoLogin")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
                     b.ToTable("Usuarios");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CPF = "00000000000",
-                            Email = "admin@gmail.com",
-                            Nome = "Admin"
-                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Vinculo", b =>
@@ -634,6 +346,9 @@ namespace bris_API.Migrations
 
                     b.Property<int?>("AgroindustriaId")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("GranjaId")
                         .HasColumnType("integer");
@@ -655,14 +370,6 @@ namespace bris_API.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("Vinculos");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            RoleId = 1,
-                            UsuarioId = 1
-                        });
                 });
 
             modelBuilder.Entity("bris_API.Models.Animal", b =>

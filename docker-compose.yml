@@ -36,6 +36,7 @@ services:
       dockerfile: Dockerfile.migrations  # Especifica o Dockerfile para migrations
     environment:
       - ASPNETCORE_ENVIRONMENT=Production # ambiente para as migrations
+      - EF_COMMAND=${EF_COMMAND:-}
     networks:
       - software-rural-net
 

@@ -8,6 +8,7 @@ namespace bris_API.Models {
         public string? Endereco { get; set; }
         public string? CNPJ { get; set; }
         public ICollection<Vinculo>? Vinculos { get; set; }
+        public DateTime DataCadastro { get; set; } = DateTime.UtcNow;
         public bool Ativo { get; set; }
     }
 }

@@ -9,8 +9,9 @@ namespace bris_API.Models
         public string? Email { get; set; }
         public string? CPF { get; set; }
         public string? Telefone { get; set; }
-        
-        // Ignora sempre a senha ao gerar um json pra evitar leaks em caso de bug
+        public DateTime DataCadastro { get; set; } = DateTime.UtcNow;
+        public DateTime? UltimoLogin { get; set; }
+
         [JsonIgnore]
         public Senha? Senha { get; set; }
         public ICollection<Dose>? Doses { get; set; }

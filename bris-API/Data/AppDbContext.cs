@@ -6,6 +6,7 @@ namespace bris_API.Data
 {
     public class AppDbContext : DbContext
     {
+        
         private readonly IPopulateDbService _populateDbService;
 
         public AppDbContext(DbContextOptions<AppDbContext> options, IPopulateDbService populateDbService) 

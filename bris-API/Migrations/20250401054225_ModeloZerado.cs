@@ -4,12 +4,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace bris_API.Migrations
 {
     /// <inheritdoc />
-    public partial class modeloInicial : Migration
+    public partial class ModeloZerado : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -23,6 +21,7 @@ namespace bris_API.Migrations
                     NomeFantasia = table.Column<string>(type: "text", nullable: true),
                     RazaoSocial = table.Column<string>(type: "text", nullable: true),
                     CNPJ = table.Column<string>(type: "text", nullable: true),
+                    DataCadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Ativo = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
@@ -67,7 +66,9 @@ namespace bris_API.Migrations
                     Nome = table.Column<string>(type: "text", nullable: true),
                     Email = table.Column<string>(type: "text", nullable: true),
                     CPF = table.Column<string>(type: "text", nullable: true),
-                    Telefone = table.Column<string>(type: "text", nullable: true)
+                    Telefone = table.Column<string>(type: "text", nullable: true),
+                    DataCadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UltimoLogin = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -84,6 +85,7 @@ namespace bris_API.Migrations
                     AgroindustriaId = table.Column<int>(type: "integer", nullable: false),
                     Endereco = table.Column<string>(type: "text", nullable: true),
                     CNPJ = table.Column<string>(type: "text", nullable: true),
+                    DataCadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Ativo = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
@@ -156,6 +158,7 @@ namespace bris_API.Migrations
                     Status = table.Column<bool>(type: "boolean", nullable: true),
                     GranjaId = table.Column<int>(type: "integer", nullable: true),
                     UsuarioResponsavelId = table.Column<int>(type: "integer", nullable: false),
+                    DataCadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Ativo = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
@@ -183,7 +186,8 @@ namespace bris_API.Migrations
                     UsuarioId = table.Column<int>(type: "integer", nullable: false),
                     RoleId = table.Column<int>(type: "integer", nullable: false),
                     GranjaId = table.Column<int>(type: "integer", nullable: true),
-                    AgroindustriaId = table.Column<int>(type: "integer", nullable: true)
+                    AgroindustriaId = table.Column<int>(type: "integer", nullable: true),
+                    DataCriacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -286,95 +290,6 @@ namespace bris_API.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.InsertData(
-                table: "Agroindustrias",
-                columns: new[] { "Id", "Ativo", "CNPJ", "NomeFantasia", "RazaoSocial" },
-                values: new object[] { 1, true, "00000000000100", "Agroindustria Default", "Agroindustria Default" });
-
-            migrationBuilder.InsertData(
-                table: "Policy",
-                columns: new[] { "Id", "Descricao", "Nome" },
-                values: new object[,]
-                {
-                    { 1, "Policy para VisualizaTotal", "VisualizaTotal" },
-                    { 2, "Policy para VisualizaAgroindustria", "VisualizaAgroindustria" },
-                    { 3, "Policy para VisualizaUsuarios", "VisualizaUsuarios" },
-                    { 4, "Policy para VisualizaAnimais", "VisualizaAnimais" },
-                    { 5, "Policy para GerenciaTotal", "GerenciaTotal" },
-                    { 6, "Policy para GerenciaAgroindustria", "GerenciaAgroindustria" },
-                    { 7, "Policy para GerenciaUsuarios", "GerenciaUsuarios" },
-                    { 8, "Policy para GerenciaAnimais", "GerenciaAnimais" },
-                    { 9, "Policy para TodosUsuarios", "TodosUsuarios" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Roles",
-                columns: new[] { "Id", "Descricao", "Nome" },
-                values: new object[,]
-                {
-                    { 1, "Administrador do sistema", "ADMIN" },
-                    { 2, "Gestor de granjas", "GESTOR_GRANJA" },
-                    { 3, "Gestor de agroindústrias", "GESTOR_AGRO" },
-                    { 4, "Técnico da granja", "TECNICO" },
-                    { 5, "Usuário com acesso somente de visualização ao sistema", "VISUALIZADOR" },
-                    { 98, "Usuário pendente de ativação", "PENDENTE" },
-                    { 99, "Usuário inativo", "INATIVO" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Usuarios",
-                columns: new[] { "Id", "CPF", "Email", "Nome", "Telefone" },
-                values: new object[] { 1, "00000000000", "admin@gmail.com", "Admin", null });
-
-            migrationBuilder.InsertData(
-                table: "Granjas",
-                columns: new[] { "Id", "AgroindustriaId", "Ativo", "CNPJ", "Endereco", "NomePropriedade" },
-                values: new object[] { 1, 1, true, "99999999000199", "Rua teste", "Granja Teste" });
-
-            migrationBuilder.InsertData(
-                table: "PolicyRoles",
-                columns: new[] { "Id", "PolicyId", "RoleId" },
-                values: new object[,]
-                {
-                    { 11, 1, 1 },
-                    { 21, 2, 1 },
-                    { 23, 2, 3 },
-                    { 25, 2, 5 },
-                    { 31, 3, 1 },
-                    { 32, 3, 2 },
-                    { 33, 3, 3 },
-                    { 35, 3, 5 },
-                    { 41, 4, 1 },
-                    { 42, 4, 2 },
-                    { 43, 4, 3 },
-                    { 44, 4, 4 },
-                    { 45, 4, 5 },
-                    { 51, 5, 1 },
-                    { 61, 6, 1 },
-                    { 63, 6, 3 },
-                    { 71, 7, 1 },
-                    { 72, 7, 2 },
-                    { 73, 7, 3 },
-                    { 81, 8, 1 },
-                    { 82, 8, 2 },
-                    { 84, 8, 4 },
-                    { 91, 9, 1 },
-                    { 92, 9, 2 },
-                    { 93, 9, 3 },
-                    { 94, 9, 4 },
-                    { 95, 9, 5 }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Senhas",
-                columns: new[] { "Id", "Salt", "SenhaHash", "UsuarioId" },
-                values: new object[] { 1, "9FhpLh/nji1hcdTuZQOzEg==", "4S98GHhgGhbX1BS+wp3r2XsGSKwPXTjRvII+af7X5rw=", 1 });
-
-            migrationBuilder.InsertData(
-                table: "Vinculos",
-                columns: new[] { "Id", "AgroindustriaId", "GranjaId", "RoleId", "UsuarioId" },
-                values: new object[] { 1, null, null, 1, 1 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Animais_GranjaId",

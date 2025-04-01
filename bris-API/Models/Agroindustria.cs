@@ -6,6 +6,7 @@ namespace bris_API.Models {
         public string? CNPJ { get; set; }
         public ICollection<Granja>? Granjas { get; set; }
         public ICollection<Vinculo>? Vinculos { get; set; }
+        public DateTime DataCadastro { get; set; } = DateTime.UtcNow;
         public bool Ativo { get; set; }
     }    
 }
