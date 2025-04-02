@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-
 using bris_API.Data;
 using bris_API.Models;
 using bris_API.Services;
@@ -11,6 +9,9 @@ using bris_API.DTOs;
 
 namespace bris_API.Controllers
 {
+    /// <summary>
+    /// Controller responsável pela autenticação, cadastro, login, logout, recuperação de senha e verificação do status de autenticação.
+    /// </summary>
     [Route("api/auth")]
     [ApiController]
     public class AutenticacaoController : ControllerBase, IAutenticacaoController
@@ -20,6 +21,13 @@ namespace bris_API.Controllers
         private readonly IPasswordService _passwordService;
         private readonly IEmailService _emailService;
 
+        /// <summary>
+        /// Construtor que injeta as dependências necessárias.
+        /// </summary>
+        /// <param name="context">Contexto do banco de dados.</param>
+        /// <param name="tokenService">Serviço para geração e manipulação de tokens.</param>
+        /// <param name="passwordService">Serviço para manipulação de senhas (hash, salt, etc.).</param>
+        /// <param name="emailService">Serviço para envio de emails.</param>
         public AutenticacaoController(AppDbContext context, ITokenService tokenService, IPasswordService passwordService, IEmailService emailService)
         {
             _context = context;
@@ -28,15 +36,22 @@ namespace bris_API.Controllers
             _emailService = emailService;
         }
 
-
+        /// <summary>
+        /// Endpoint para cadastro de um novo usuário.
+        /// Cria um novo registro de usuário, gera a senha com hash e salt, e cria um vínculo com a role "PENDENTE".
+        /// </summary>
+        /// <param name="modelUsuario">Dados para cadastro do usuário.</param>
+        /// <returns>Mensagem de sucesso ou erro.</returns>
         [HttpPost("cadastro")]
         public async Task<IActionResult> Cadastro([FromBody] AutoCadastroDTO modelUsuario)
         {
             try
             {
+                // Verifica se já existe um usuário com o mesmo email
                 if (await _context.Usuarios.AnyAsync(u => u.Email == modelUsuario.Email))
                     return BadRequest("Já existe um usuário com esse email!");
 
+                // Cria o objeto de usuário com os dados fornecidos
                 var usuario = new Usuario
                 {
                     Nome = modelUsuario.Nome,
@@ -47,9 +62,11 @@ namespace bris_API.Controllers
                 _context.Usuarios.Add(usuario);
                 await _context.SaveChangesAsync();
 
+                // Gera salt e hash para a senha fornecida
                 var salt = _passwordService.GenerateSalt();
                 var hash = _passwordService.HashPassword(modelUsuario.Senha, salt);
 
+                // Cria o registro de senha para o usuário
                 var senha = new Senha
                 {
                     UsuarioId = usuario.Id,
@@ -58,6 +75,7 @@ namespace bris_API.Controllers
                 };
                 _context.Senhas.Add(senha);
 
+                // Cria um vínculo inicial com a role "PENDENTE" (RoleId 98)
                 var novoAcesso = new Vinculo
                 {
                     UsuarioId = usuario.Id,
@@ -77,31 +95,38 @@ namespace bris_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Endpoint para login de usuário.
+        /// Verifica as credenciais do usuário e, se corretas, gera um token JWT e configura um cookie HTTP-Only com o token.
+        /// </summary>
+        /// <param name="modelLogin">Dados de login (email e senha).</param>
+        /// <returns>Mensagem de sucesso ou erro.</returns>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto modelLogin)
         {
             try
             {
+                // Busca o usuário pelo email, incluindo o registro de senha
                 var usuario = await _context.Usuarios
                     .Include(u => u.Senha)
                     .FirstOrDefaultAsync(u => u.Email == modelLogin.Email);
 
+                // Verifica se o usuário foi encontrado e se a senha é válida
                 if (usuario == null || !_passwordService.VerifyPassword(modelLogin.Senha, usuario.Senha.Salt, usuario.Senha.SenhaHash))
                 {
                     return Unauthorized();
                 }
 
-                // Obtém informações da requisição
+                // Obtém informações da requisição para incluir no token
                 var userIp = HttpContext.Connection.RemoteIpAddress?.ToString();
                 var userAgent = Request.Headers["User-Agent"].ToString();
 
-                // Gera o token JWT
+                // Gera o token JWT com o ID do usuário e os dados da requisição
                 var token = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), userIp, userAgent);
 
                 // Configura o cookie HTTP-Only para o token gerado
                 _tokenService.SetCookieToken(HttpContext, token);
 
-                // Retorna a Role escolhida pelo usuário
                 return Ok(new { message = "Login efetuado com sucesso!" });
             }
             catch (Exception ex)
@@ -110,6 +135,11 @@ namespace bris_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Endpoint para logout.
+        /// Remove o cookie de autenticação, efetivamente deslogando o usuário.
+        /// </summary>
+        /// <returns>Mensagem de sucesso ou erro.</returns>
         [HttpGet("logout")]
         public async Task<IActionResult> Logout()
         {
@@ -124,6 +154,11 @@ namespace bris_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Endpoint que retorna a lista de vínculos do usuário autenticado.
+        /// A resposta varia conforme se o token é de acesso (AcessoLogin) ou de vínculo.
+        /// </summary>
+        /// <returns>Lista de vínculos no formato GetVinculoDTO.</returns>
         [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
         [HttpGet("vinculos")]
         public async Task<IActionResult> GetVinculos()
@@ -131,24 +166,24 @@ namespace bris_API.Controllers
             try
             {
                 Console.WriteLine("Entrou na getVinculos");
-                // Obtém o ID do usuário ou vínculo do token
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+                // Obtém o NameIdentifier do token (pode ser o ID do usuário ou do vínculo)
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userIdClaim))
                 {
                     return Unauthorized("Token inválido. (Id na claim do token é null)");
                 }
 
-                // Verifica se é um token de acesso ou de vínculo
+                // Verifica se o token possui a claim "AcessoLogin" com valor "true"
                 var isAcessoLogin = User.HasClaim("AcessoLogin", "true");
 
                 if (isAcessoLogin)
                 {
-                    // Token de acesso: trabalhar com usuário
+                    // Se for token de acesso, o NameIdentifier é o ID do usuário.
                     Console.WriteLine("Token de acesso detectado.");
                     var usuarioId = int.Parse(userIdClaim);
 
-                    // Busca os vínculos associados ao usuário
+                    // Busca os vínculos associados ao usuário, incluindo as entidades relacionadas.
                     var vinculos = await _context.Vinculos
                         .Where(v => v.UsuarioId == usuarioId)
                         .Include(v => v.Granja)
@@ -161,6 +196,7 @@ namespace bris_API.Controllers
                         return NotFound("Nenhum vínculo encontrado para este usuário.");
                     }
 
+                    // Mapeia os vínculos para DTOs
                     var vinculosDTOS = vinculos.Select(v => new GetVinculoDTO
                     {
                         Id = v.Id,
@@ -173,11 +209,11 @@ namespace bris_API.Controllers
                 }
                 else
                 {
-                    // Token de vínculo: trabalhar com vínculo específico
+                    // Se for token de vínculo, o NameIdentifier é o ID do vínculo.
                     Console.WriteLine("Token de vínculo detectado.");
                     var vinculoId = int.Parse(userIdClaim);
 
-                    // Busca o vínculo atual
+                    // Busca o vínculo atual para obter o ID do usuário associado
                     var vinculoAtual = await _context.Vinculos
                         .FirstOrDefaultAsync(v => v.Id == vinculoId);
 
@@ -186,7 +222,7 @@ namespace bris_API.Controllers
                         return NotFound("Vínculo atual não encontrado.");
                     }
 
-                    // Busca os outros vínculos do mesmo usuário
+                    // Busca todos os vínculos do mesmo usuário
                     var usuarioId = vinculoAtual.UsuarioId;
                     var vinculos = await _context.Vinculos
                         .Where(v => v.UsuarioId == usuarioId)
@@ -217,22 +253,27 @@ namespace bris_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Endpoint para selecionar um vínculo específico.
+        /// Verifica se o vínculo selecionado pertence ao mesmo usuário que o token e, em seguida, gera um novo token de vínculo e atualiza o cookie.
+        /// </summary>
+        /// <param name="id">ID do vínculo selecionado.</param>
+        /// <returns>Retorna a Role do vínculo selecionado.</returns>
         [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
         [HttpPost("vinculos/{id}")]
         public async Task<IActionResult> SelecionarVinculo(int id)
         {
             try
             {
-                // Obtem o valor de NameIdentifier do token
+                // Obtém o valor do NameIdentifier do token
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userIdClaim))
                 {
                     return Unauthorized("Usuário não autenticado.");
                 }
 
-                // Verifica o tipo de token pela presença da claim "acessoLogin"
+                // Verifica se o token é de acesso (possui a claim "AcessoLogin" com valor "true")
                 var isAcessoLogin = User.HasClaim("AcessoLogin", "true");
-
                 int usuarioId;
 
                 if (isAcessoLogin)
@@ -243,7 +284,7 @@ namespace bris_API.Controllers
                 }
                 else
                 {
-                    // Token de vínculo: o NameIdentifier é o ID do vínculo
+                    // Token de vínculo: o NameIdentifier é o ID do vínculo; buscar para obter o usuário associado
                     Console.WriteLine("Token de vínculo detectado. NameIdentifier é o ID do vínculo.");
                     var vinculoIdClaim = int.Parse(userIdClaim);
 
@@ -259,34 +300,32 @@ namespace bris_API.Controllers
                     usuarioId = vinculoAtual.UsuarioId;
                 }
 
-                // Busca o vínculo selecionado pelo ID e verifica se pertence ao mesmo usuário
+                // Busca o vínculo selecionado e verifica se pertence ao mesmo usuário
                 var vinculo = await _context.Vinculos
                     .Include(v => v.Role)
                     .Include(v => v.Granja)
                     .Include(v => v.Agroindustria)
                     .FirstOrDefaultAsync(v => v.Id == id && v.UsuarioId == usuarioId);
 
-                // Verifica se o vínculo foi encontrado
                 if (vinculo == null)
                 {
                     return NotFound("Vínculo não encontrado ou não pertence ao mesmo usuário.");
                 }
 
-                // Informações para o retorno
+                // Informações para retorno
                 var role = vinculo.Role?.Nome ?? "!!! Role não definida !!!";
 
-                // Extrai informações necessárias para gerar o token
-                var vinculoId = vinculo.Id.ToString();
+                // Extrai informações para geração de novo token
+                var newVinculoId = vinculo.Id.ToString();
                 var userIp = HttpContext.Connection.RemoteIpAddress?.ToString();
                 var userAgent = Request.Headers["User-Agent"].ToString();
 
-                // Gera o token
-                var token = _tokenService.GenerateTokenVinculo(vinculoId, userIp, userAgent);
+                // Gera novo token para o vínculo selecionado
+                var token = _tokenService.GenerateTokenVinculo(newVinculoId, userIp, userAgent);
 
-                // Configura o cookie HTTP-Only com o novo token
+                // Atualiza o cookie HTTP-Only com o novo token
                 _tokenService.SetCookieToken(HttpContext, token);
 
-                // Retorna a Role escolhida
                 return Ok(new { Role = role });
             }
             catch (Exception ex)
@@ -295,28 +334,33 @@ namespace bris_API.Controllers
             }
         }
 
-
-        // Rota POST para processar o email e redefinir a senha
+        /// <summary>
+        /// Endpoint para processar a recuperação de senha.
+        /// Gera uma nova senha aleatória para o usuário com base no email informado,
+        /// atualiza a senha no banco e envia a nova senha por email.
+        /// </summary>
+        /// <param name="model">Objeto contendo o email do usuário.</param>
+        /// <returns>Mensagem de sucesso ou erro.</returns>
         [HttpPost("recuperar-senha")]
         public async Task<IActionResult> ProcessarRecuperacaoSenha([FromBody] RecuperarSenhaDto model)
         {
             try
             {
+                // Busca o usuário pelo email informado
                 var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == model.Email);
-
                 if (usuario == null)
                 {
                     return NotFound("Usuário não encontrado.");
                 }
 
-                // Gerar nova senha aleatória
+                // Gera uma nova senha aleatória com tamanho 6
                 var novaSenha = _passwordService.GenerateRandomPassword(6);
 
-                // Criar hash e salt da nova senha
+                // Gera salt e hash para a nova senha
                 var salt = _passwordService.GenerateSalt();
                 var hash = _passwordService.HashPassword(novaSenha, salt);
 
-                // Atualizar senha no banco de dados
+                // Atualiza a senha do usuário no banco de dados
                 var senha = await _context.Senhas.FirstOrDefaultAsync(s => s.UsuarioId == usuario.Id);
                 if (senha == null)
                 {
@@ -329,7 +373,7 @@ namespace bris_API.Controllers
                 _context.Senhas.Update(senha);
                 await _context.SaveChangesAsync();
 
-                // Enviar nova senha por email
+                // Envia a nova senha por email para o usuário
                 await _emailService.EnviarEmailRecuperacaoSenha(usuario.Email, novaSenha);
 
                 return Ok(new { message = "Nova senha enviada para o email informado." });
@@ -340,11 +384,19 @@ namespace bris_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Endpoint para verificar o status de autenticação.
+        /// Retorna informações básicas contidas nas claims do token.
+        /// Caso o token seja de acesso, retorna status "logado";
+        /// caso contrário, retorna status "autenticado" com algumas claims adicionais.
+        /// </summary>
+        /// <returns>Status de autenticação e informações das claims.</returns>
         [HttpGet("check")]
         public IActionResult CheckStatus()
         {
             try
             {
+                // Extrai informações das claims do token
                 var claims = new
                 {
                     Role = User.FindFirst(ClaimTypes.Role)?.Value,
@@ -359,13 +411,13 @@ namespace bris_API.Controllers
                     return Unauthorized(new { status = "invalido" });
                 }
 
-                // Token de acesso (AcessoLogin)
+                // Se o token for de acesso (contém a claim "AcessoLogin")
                 if (User.HasClaim("AcessoLogin", "true"))
                 {
                     return Ok(new { status = "logado" });
                 }
 
-                // Token de vínculo (autenticado)
+                // Se não, considera como token de vínculo e retorna informações adicionais
                 return Ok(new
                 {
                     status = "autenticado",
