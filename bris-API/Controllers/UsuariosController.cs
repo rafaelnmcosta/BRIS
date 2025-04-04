@@ -40,20 +40,9 @@ namespace bris_API.Controllers
         {
             try
             {
-                // Recupera a Role e o ID do vínculo a partir do token do usuário autenticado.
                 var Role = User.FindFirst(ClaimTypes.Role)?.Value;
                 var vinculoId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-                // Inicializa a consulta de usuários, incluindo os vínculos e suas entidades relacionadas.
-                IQueryable<Usuario> usuariosQuery = _context.Usuarios
-                    .Include(u => u.Vinculos)
-                        .ThenInclude(v => v.Role)
-                    .Include(u => u.Vinculos)
-                        .ThenInclude(v => v.Agroindustria)
-                    .Include(u => u.Vinculos)
-                        .ThenInclude(v => v.Granja);
-
-                // Obtém os IDs da Agroindústria e Granja do vínculo do usuário autenticado.
                 var agroindustriaId = _context.Vinculos
                     .Where(v => v.Id == vinculoId)
                     .Select(v => v.AgroindustriaId)
@@ -64,9 +53,14 @@ namespace bris_API.Controllers
                     .Select(v => v.GranjaId)
                     .FirstOrDefault();
 
-                // Aplica filtro conforme a Role do usuário:
-                // - GESTOR_AGRO: apenas usuários com vínculos na mesma Agroindústria.
-                // - GESTOR_GRANJA: apenas usuários com vínculos na mesma Granja.
+                IQueryable<Usuario> usuariosQuery = _context.Usuarios
+                    .Include(u => u.Vinculos)
+                        .ThenInclude(v => v.Role)
+                    .Include(u => u.Vinculos)
+                        .ThenInclude(v => v.Agroindustria)
+                    .Include(u => u.Vinculos)
+                        .ThenInclude(v => v.Granja);
+
                 if (Role == "GESTOR_AGRO")
                 {
                     usuariosQuery = usuariosQuery
@@ -78,23 +72,26 @@ namespace bris_API.Controllers
                         .Where(u => u.Vinculos.Any(v => v.GranjaId == granjaId));
                 }
 
-                // Mapeia os usuários para o DTO (GetUsuarioDTO), aplicando filtro nos vínculos conforme a Role.
                 var usuarios = await usuariosQuery
                     .Select(u => new GetUsuarioDTO
                     {
+                        Id = u.Id,
                         Nome = u.Nome,
                         Email = u.Email,
                         CPF = u.CPF,
+                        Telefone = u.Telefone,
+                        DataCadastro = u.DataCadastro,
+                        UltimoLogin = u.UltimoLogin,
                         Vinculos = u.Vinculos
-                            .Where(v => Role == "ADMIN" || 
+                            .Where(v => Role == "ADMIN" ||
                                         (Role == "GESTOR_AGRO" && v.AgroindustriaId == agroindustriaId) ||
                                         (Role == "GESTOR_GRANJA" && v.GranjaId == granjaId))
                             .Select(v => new GetVinculoDTO
                             {
                                 Id = v.Id,
                                 Role = v.Role.Nome,
-                                NomeAgroindustria = v.Agroindustria.NomeFantasia,
-                                NomeGranja = v.Granja.NomePropriedade
+                                NomeAgroindustria = v.Agroindustria != null ? v.Agroindustria.NomeFantasia : null,
+                                NomeGranja = v.Granja != null ? v.Granja.NomePropriedade : null
                             }).ToList()
                     })
                     .ToListAsync();
@@ -108,63 +105,72 @@ namespace bris_API.Controllers
         }
 
         /// <summary>
-        /// Cadastra um novo usuário, criando também sua senha e vínculo.
+        /// Cadastra um novo usuário com múltiplos vínculos
         /// </summary>
-        /// <param name="modelUsuario">Dados do usuário a ser cadastrado.</param>
-        /// <returns>Mensagem de sucesso ou erro.</returns>
+        /// <param name="modelUsuario">Dados do usuário e seus vínculos</param>
+        /// <returns>Mensagem de sucesso ou erro</returns>
         [Authorize(Policy = "GerenciaUsuarios")]
         [HttpPost("cadastrar")]
         public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioDTO modelUsuario)
         {
-            // Verifica se já existe um usuário com o mesmo email ou CPF
+            // Verifica duplicidade
             if (await _context.Usuarios.AnyAsync(u => u.Email == modelUsuario.Email || u.CPF == modelUsuario.CPF))
                 return BadRequest("Já existe um usuário com esse email ou CPF cadastrado!");
 
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
-                // Cria um novo usuário com os dados fornecidos
+                // Cria usuário
                 var usuario = new Usuario
                 {
                     Nome = modelUsuario.Nome,
                     Email = modelUsuario.Email,
-                    CPF = modelUsuario.CPF
+                    CPF = modelUsuario.CPF,
+                    Telefone = modelUsuario.Telefone
                 };
 
                 _context.Usuarios.Add(usuario);
                 await _context.SaveChangesAsync();
 
-                // Gera o salt e o hash da senha "123456" ou a senha informada
+                // Cria senha
                 var salt = _passwordService.GenerateSalt();
                 var hash = _passwordService.HashPassword(modelUsuario.Senha, salt);
 
-                // Cria a entidade Senha relacionada ao usuário
-                var senha = new Senha
+                _context.Senhas.Add(new Senha
                 {
                     UsuarioId = usuario.Id,
                     SenhaHash = hash,
                     Salt = salt
-                };
-
-                _context.Senhas.Add(senha);
+                });
                 await _context.SaveChangesAsync();
 
-                // Cria o vínculo do usuário, associando a role, granja e agroindústria conforme o DTO
-                var vinculo = new Vinculo
+                // Cria vínculos
+                foreach (var vinculoDto in modelUsuario.Vinculos)
                 {
-                    UsuarioId = usuario.Id,
-                    RoleId = modelUsuario.RoleId,
-                    GranjaId = modelUsuario.GranjaId,
-                    AgroindustriaId = modelUsuario.AgroindustriaId
-                };
-
-                _context.Vinculos.Add(vinculo);
+                    _context.Vinculos.Add(new Vinculo
+                    {
+                        UsuarioId = usuario.Id,
+                        RoleId = vinculoDto.RoleId,
+                        AgroindustriaId = vinculoDto.AgroindustriaId,
+                        GranjaId = vinculoDto.GranjaId,
+                        DataCriacao = DateTime.UtcNow
+                    });
+                }
                 await _context.SaveChangesAsync();
 
-                return Ok(new { message = "Usuário registrado com sucesso!" });
+                await transaction.CommitAsync();
+
+                return Ok(new
+                {
+                    message = "Usuário cadastrado com sucesso!",
+                    usuarioId = usuario.Id
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Erro ao cadastrar o usuário: " + ex.Message);
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"Erro ao cadastrar usuário: {ex.Message}");
             }
         }
 
@@ -312,11 +318,54 @@ namespace bris_API.Controllers
         }
 
         /// <summary>
+        /// Inativa um usuário, removendo todos os vínculos e criando um novo com role "INATIVO"
+        /// </summary>
+        [Authorize(Policy = "GerenciaUsuarios")]
+        [HttpPut("inativar/{id}")]
+        public async Task<IActionResult> InativarUsuario(int id)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Busca o usuário com todos os vínculos
+                var usuario = await _context.Usuarios
+                    .Include(u => u.Vinculos)
+                    .FirstOrDefaultAsync(u => u.Id == id);
+
+                if (usuario == null)
+                    return NotFound("Usuário não encontrado");
+
+                // Remove todos os vínculos existentes
+                _context.Vinculos.RemoveRange(usuario.Vinculos);
+
+                // Cria novo vínculo inativo
+                var vinculoInativo = new Vinculo
+                {
+                    UsuarioId = usuario.Id,
+                    RoleId = 99, // ID da role INATIVO
+                    DataCriacao = DateTime.UtcNow
+                };
+
+                _context.Vinculos.Add(vinculoInativo);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"Erro ao inativar usuário: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// Retorna a lista de usuários inativos (com vínculo com role "INATIVO"), aplicando filtros conforme a role do usuário autenticado.
         /// </summary>
         /// <returns>Lista de usuários inativos no formato GetUsuarioDTO.</returns>
         [Authorize(Policy = "GerenciaUsuarios")]
-        [HttpGet("reativar")]
+        [HttpGet("inativos")]
         public async Task<IActionResult> GetUsuariosInativos()
         {
             try
@@ -386,65 +435,81 @@ namespace bris_API.Controllers
         }
 
         /// <summary>
-        /// Reativa um usuário inativo alterando seu vínculo, caso o usuário autenticado possua permissão.
+        /// Reativa um usuário inativo substituindo seu vínculo por novos vínculos
         /// </summary>
-        /// <param name="id">ID do usuário a ser reativado.</param>
-        /// <param name="modelAtivar">Dados para atualização do vínculo.</param>
-        /// <returns>O vínculo atualizado no formato GetVinculoDTO.</returns>
         [Authorize(Policy = "GerenciaUsuarios")]
         [HttpPut("reativar/{id}")]
-        public async Task<IActionResult> ReativarUsuarioInativo(int id, [FromBody] AtivarUsuarioDto modelAtivar)
+        public async Task<IActionResult> ReativarUsuarioInativo(int id, [FromBody] List<VinculoDTO> novosVinculos)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
-                var Role = User.FindFirst(ClaimTypes.Role)?.Value;
-                var vinculoId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                // Pega os dados nas claims
+                var role = User.FindFirst(ClaimTypes.Role)?.Value;
+                var vinculoIdAutenticado = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-                var agroindustriaId = _context.Vinculos
-                    .Where(v => v.Id == vinculoId)
-                    .Select(v => v.AgroindustriaId)
-                    .FirstOrDefault();
+                var vinculoAutenticado = await _context.Vinculos.FirstOrDefaultAsync(v => v.Id == vinculoIdAutenticado);
 
-                var granjaId = _context.Vinculos
-                    .Where(v => v.Id == vinculoId)
-                    .Select(v => v.GranjaId)
-                    .FirstOrDefault();
+                // Validação básica
+                if (!novosVinculos.Any())
+                    return BadRequest("Deve ser fornecido pelo menos um vínculo");
 
-                // Busca o primeiro vínculo com role "INATIVO" para o usuário especificado
-                var vinculo = await _context.Vinculos
-                    .Include(v => v.Role)
-                    .FirstOrDefaultAsync(v => v.UsuarioId == id && v.Role.Nome == "INATIVO");
+                // Busca o usuário com vínculos inativos
+                var usuario = await _context.Usuarios
+                    .Include(u => u.Vinculos)
+                        .ThenInclude(v => v.Role)
+                    .FirstOrDefaultAsync(u => u.Id == id);
 
-                if (vinculo == null)
+                if (usuario == null)
+                    return NotFound("Usuário não encontrado");
+
+                // Obtém todos os vínculos inativos
+                var vinculosInativos = usuario.Vinculos
+                    .Where(v => v.Role.Nome == "INATIVO")
+                    .ToList();
+
+                if (!vinculosInativos.Any())
+                    return BadRequest("Usuário não está inativo");
+
+                // Remove vínculos inativos
+                _context.Vinculos.RemoveRange(vinculosInativos);
+
+                // Validar e adicionar novos vínculos
+                foreach (var vinculoDto in novosVinculos)
                 {
-                    return NotFound("Usuário não encontrado!");
-                }
+                    // Verificar permissões para cada vínculo
+                    if (role == "GESTOR_AGRO" &&
+                        vinculoDto.AgroindustriaId != vinculoAutenticado.AgroindustriaId)
+                    {
+                        return Forbid("Você só pode associar à sua própria agroindústria");
+                    }
 
-                // Verifica se o usuário autenticado tem permissão para reativar o vínculo
-                if ((Role == "GESTOR_AGRO" && vinculo.AgroindustriaId != agroindustriaId) ||
-                    (Role == "GESTOR_GRANJA" && vinculo.GranjaId != granjaId))
-                {
-                    return Forbid("Você não tem permissão para ativar este usuário.");
-                }
+                    if (role == "GESTOR_GRANJA" &&
+                        vinculoDto.GranjaId != vinculoAutenticado.GranjaId)
+                    {
+                        return Forbid("Você só pode associar à sua própria granja");
+                    }
 
-                // Atualiza o vínculo conforme os dados do DTO
-                vinculo.RoleId = modelAtivar.RoleId;
-                vinculo.GranjaId = modelAtivar.GranjaId;
-                vinculo.AgroindustriaId = modelAtivar.AgroindustriaId;
+                    _context.Vinculos.Add(new Vinculo
+                    {
+                        UsuarioId = usuario.Id,
+                        RoleId = vinculoDto.RoleId,
+                        AgroindustriaId = vinculoDto.AgroindustriaId,
+                        GranjaId = vinculoDto.GranjaId,
+                        DataCriacao = DateTime.UtcNow
+                    });
+                }
 
                 await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
-                return Ok(new GetVinculoDTO
-                {
-                    Id = vinculo.Id,
-                    Role = vinculo.Role.Nome,
-                    NomeGranja = vinculo.Granja?.NomePropriedade,
-                    NomeAgroindustria = vinculo.Agroindustria?.NomeFantasia
-                });
+                return NoContent();
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Erro ao reativar usuário: " + ex.Message);
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"Erro ao reativar usuário: {ex.Message}");
             }
         }
 
@@ -507,153 +572,6 @@ namespace bris_API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, "Erro ao buscar vínculos: " + ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Edita um vínculo existente, permitindo alterações conforme as permissões do usuário autenticado.
-        /// </summary>
-        /// <param name="vinculoId">ID do vínculo a ser editado.</param>
-        /// <param name="modelVinculo">Dados para atualizar o vínculo.</param>
-        /// <returns>Mensagem de sucesso ou erro.</returns>
-        [Authorize(Policy = "GerenciaUsuarios")]
-        [HttpPut("vinculos/editar/{vinculoId}")]
-        public async Task<IActionResult> EditarVinculo(int vinculoId, [FromBody] SetVinculoDTO modelVinculo)
-        {
-            try
-            {
-                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-                var usuarioVinculoId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-
-                // Obtém os IDs de Agroindústria e Granja do vínculo do usuário autenticado
-                var usuarioAgroindustriaId = _context.Vinculos
-                    .Where(v => v.Id == usuarioVinculoId)
-                    .Select(v => v.AgroindustriaId)
-                    .FirstOrDefault();
-
-                var usuarioGranjaId = _context.Vinculos
-                    .Where(v => v.Id == usuarioVinculoId)
-                    .Select(v => v.GranjaId)
-                    .FirstOrDefault();
-
-                // Busca o vínculo a ser editado, incluindo suas entidades relacionadas
-                var vinculo = await _context.Vinculos
-                    .Include(v => v.Role)
-                    .Include(v => v.Granja)
-                    .Include(v => v.Agroindustria)
-                    .FirstOrDefaultAsync(v => v.Id == vinculoId);
-
-                if (vinculo == null)
-                {
-                    return NotFound("Vínculo não encontrado!");
-                }
-
-                // Aplica regras de edição com base na role do usuário autenticado
-                if (userRole == "GESTOR_AGRO")
-                {
-                    // GESTOR_AGRO pode editar apenas se o vínculo pertencer à mesma Agroindústria.
-                    if (vinculo.AgroindustriaId != usuarioAgroindustriaId)
-                    {
-                        return Forbid("Você só pode editar vínculos da sua própria Agroindústria.");
-                    }
-                    vinculo.RoleId = modelVinculo.RoleId;
-                    vinculo.GranjaId = modelVinculo.GranjaId ?? vinculo.GranjaId; // Mantém valor atual se nulo
-                }
-                else if (userRole == "GESTOR_GRANJA")
-                {
-                    // GESTOR_GRANJA pode editar apenas se o vínculo pertencer à mesma Granja.
-                    if (vinculo.GranjaId != usuarioGranjaId)
-                    {
-                        return Forbid("Você só pode editar vínculos da sua própria Granja.");
-                    }
-                    vinculo.RoleId = modelVinculo.RoleId;
-                }
-                else if (userRole == "ADMIN")
-                {
-                    // ADMIN pode editar todos os campos
-                    vinculo.RoleId = modelVinculo.RoleId;
-                    vinculo.GranjaId = modelVinculo.GranjaId ?? vinculo.GranjaId;
-                    vinculo.AgroindustriaId = modelVinculo.AgroindustriaId ?? vinculo.AgroindustriaId;
-                }
-                else
-                {
-                    return Forbid("Permissão insuficiente para editar vínculos.");
-                }
-
-                await _context.SaveChangesAsync();
-
-                return Ok(new { message = "Vínculo atualizado com sucesso!" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Erro ao editar vínculo: " + ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Adiciona um novo vínculo para um usuário específico, configurando os campos de acordo com a role do usuário autenticado.
-        /// </summary>
-        /// <param name="id">ID do usuário para o qual será adicionado o vínculo.</param>
-        /// <param name="modelVinculo">Dados do novo vínculo.</param>
-        /// <returns>Mensagem de sucesso ou erro.</returns>
-        [Authorize(Policy = "GerenciaUsuarios")]
-        [HttpPost("novo-vinculo/{id}")]
-        public async Task<IActionResult> AdicionarVinculoPorUsuario(int id, [FromBody] SetVinculoDTO modelVinculo)
-        {
-            try
-            {
-                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-                var usuarioVinculoId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-
-                // Obtém os IDs de Agroindústria e Granja do vínculo do usuário autenticado
-                var usuarioAgroindustriaId = _context.Vinculos
-                    .Where(v => v.Id == usuarioVinculoId)
-                    .Select(v => v.AgroindustriaId)
-                    .FirstOrDefault();
-
-                var usuarioGranjaId = _context.Vinculos
-                    .Where(v => v.Id == usuarioVinculoId)
-                    .Select(v => v.GranjaId)
-                    .FirstOrDefault();
-
-                // Cria um novo vínculo para o usuário com base na role do usuário autenticado
-                var novoVinculo = new Vinculo
-                {
-                    UsuarioId = id,
-                    RoleId = modelVinculo.RoleId
-                };
-
-                if (userRole == "GESTOR_AGRO")
-                {
-                    // GESTOR_AGRO utiliza a Agroindústria do próprio vínculo e permite definir o GranjaId via DTO.
-                    novoVinculo.GranjaId = modelVinculo.GranjaId;
-                    novoVinculo.AgroindustriaId = usuarioAgroindustriaId;
-                }
-                else if (userRole == "GESTOR_GRANJA")
-                {
-                    // GESTOR_GRANJA utiliza os IDs de Granja e Agroindústria do próprio vínculo.
-                    novoVinculo.GranjaId = usuarioGranjaId;
-                    novoVinculo.AgroindustriaId = usuarioAgroindustriaId;
-                }
-                else if (userRole == "ADMIN")
-                {
-                    // ADMIN pode definir todos os campos conforme o DTO.
-                    novoVinculo.GranjaId = modelVinculo.GranjaId;
-                    novoVinculo.AgroindustriaId = modelVinculo.AgroindustriaId;
-                }
-                else
-                {
-                    return Forbid("Permissão insuficiente para adicionar vínculo.");
-                }
-
-                await _context.Vinculos.AddAsync(novoVinculo);
-                await _context.SaveChangesAsync();
-
-                return Ok(new { message = "Vínculo adicionado com sucesso!" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Erro ao adicionar vínculo: " + ex.Message);
             }
         }
     }

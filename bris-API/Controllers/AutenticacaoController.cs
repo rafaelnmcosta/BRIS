@@ -141,7 +141,7 @@ namespace bris_API.Controllers
         /// </summary>
         /// <returns>Mensagem de sucesso ou erro.</returns>
         [HttpGet("logout")]
-        public async Task<IActionResult> Logout()
+        public IActionResult Logout()
         {
             try
             {

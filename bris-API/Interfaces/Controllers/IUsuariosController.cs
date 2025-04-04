@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using bris_API.DTOs;
+using System.Collections.Generic;
 
 namespace bris_API.Controllers
 {
@@ -9,12 +10,9 @@ namespace bris_API.Controllers
         Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioDTO modelUsuario);
         Task<IActionResult> GetUsuarioPorId(int id);
         Task<IActionResult> EditarUsuario(int id, [FromBody] EditarUsuarioDTO modelUsuario);
-        Task<IActionResult> GetUsuariosPendentes();
-        Task<IActionResult> AtivarUsuarioPendente(int id, [FromBody] AtivarUsuarioDto modelAtivar);
+        Task<IActionResult> InativarUsuario(int id);
         Task<IActionResult> GetUsuariosInativos();
-        Task<IActionResult> ReativarUsuarioInativo(int id, [FromBody] AtivarUsuarioDto modelAtivar);
+        Task<IActionResult> ReativarUsuarioInativo(int id, [FromBody] List<VinculoDTO> novosVinculos);
         Task<IActionResult> GetVinculosPorUsuario(int id);
-        Task<IActionResult> EditarVinculo(int vinculoId, [FromBody] SetVinculoDTO modelVinculo);
-        Task<IActionResult> AdicionarVinculoPorUsuario(int id, [FromBody] SetVinculoDTO modelVinculo);
     }
 }

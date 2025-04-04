@@ -17,16 +17,15 @@ namespace bris_API.DTOs
         [RegularExpression(@"^\d{11}$", ErrorMessage = "O CPF deve conter apenas números.")]
         public required string CPF { get; set; }
 
+        [Phone(ErrorMessage = "Número de telefone inválido.")]
+        public string? Telefone { get; set; }
+
         [Required(ErrorMessage = "A senha é obrigatória.")]
         [StringLength(100, MinimumLength = 6, ErrorMessage = "A senha deve ter entre 6 e 100 caracteres.")]
         public required string Senha { get; set; }
 
-        [Required(ErrorMessage = "A role do usuário é obrigatória.")]
-        [Range(1, int.MaxValue, ErrorMessage = "O id da role de usuário deve ser um valor positivo.")]
-        public int RoleId { get; set; }
-        public int? AgroindustriaId { get; set; }
-        public int? GranjaId { get; set; }
-        
-
+        [Required(ErrorMessage = "Pelo menos um vínculo deve ser informado.")]
+        [MinLength(1, ErrorMessage = "Deve haver pelo menos um vínculo.")]
+        public List<VinculoDTO> Vinculos { get; set; } = new List<VinculoDTO>();
     }
 }

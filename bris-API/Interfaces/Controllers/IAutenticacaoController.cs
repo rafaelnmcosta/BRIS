@@ -7,7 +7,7 @@ namespace bris_API.Controllers
     {
         Task<IActionResult> Cadastro(AutoCadastroDTO modelUsuario);
         Task<IActionResult> Login(LoginDto modelLogin);
-        Task<IActionResult> Logout();
+        IActionResult Logout();
         Task<IActionResult> GetVinculos();
         Task<IActionResult> SelecionarVinculo(int id);
         Task<IActionResult> ProcessarRecuperacaoSenha(RecuperarSenhaDto model);
