@@ -32,9 +32,23 @@ export const usuarios = {
     }
   },
 
-  editarUsuario: async (id, userData) => {
+  editarUsuario: async (userData) => { 
     try {
-      const response = await api.put(endpoints.usuarios.editarUsuario(id), userData);
+      const response = await api.put(
+        endpoints.usuarios.editarUsuario(userData.id),
+        {
+          Nome: userData.nome,
+          Email: userData.email,
+          CPF: userData.cpf,
+          Telefone: userData.telefone,
+          Senha: userData.senha || undefined, 
+          Vinculos: userData.vinculos?.map(v => ({
+            RoleId: v.roleId, 
+            GranjaId: v.granjaId || null,
+            AgroindustriaId: v.agroindustriaId || null
+          }))
+        }
+      );
       return response.data;
     } catch (error) {
       console.error('Erro ao editar usuário:', error);
@@ -68,26 +82,6 @@ export const usuarios = {
       return response.data;
     } catch (error) {
       console.error('Erro ao listar vínculos do usuário:', error);
-      throw error.response ? error.response.data : error;
-    }
-  },
-
-  adicionarVinculoUsuario: async (id, vinculoData) => {
-    try {
-      const response = await api.post(endpoints.usuarios.adicionarVinculoUsuario(id), vinculoData);
-      return response.data;
-    } catch (error) {
-      console.error('Erro ao adicionar vínculo ao usuário:', error);
-      throw error.response ? error.response.data : error;
-    }
-  },
-
-  desativarUsuario: async (id) => {
-    try {
-      const response = await api.delete(endpoints.usuarios.desativarUsuario(id));
-      return response.data;
-    } catch (error) {
-      console.error('Erro ao desativar usuário:', error);
       throw error.response ? error.response.data : error;
     }
   },

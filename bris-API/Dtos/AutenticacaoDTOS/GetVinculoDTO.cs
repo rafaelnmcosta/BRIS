@@ -4,7 +4,10 @@ namespace bris_API.DTOs
     {
         public required int Id { get; set; }
         public required string Role { get; set; } // role referida no vinculo
-        public string? NomeGranja { get; set; }
+        public int RoleId { get; set; }
         public string? NomeAgroindustria { get; set; }
+        public int? AgroindustriaId { get; set; }
+        public string? NomeGranja { get; set; }
+        public int? GranjaId { get; set; }
     }
 }

@@ -17,6 +17,7 @@ import Home from './pages/Home';
 import Teste from './pages/Teste';
 import TabelaUsuarios from './pages/TabelaUsuarios';
 import CadastroUsuario from './pages/CadastroUsuario';
+import EdicaoUsuario from './pages/EdicaoUsuario';
 
 function App() {
   return (
@@ -27,7 +28,7 @@ function App() {
           <Routes>
             {/* Rotas públicas */}
             <Route path='/login' element={<Login />} />
-            <Route path='/teste' element={<CadastroUsuario />} />
+            <Route path='/teste/:id/editar' element={<EdicaoUsuario />} />
 
             {/* Rotas protegidas por isLogged */}
             <Route element={<LoggedRoute />}>
@@ -39,7 +40,8 @@ function App() {
               <Route path='/home' element={<Home />} />
               <Route path='/teste' element={<Teste />} />
               <Route path='/usuarios' element={<TabelaUsuarios />} />
-              <Route path="/usuarios/cadastrar" element={<CadastroUsuario />} />
+              <Route path='/usuarios/cadastrar' element={<CadastroUsuario />} />
+              <Route path='/usuarios/:id/editar' element={<EdicaoUsuario />} />
             </Route>
           </Routes>
         </AuthProvider>

@@ -12,7 +12,7 @@ namespace bris_API.Controllers
         Task<IActionResult> EditarUsuario(int id, [FromBody] EditarUsuarioDTO modelUsuario);
         Task<IActionResult> InativarUsuario(int id);
         Task<IActionResult> GetUsuariosInativos();
-        Task<IActionResult> ReativarUsuarioInativo(int id, [FromBody] List<VinculoDTO> novosVinculos);
+        Task<IActionResult> ReativarUsuarioInativo(int id, [FromBody] List<SetVinculoDTO> novosVinculos);
         Task<IActionResult> GetVinculosPorUsuario(int id);
     }
 }

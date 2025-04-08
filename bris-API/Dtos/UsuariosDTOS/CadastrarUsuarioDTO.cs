@@ -26,6 +26,6 @@ namespace bris_API.DTOs
 
         [Required(ErrorMessage = "Pelo menos um vínculo deve ser informado.")]
         [MinLength(1, ErrorMessage = "Deve haver pelo menos um vínculo.")]
-        public List<VinculoDTO> Vinculos { get; set; } = new List<VinculoDTO>();
+        public List<SetVinculoDTO> Vinculos { get; set; } = new List<SetVinculoDTO>();
     }
 }

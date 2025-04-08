@@ -89,7 +89,6 @@ const ModalVinculos = ({ visible, onCancelar, onSalvar }) => {
                 <div className="bg-white p-6 rounded-lg w-96 shadow-xl">
                     <div className="flex justify-between items-center mb-4 border-b pb-2">
                         <h2 className="text-xl font-bold text-green-dark">Adicionar Vínculo</h2>
-                        <p>agro:{userData.agroindustriaId}; granja:{userData.granjaId}; role:{userData.role}</p>
                         <button onClick={handleCancel} className="text-gray-500 hover:text-gray-700 text-2xl">
                             ×
                         </button>

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace bris_API.DTOs
 {
-    public class VinculoDTO
+    public class SetVinculoDTO
     {
         [Required(ErrorMessage = "O ID da função é obrigatório.")]
         [Range(1, int.MaxValue, ErrorMessage = "ID da função inválido.")]

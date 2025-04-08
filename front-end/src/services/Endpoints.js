@@ -60,10 +60,8 @@ const endpoints = {
     editarUsuario: (id) => `${API_BASE_URL}/usuarios/editar/${id}`,
     listarUsuariosInativos: `${API_BASE_URL}/usuarios/inativos`,
     reativarUsuario: (id) => `${API_BASE_URL}/usuarios/reativar/${id}`,
-    listarVinculosUsuario: (id) => `${API_BASE_URL}/usuarios/vinculos/${id}`,
-    adicionarVinculoUsuario: (id) => `${API_BASE_URL}/usuarios/novo-vinculo/${id}`,
-    desativarUsuario: (id) => `${API_BASE_URL}/usuarios/inativar/${id}`,
-    inativarUsuario: (id) => `${API_BASE_URL}/usuarios/inativar/${id}`
+    inativarUsuario: (id) => `${API_BASE_URL}/usuarios/inativar/${id}`,
+    listarVinculos: (id) => `${API_BASE_URL}/usuarios/vinculos/${id}`
   },
 };
 

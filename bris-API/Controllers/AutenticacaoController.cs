@@ -201,8 +201,11 @@ namespace bris_API.Controllers
                     {
                         Id = v.Id,
                         Role = v.Role?.Nome ?? "!!! Role não definida !!!",
+                        RoleId = v.RoleId,
+                        NomeAgroindustria = v.Agroindustria?.NomeFantasia,
+                        AgroindustriaId = v.AgroindustriaId,
                         NomeGranja = v.Granja?.NomePropriedade,
-                        NomeAgroindustria = v.Agroindustria?.NomeFantasia
+                        GranjaId = v.GranjaId
                     }).ToList();
 
                     return Ok(vinculosDTOS);
@@ -240,8 +243,11 @@ namespace bris_API.Controllers
                     {
                         Id = v.Id,
                         Role = v.Role?.Nome ?? "!!! Role não definida !!!",
+                        RoleId = v.RoleId,
+                        NomeAgroindustria = v.Agroindustria?.NomeFantasia,
+                        AgroindustriaId = v.AgroindustriaId,
                         NomeGranja = v.Granja?.NomePropriedade,
-                        NomeAgroindustria = v.Agroindustria?.NomeFantasia
+                        GranjaId = v.GranjaId
                     }).ToList();
 
                     return Ok(vinculosDTOS);

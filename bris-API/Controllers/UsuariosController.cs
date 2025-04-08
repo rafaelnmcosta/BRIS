@@ -90,8 +90,11 @@ namespace bris_API.Controllers
                             {
                                 Id = v.Id,
                                 Role = v.Role.Nome,
+                                RoleId = v.RoleId,
                                 NomeAgroindustria = v.Agroindustria != null ? v.Agroindustria.NomeFantasia : null,
-                                NomeGranja = v.Granja != null ? v.Granja.NomePropriedade : null
+                                AgroindustriaId = v.AgroindustriaId != null ? v.AgroindustriaId : null,
+                                NomeGranja = v.Granja != null ? v.Granja.NomePropriedade : null,
+                                GranjaId = v.GranjaId != null ? v.GranjaId : null
                             }).ToList()
                     })
                     .ToListAsync();
@@ -224,20 +227,27 @@ namespace bris_API.Controllers
                 // Mapeia o usuário para o DTO, filtrando os vínculos conforme a role.
                 var usuarioDTO = new GetUsuarioDTO
                 {
+                    Id = usuario.Id,
                     Nome = usuario.Nome,
                     Email = usuario.Email,
                     CPF = usuario.CPF,
+                    Telefone = usuario.Telefone,
+                    DataCadastro = usuario.DataCadastro,
+                    UltimoLogin = usuario.UltimoLogin,
                     Vinculos = usuario.Vinculos
-                        .Where(v => Role == "ADMIN" ||
-                                    (Role == "GESTOR_AGRO" && v.AgroindustriaId == agroindustriaId) ||
-                                    (Role == "GESTOR_GRANJA" && v.GranjaId == granjaId))
-                        .Select(v => new GetVinculoDTO
-                        {
-                            Id = v.Id,
-                            Role = v.Role.Nome,
-                            NomeGranja = v.Granja?.NomePropriedade,
-                            NomeAgroindustria = v.Agroindustria?.NomeFantasia
-                        }).ToList()
+                .Where(v => Role == "ADMIN" ||
+                            (Role == "GESTOR_AGRO" && v.AgroindustriaId == agroindustriaId) ||
+                            (Role == "GESTOR_GRANJA" && v.GranjaId == granjaId))
+                .Select(v => new GetVinculoDTO
+                {
+                    Id = v.Id,
+                    Role = v.Role.Nome,
+                    RoleId = v.RoleId,
+                    NomeAgroindustria = v.Agroindustria?.NomeFantasia,
+                    AgroindustriaId = v.AgroindustriaId,
+                    NomeGranja = v.Granja?.NomePropriedade,
+                    GranjaId = v.GranjaId
+                }).ToList()
                 };
 
                 return Ok(usuarioDTO);
@@ -258,12 +268,12 @@ namespace bris_API.Controllers
         [HttpPut("editar/{id}")]
         public async Task<IActionResult> EditarUsuario(int id, [FromBody] EditarUsuarioDTO modelUsuario)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 var Role = User.FindFirst(ClaimTypes.Role)?.Value;
                 var vinculoId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
-                // Obtém os IDs da Agroindústria e Granja do vínculo do usuário autenticado.
                 var agroindustriaId = _context.Vinculos
                     .Where(v => v.Id == vinculoId)
                     .Select(v => v.AgroindustriaId)
@@ -274,30 +284,27 @@ namespace bris_API.Controllers
                     .Select(v => v.GranjaId)
                     .FirstOrDefault();
 
-                // Verifica se o usuário a ser editado existe e carrega seus vínculos.
                 var usuario = await _context.Usuarios
                     .Include(u => u.Vinculos)
                     .FirstOrDefaultAsync(u => u.Id == id);
 
-                if (usuario == null)
-                {
-                    return NotFound("Usuário não encontrado!");
-                }
+                if (usuario == null) return NotFound("Usuário não encontrado!");
 
-                // Aplica restrições de edição conforme a role do usuário autenticado.
-                if (Role == "GESTOR_AGRO" && !usuario.Vinculos.Any(v => v.AgroindustriaId == agroindustriaId) ||
-                    Role == "GESTOR_GRANJA" && !usuario.Vinculos.Any(v => v.GranjaId == granjaId))
+                // Verificação de permissão
+                if ((Role == "GESTOR_AGRO" && !usuario.Vinculos.Any(v => v.AgroindustriaId == agroindustriaId)) ||
+                    (Role == "GESTOR_GRANJA" && !usuario.Vinculos.Any(v => v.GranjaId == granjaId)))
                 {
                     return Forbid("Você não tem permissão para editar este usuário.");
                 }
 
-                // Atualiza os campos do usuário
+                // Atualização dos campos básicos
                 usuario.Nome = modelUsuario.Nome;
                 usuario.Email = modelUsuario.Email;
                 usuario.CPF = modelUsuario.CPF;
+                usuario.Telefone = modelUsuario.Telefone; // Novo campo adicionado
 
-                // Atualiza a senha se um novo valor for fornecido
-                if (modelUsuario.Senha != null)
+                // Atualização de senha
+                if (!string.IsNullOrEmpty(modelUsuario.Senha))
                 {
                     var senha = await _context.Senhas.FirstOrDefaultAsync(s => s.UsuarioId == id);
                     if (senha != null)
@@ -308,11 +315,65 @@ namespace bris_API.Controllers
                     }
                 }
 
+                // Gerenciamento de vínculos
+                if (modelUsuario.Vinculos != null)
+                {
+                    // Remover vínculos existentes conforme permissões
+                    var vinculosParaRemover = Role switch
+                    {
+                        "GESTOR_AGRO" => usuario.Vinculos
+                            .Where(v => v.AgroindustriaId == agroindustriaId).ToList(),
+                        "GESTOR_GRANJA" => usuario.Vinculos
+                            .Where(v => v.GranjaId == granjaId).ToList(),
+                        "ADMIN" => usuario.Vinculos.ToList(),
+                        _ => new List<Vinculo>()
+                    };
+
+                    foreach (var vinculo in vinculosParaRemover)
+                    {
+                        usuario.Vinculos.Remove(vinculo);
+                    }
+
+                    // Adicionar novos vínculos com validação
+                    foreach (var vinculoDto in modelUsuario.Vinculos)
+                    {
+                        // Validação de permissões
+                        /* if (Role == "GESTOR_AGRO" &&
+                            (vinculoDto.AgroindustriaId != agroindustriaId || vinculoDto.GranjaId != null))
+                        {
+                            return Forbid("Não pode criar vínculos fora da sua agroindústria");
+                        }
+
+                        if (Role == "GESTOR_GRANJA" &&
+                            (vinculoDto.GranjaId != granjaId || vinculoDto.AgroindustriaId != null))
+                        {
+                            return Forbid("Não pode criar vínculos fora da sua granja");
+                        } */
+
+                        // Verificar se a role existe
+                        if (!await _context.Roles.AnyAsync(r => r.Id == vinculoDto.RoleId))
+                        {
+                            return BadRequest($"Role ID {vinculoDto.RoleId} inválida");
+                        }
+
+                        usuario.Vinculos.Add(new Vinculo
+                        {
+                            RoleId = vinculoDto.RoleId,
+                            AgroindustriaId = vinculoDto.AgroindustriaId,
+                            GranjaId = vinculoDto.GranjaId,
+                            UsuarioId = usuario.Id
+                        });
+                    }
+                }
+
                 await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
                 return Ok(new { message = "Usuário atualizado com sucesso!" });
             }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync();
                 return StatusCode(500, "Erro ao editar usuário: " + ex.Message);
             }
         }
@@ -420,8 +481,11 @@ namespace bris_API.Controllers
                             {
                                 Id = v.Id,
                                 Role = v.Role.Nome,
+                                RoleId = v.RoleId,
                                 NomeAgroindustria = v.Agroindustria != null ? v.Agroindustria.NomeFantasia : null,
-                                NomeGranja = v.Granja != null ? v.Granja.NomePropriedade : null
+                                AgroindustriaId = v.AgroindustriaId != null ? v.AgroindustriaId : null,
+                                NomeGranja = v.Granja != null ? v.Granja.NomePropriedade : null,
+                                GranjaId = v.GranjaId != null ? v.GranjaId : null
                             }).ToList()
                     })
                     .ToListAsync();
@@ -439,7 +503,7 @@ namespace bris_API.Controllers
         /// </summary>
         [Authorize(Policy = "GerenciaUsuarios")]
         [HttpPut("reativar/{id}")]
-        public async Task<IActionResult> ReativarUsuarioInativo(int id, [FromBody] List<VinculoDTO> novosVinculos)
+        public async Task<IActionResult> ReativarUsuarioInativo(int id, [FromBody] List<SetVinculoDTO> novosVinculos)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -476,27 +540,27 @@ namespace bris_API.Controllers
                 _context.Vinculos.RemoveRange(vinculosInativos);
 
                 // Validar e adicionar novos vínculos
-                foreach (var vinculoDto in novosVinculos)
+                foreach (var setVinculoDto in novosVinculos)
                 {
                     // Verificar permissões para cada vínculo
-                    if (role == "GESTOR_AGRO" &&
-                        vinculoDto.AgroindustriaId != vinculoAutenticado.AgroindustriaId)
+                    /* if (role == "GESTOR_AGRO" &&
+                        setVinculoDto.AgroindustriaId != vinculoAutenticado.AgroindustriaId)
                     {
                         return Forbid("Você só pode associar à sua própria agroindústria");
                     }
 
                     if (role == "GESTOR_GRANJA" &&
-                        vinculoDto.GranjaId != vinculoAutenticado.GranjaId)
+                        setVinculoDto.GranjaId != vinculoAutenticado.GranjaId)
                     {
                         return Forbid("Você só pode associar à sua própria granja");
-                    }
+                    } */
 
                     _context.Vinculos.Add(new Vinculo
                     {
                         UsuarioId = usuario.Id,
-                        RoleId = vinculoDto.RoleId,
-                        AgroindustriaId = vinculoDto.AgroindustriaId,
-                        GranjaId = vinculoDto.GranjaId,
+                        RoleId = setVinculoDto.RoleId,
+                        AgroindustriaId = setVinculoDto.AgroindustriaId,
+                        GranjaId = setVinculoDto.GranjaId,
                         DataCriacao = DateTime.UtcNow
                     });
                 }
@@ -562,8 +626,11 @@ namespace bris_API.Controllers
                     {
                         Id = v.Id,
                         Role = v.Role.Nome,
+                        RoleId = v.RoleId,
                         NomeAgroindustria = v.Agroindustria != null ? v.Agroindustria.NomeFantasia : null,
-                        NomeGranja = v.Granja != null ? v.Granja.NomePropriedade : null
+                        AgroindustriaId = v.AgroindustriaId != null ? v.AgroindustriaId : null,
+                        NomeGranja = v.Granja != null ? v.Granja.NomePropriedade : null,
+                        GranjaId = v.GranjaId != null ? v.GranjaId : null
                     })
                     .ToListAsync();
 

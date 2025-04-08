@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Select, Spin } from 'antd';
 import debounce from 'lodash/debounce';
 import { granjas } from '../../api/granjasAPI';
@@ -25,30 +25,6 @@ const SeletorBuscaDinamica = ({
       throw new Error('Endpoint não suportado ou com erro');
     }
   }, [endpoint, agroindustriaId]);
-
-/*   // Carrega valor inicial quando o componente monta (opcional)
-  useEffect(() => {
-    const loadInitialValue = async () => {
-      if (!onChange) return; // Se o onChange não estiver definido, não faz sentido carregar o valor
-      try {
-        setFetching(true);
-        const response = await getAPIMethod('');
-        // Se o Form.Item está controlando o valor, o próprio Form deverá definir o valor atual.
-        // Mas se você precisar carregar uma opção inicial que não esteja nas opções:
-        // Suponha que você tenha acesso a um valor inicial (por exemplo, o valor atual do campo):
-        // const valorAtual = value; // se você quiser usar o valor passado via Form, porém agora deixado de fora do componente.
-        // Se valorAtual estiver presente:
-        // const item = response.find(i => i.id === valorAtual);
-        // if (item) { ... }
-      } catch (error) {
-        console.error('Erro ao carregar valor inicial:', error);
-      } finally {
-        setFetching(false);
-      }
-    };
-
-    loadInitialValue();
-  }, [getAPIMethod]); */
 
   const debouncedSearch = debounce(async (searchValue) => {
     try {
