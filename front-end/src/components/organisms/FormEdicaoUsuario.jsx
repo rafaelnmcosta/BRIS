@@ -12,6 +12,7 @@ const FormEdicaoUsuario = ({
     vinculos,
     onRemoverVinculo
 }) => {
+    
     const [vinculoParaRemover, setVinculoParaRemover] = useState(null);
     const [showRemoverVinculo, setShowRemoverVinculo] = useState(false);
 
@@ -138,8 +139,8 @@ const FormEdicaoUsuario = ({
                     <div key={vinculo.id} className="p-3 mb-2 border rounded-lg flex justify-between items-center">
                         <div>
                             <p>Perfil: {vinculo.roleId}</p>
-                            {vinculo.nomeGranja && <p>Granja: {vinculo.granjaId}</p>}
-                            {vinculo.nomeAgroindustria && <p>Agroindústria: {vinculo.agroindustriaId}</p>}
+                            {vinculo.granjaId && <p>Granja: {vinculo.granjaId}</p>}
+                            {vinculo.agroindustriaId && <p>Agroindústria: {vinculo.agroindustriaId}</p>}
                         </div>
                         <button
                             type="button"

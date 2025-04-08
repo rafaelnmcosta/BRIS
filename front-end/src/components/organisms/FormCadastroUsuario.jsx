@@ -3,7 +3,13 @@ import InputSemBordaComLabel from '../molecules/InputSemBordaComLabel';
 import BotaoPrimario from '../atoms/BotaoPrimario';
 import { UserOutlined, MailOutlined, IdcardOutlined, PhoneOutlined, LockOutlined, PlusOutlined } from '@ant-design/icons';
 
-const FormCadastroUsuario = ({ onSubmit, erros, vinculos, onAbrirModal }) => {
+const FormCadastroUsuario = ({ 
+    onSubmit,
+    erros,
+    vinculos,
+    onAbrirModal
+}) => {
+    
     const [formData, setFormData] = React.useState({
         nome: '',
         email: '',

@@ -59,7 +59,8 @@ namespace bris_API.Controllers
                     .Include(u => u.Vinculos)
                         .ThenInclude(v => v.Agroindustria)
                     .Include(u => u.Vinculos)
-                        .ThenInclude(v => v.Granja);
+                        .ThenInclude(v => v.Granja)
+                    .Where(u => !u.Vinculos.Any(v => v.RoleId == 99));
 
                 if (Role == "GESTOR_AGRO")
                 {
