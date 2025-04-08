@@ -72,7 +72,9 @@ export const autenticacao = {
                     status: response.data.status,
                     role: response.data.role,
                     granja: response.data.granja,
+                    granjaId: response.data.granjaId,
                     agroindustria: response.data.agroindustria,
+                    agroindustriaId: response.data.agroindustriaId,
                     usuarioNome: response.data.usuarioNome
                 };
             } else if (response.data.status === 'logado') {

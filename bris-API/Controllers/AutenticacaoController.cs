@@ -401,7 +401,9 @@ namespace bris_API.Controllers
                 {
                     Role = User.FindFirst(ClaimTypes.Role)?.Value,
                     Granja = User.FindFirst("Granja")?.Value,
+                    GranjaId = User.FindFirst("GranjaId")?.Value,
                     Agroindustria = User.FindFirst("Agroindustria")?.Value,
+                    AgroindustriaId = User.FindFirst("AgroindustriaId")?.Value,
                     UsuarioNome = User.FindFirst("UsuarioNome")?.Value,
                     UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                 };
@@ -423,7 +425,9 @@ namespace bris_API.Controllers
                     status = "autenticado",
                     claims.Role,
                     claims.Granja,
+                    claims.GranjaId,
                     claims.Agroindustria,
+                    claims.AgroindustriaId,
                     claims.UsuarioNome
                 });
             }

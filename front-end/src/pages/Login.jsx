@@ -7,7 +7,7 @@ const Login = () => {
   const { login } = useAuth();
 
   const handleLogin = async ({ email, senha }) => {
-    login({ email, senha });  // Chama a função login do contexto
+    login({ email, senha });  // Chama a função login do AuthContext
   };
 
   return (

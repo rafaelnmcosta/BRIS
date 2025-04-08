@@ -41,7 +41,8 @@ const endpoints = {
   },
   granjas: {
     listar: `${API_BASE_URL}/granjas`,
-    listarInativos: `${API_BASE_URL}/granjas/ativar`,
+    listarPorAgroindustria: (id) => `${API_BASE_URL}/granjas/agro/${id}`,
+    listarInativas: `${API_BASE_URL}/granjas/ativar`,
     ativar: (id) => `${API_BASE_URL}/granjas/ativar/${id}`,
     detalhes: (id) => `${API_BASE_URL}/granjas/${id}`,
     editar: (id) => `${API_BASE_URL}/granjas/${id}/editar`,
@@ -57,14 +58,13 @@ const endpoints = {
     cadastrarUsuario: `${API_BASE_URL}/usuarios/cadastrar`,
     detalhesUsuario: (id) => `${API_BASE_URL}/usuarios/${id}`,
     editarUsuario: (id) => `${API_BASE_URL}/usuarios/editar/${id}`,
-    listarUsuariosPendentes: `${API_BASE_URL}/usuarios/ativar`,
-    ativarUsuario: (id) => `${API_BASE_URL}/usuarios/ativar/${id}`,
-    listarUsuariosInativos: `${API_BASE_URL}/usuarios/reativar`,
+    listarUsuariosInativos: `${API_BASE_URL}/usuarios/inativos`,
     reativarUsuario: (id) => `${API_BASE_URL}/usuarios/reativar/${id}`,
     listarVinculosUsuario: (id) => `${API_BASE_URL}/usuarios/vinculos/${id}`,
-    editarVinculoUsuario: (id) => `${API_BASE_URL}/usuarios/vinculos/editar/${id}`,
-    adicionarVinculoUsuario: (id) => `${API_BASE_URL}/usuarios/novo-vinculo/${id}`
-  }
+    adicionarVinculoUsuario: (id) => `${API_BASE_URL}/usuarios/novo-vinculo/${id}`,
+    desativarUsuario: (id) => `${API_BASE_URL}/usuarios/inativar/${id}`,
+    inativarUsuario: (id) => `${API_BASE_URL}/usuarios/inativar/${id}`
+  },
 };
 
 export default endpoints;

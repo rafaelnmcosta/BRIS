@@ -147,7 +147,7 @@ namespace bris_API.Controllers
         /// <param name="modelAgroindustria">Dados da nova agroindústria.</param>
         /// <returns>Agroindústria criada, com status Created.</returns>
         [Authorize(Policy = "GerenciaTotal")]
-        [HttpPost("cadastro")]
+        [HttpPost("cadastrar")]
         public async Task<ActionResult<Agroindustria>> PostAgroindustria([FromBody] AgroindustriaDTO modelAgroindustria)
         {
             // Cria uma nova instância de Agroindustria com os dados fornecidos

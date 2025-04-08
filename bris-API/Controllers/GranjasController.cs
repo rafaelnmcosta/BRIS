@@ -40,6 +40,47 @@ namespace bris_API.Controllers
         }
 
         /// <summary>
+        /// Busca granjas por Agroindústria
+        /// </summary>
+        /// <param name="id">ID da Agroindústria</param>
+        /// <returns>Lista de granjas vinculadas com detalhes completos</returns>
+        [HttpGet("agro/{id}")]
+        public async Task<IActionResult> GetGranjasPorAgroindustria(int id)
+        {
+            try
+            {
+                var granjas = await _context.Granjas
+                    .Where(g => g.AgroindustriaId == id)
+                    .Include(g => g.Agroindustria)
+                    .Select(g => new GetGranjaDTO
+                    {
+                        Id = g.Id,
+                        NomePropriedade = g.NomePropriedade,
+                        Endereco = g.Endereco,
+                        CNPJ = g.CNPJ,
+                        DataCadastro = g.DataCadastro,
+                        Ativo = g.Ativo,
+                        Agroindustria = new GetAgroindustriaDTO
+                        {
+                            Id = g.Agroindustria.Id,
+                            NomeFantasia = g.Agroindustria.NomeFantasia,
+                            RazaoSocial = g.Agroindustria.RazaoSocial,
+                            CNPJ = g.Agroindustria.CNPJ,
+                            DataCadastro = g.Agroindustria.DataCadastro,
+                            Ativo = g.Agroindustria.Ativo
+                        }
+                    })
+                    .ToListAsync();
+
+                return Ok(granjas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao buscar granjas: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// Obtém a lista de granjas inativas.
         /// </summary>
         /// <returns>Lista de granjas inativas.</returns>

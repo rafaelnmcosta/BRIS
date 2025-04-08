@@ -28,7 +28,9 @@ export const AuthProvider = ({ children }) => {
           setIsAuthenticated(true);
           setUserData({ // Armazena todos os dados do usuário
             role: resposta.role,
+            granjaId : resposta.granjaId,
             granja: resposta.granja,
+            agroindustriaId: resposta.agroindustriaId,
             agroindustria: resposta.agroindustria,
             nome: resposta.usuarioNome
           });

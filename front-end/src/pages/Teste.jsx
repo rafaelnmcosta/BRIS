@@ -3,6 +3,7 @@ import { useAuth } from '../services/AuthContext';
 import BotaoPrimario from '../components/atoms/BotaoPrimario';
 import FormAutoCadastro from '../components/organisms/FormAutoCadastro';
 import FormLogin from '../components/organisms/FormLogin';
+import CadastroUsuario from './CadastroUsuario';
 
 const Teste = () => {
   const { isAuthenticated, login, logout } = useAuth();

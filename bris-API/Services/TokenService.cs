@@ -37,7 +37,7 @@ namespace bris_API.Services
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiresInMinutes"])),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                
+
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"]
             };
@@ -62,7 +62,7 @@ namespace bris_API.Services
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiresInMinutes"])),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                
+
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"]
             };
@@ -104,7 +104,8 @@ namespace bris_API.Services
             var acessoLogin = context.Principal.FindFirst("AcessoLogin")?.Value;
 
             // Pula a validação se o usuário acabou de fazer login está escolhendo o vínculo ainda
-            if (string.IsNullOrEmpty(acessoLogin)){
+            if (string.IsNullOrEmpty(acessoLogin))
+            {
 
                 // Valida se o Ip e o Agent da requisição são iguais aos presentes no token
                 var currentIp = context.HttpContext.Connection.RemoteIpAddress?.ToString();
@@ -120,7 +121,8 @@ namespace bris_API.Services
                 var vinculoIdClaim = context.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 // Valida se o ID do vinculo é um valor numérico válido
-                if (!int.TryParse(vinculoIdClaim, out int vinculoId)){
+                if (!int.TryParse(vinculoIdClaim, out int vinculoId))
+                {
                     context.Fail("O Id contido no token não é um valor numérico válido!");
                 }
 
@@ -144,10 +146,18 @@ namespace bris_API.Services
                     {
                         var identity = context.Principal.Identity as ClaimsIdentity;
                         identity?.AddClaim(new Claim(ClaimTypes.Role, vinculo.Role?.Nome ?? "N/A"));
+
+                        // Granja - Nome e ID
                         identity?.AddClaim(new Claim("Granja", vinculo.Granja?.NomePropriedade ?? "N/A"));
+                        identity?.AddClaim(new Claim("GranjaId", vinculo.Granja?.Id.ToString() ?? "0"));  // Usando ID numérico
+
+                        // Agroindústria - Nome e ID
                         identity?.AddClaim(new Claim("Agroindustria", vinculo.Agroindustria?.NomeFantasia ?? "N/A"));
+                        identity?.AddClaim(new Claim("AgroindustriaId", vinculo.Agroindustria?.Id.ToString() ?? "0"));  // Usando ID numérico
+
+                        // Usuário
                         identity?.AddClaim(new Claim("UsuarioNome", vinculo.Usuario?.Nome ?? "N/A"));
-                        
+
                         Console.WriteLine("Claims adicionadas com sucesso!");
                     }
 
@@ -178,19 +188,19 @@ namespace bris_API.Services
             if (timeToExpire.TotalMinutes < renewThreshold)
             {
                 // Validação das claims obrigatórias
-                var userId = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                var userId = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value
                     ?? throw new SecurityTokenException("Claim 'NameIdentifier' ausente.");
-                
-                var userIp = context.Principal?.FindFirst("UserIP")?.Value 
+
+                var userIp = context.Principal?.FindFirst("UserIP")?.Value
                     ?? throw new SecurityTokenException("Claim 'UserIP' ausente.");
-                
-                var userAgent = context.Principal?.FindFirst("UserAgent")?.Value 
+
+                var userAgent = context.Principal?.FindFirst("UserAgent")?.Value
                     ?? throw new SecurityTokenException("Claim 'UserAgent' ausente.");
 
                 // Geração do novo token
                 var acessoLogin = context.Principal?.FindFirst("AcessoLogin")?.Value;
-                string newToken = string.IsNullOrEmpty(acessoLogin) 
-                    ? GenerateTokenVinculo(userId, userIp, userAgent) 
+                string newToken = string.IsNullOrEmpty(acessoLogin)
+                    ? GenerateTokenVinculo(userId, userIp, userAgent)
                     : GenerateTokenLogin(userId, userIp, userAgent);
 
                 SetCookieToken(context.HttpContext, newToken);

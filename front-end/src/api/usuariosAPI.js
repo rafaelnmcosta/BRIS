@@ -42,26 +42,6 @@ export const usuarios = {
     }
   },
 
-  listarUsuariosPendentes: async () => {
-    try {
-      const response = await api.get(endpoints.usuarios.listarUsuariosPendentes);
-      return response.data;
-    } catch (error) {
-      console.error('Erro ao listar usuários pendentes:', error);
-      throw error.response ? error.response.data : error;
-    }
-  },
-
-  ativarUsuario: async (id) => {
-    try {
-      const response = await api.put(endpoints.usuarios.ativarUsuario(id));
-      return response.data;
-    } catch (error) {
-      console.error('Erro ao ativar usuário:', error);
-      throw error.response ? error.response.data : error;
-    }
-  },
-
   listarUsuariosInativos: async () => {
     try {
       const response = await api.get(endpoints.usuarios.listarUsuariosInativos);
@@ -72,9 +52,9 @@ export const usuarios = {
     }
   },
 
-  reativarUsuario: async (id) => {
+  reativarUsuario: async (id, novosVinculos) => {
     try {
-      const response = await api.put(endpoints.usuarios.reativarUsuario(id));
+      const response = await api.put(endpoints.usuarios.reativarUsuario(id), { novosVinculos });
       return response.data;
     } catch (error) {
       console.error('Erro ao reativar usuário:', error);
@@ -88,16 +68,6 @@ export const usuarios = {
       return response.data;
     } catch (error) {
       console.error('Erro ao listar vínculos do usuário:', error);
-      throw error.response ? error.response.data : error;
-    }
-  },
-
-  editarVinculoUsuario: async (id, vinculoData) => {
-    try {
-      const response = await api.put(endpoints.usuarios.editarVinculoUsuario(id), vinculoData);
-      return response.data;
-    } catch (error) {
-      console.error('Erro ao editar vínculo do usuário:', error);
       throw error.response ? error.response.data : error;
     }
   },
@@ -118,6 +88,16 @@ export const usuarios = {
       return response.data;
     } catch (error) {
       console.error('Erro ao desativar usuário:', error);
+      throw error.response ? error.response.data : error;
+    }
+  },
+
+  inativarUsuario: async (id) => {
+    try {
+      const response = await api.put(endpoints.usuarios.inativarUsuario(id));
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao inativar usuário:', error);
       throw error.response ? error.response.data : error;
     }
   }
