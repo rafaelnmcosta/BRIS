@@ -40,8 +40,9 @@ builder.Services.AddCors(options =>
             builder.WithOrigins(
                 "https://frontend-bris:443",  // Serviço do proxy reverso no docker-compose
                 "https://200.137.215.116",
-		"https://localhost:443",
-                "http://localhost:3000"
+		        "https://localhost:443",
+                "http://localhost:3000",
+                "http://localhost:5000"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
@@ -50,7 +51,7 @@ builder.Services.AddCors(options =>
 });
 
 
-// Configuração da Autenticação JWT
+// Configuração da Autenticação Jwt
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -67,7 +68,7 @@ builder.Services.AddAuthentication(options =>
         string.IsNullOrEmpty(builder.Configuration["Jwt:RenewInMinutesLeft"])
     )
     {
-        throw new Exception("Configurações de JWT ausentes ou inválidas.");
+        throw new Exception("Configurações de Jwt ausentes ou inválidas.");
     }
 
     options.TokenValidationParameters = new TokenValidationParameters

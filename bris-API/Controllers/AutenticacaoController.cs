@@ -97,7 +97,7 @@ namespace bris_API.Controllers
 
         /// <summary>
         /// Endpoint para login de usuário.
-        /// Verifica as credenciais do usuário e, se corretas, gera um token JWT e configura um cookie HTTP-Only com o token.
+        /// Verifica as credenciais do usuário e, se corretas, gera um token Jwt e configura um cookie HTTP-Only com o token.
         /// </summary>
         /// <param name="modelLogin">Dados de login (email e senha).</param>
         /// <returns>Mensagem de sucesso ou erro.</returns>
@@ -121,7 +121,7 @@ namespace bris_API.Controllers
                 var userIp = HttpContext.Connection.RemoteIpAddress?.ToString();
                 var userAgent = Request.Headers["User-Agent"].ToString();
 
-                // Gera o token JWT com o ID do usuário e os dados da requisição
+                // Gera o token Jwt com o ID do usuário e os dados da requisição
                 var token = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), userIp, userAgent);
 
                 // Configura o cookie HTTP-Only para o token gerado
