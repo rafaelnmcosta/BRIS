@@ -39,7 +39,8 @@ builder.Services.AddCors(options =>
         {
             builder.WithOrigins(
                 "https://frontend-bris:443",  // Serviço do proxy reverso no docker-compose
-                "https://localhost:443",
+                "https://200.137.215.116",
+		"https://localhost:443",
                 "http://localhost:3000"
             )
             .AllowAnyHeader()
