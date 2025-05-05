@@ -2,14 +2,15 @@ import React from 'react';
 import InputSemBordaComLabel from '../molecules/InputSemBordaComLabel';
 import BotaoPrimario from '../atoms/BotaoPrimario';
 import { UserOutlined, MailOutlined, IdcardOutlined, PhoneOutlined, LockOutlined, PlusOutlined } from '@ant-design/icons';
+import { useValidation } from '../../services/ValidationContext';
 
-const FormCadastroUsuario = ({ 
+const FormCadastroUsuario = ({
     onSubmit,
     erros,
     vinculos,
     onAbrirModal
 }) => {
-    
+
     const [formData, setFormData] = React.useState({
         nome: '',
         email: '',
@@ -20,17 +21,24 @@ const FormCadastroUsuario = ({
     });
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+        let { name, value } = e.target;
+      
+        // remove a máscara de campos específicos
+        if (['CPF', 'Telefone'].includes(name)) {
+          value = value.replace(/\D/g, '');
+        }
+      
+        setFormData({ ...formData, [name]: value });
+      };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
-        if(vinculos.length === 0) {
-            erros = (prev => ({...prev, vinculos: 'Adicione pelo menos um vínculo'}));
+
+        if (vinculos.length === 0) {
+            erros = (prev => ({ ...prev, vinculos: 'Adicione pelo menos um vínculo' }));
             return;
         }
-        
+
         onSubmit({
             ...formData,
             vinculos
@@ -70,6 +78,7 @@ const FormCadastroUsuario = ({
                     placeholder="XXX.XXX.XXX-XX"
                     icone={<IdcardOutlined className="text-green-dark" />}
                     erro={erros.cpf}
+                    mask="999.999.999-99"
                 />
 
                 <InputSemBordaComLabel
@@ -80,6 +89,8 @@ const FormCadastroUsuario = ({
                     onChange={handleChange}
                     placeholder="(XX) XXXXX-XXXX"
                     icone={<PhoneOutlined className="text-green-dark" />}
+                    erro={erros.telefone}
+                    mask="(99) 99999-9999"
                 />
 
                 <InputSemBordaComLabel

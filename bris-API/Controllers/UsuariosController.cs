@@ -124,7 +124,10 @@ namespace bris_API.Controllers
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
+
             {
+                Console.WriteLine("CPF recebido: " + modelUsuario.CPF);
+                Console.WriteLine("Telefone recebido: " + modelUsuario.Telefone);
                 // Cria usuário
                 var usuario = new Usuario
                 {

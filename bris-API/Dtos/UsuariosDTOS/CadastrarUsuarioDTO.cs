@@ -13,11 +13,10 @@ namespace bris_API.DTOs
         public required string Email { get; set; }
 
         [Required(ErrorMessage = "O CPF é obrigatório.")]
-        [StringLength(11, MinimumLength = 11, ErrorMessage = "O CPF deve ter 11 dígitos.")]
-        [RegularExpression(@"^\d{11}$", ErrorMessage = "O CPF deve conter apenas números.")]
+        [RegularExpression(@"^\d{11}$", ErrorMessage = "O CPF deve conter exatamente 11 dígitos numéricos.")]
         public required string CPF { get; set; }
 
-        [Phone(ErrorMessage = "Número de telefone inválido.")]
+        [RegularExpression(@"^\d{11}$", ErrorMessage = "Telefone deve conter 11 dígitos numéricos.")]
         public string? Telefone { get; set; }
 
         [Required(ErrorMessage = "A senha é obrigatória.")]

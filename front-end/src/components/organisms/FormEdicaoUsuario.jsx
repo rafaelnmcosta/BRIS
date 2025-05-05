@@ -39,8 +39,15 @@ const FormEdicaoUsuario = ({
     }, [initialData]);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+        let { name, value } = e.target;
+      
+        // remove a máscara de campos específicos
+        if (['CPF', 'Telefone'].includes(name)) {
+          value = value.replace(/\D/g, '');
+        }
+      
+        setFormData({ ...formData, [name]: value });
+      };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -89,6 +96,7 @@ const FormEdicaoUsuario = ({
                 placeholder="XXX.XXX.XXX-XX"
                 icone={<IdcardOutlined className="text-green-dark" />}
                 erro={erros.cpf}
+                mask="999.999.999-99"
             />
 
             <InputSemBordaComLabel
@@ -99,6 +107,8 @@ const FormEdicaoUsuario = ({
                 onChange={handleChange}
                 placeholder="(XX) XXXXX-XXXX"
                 icone={<PhoneOutlined className="text-green-dark" />}
+                erro={erros.telefone}
+                mask="(99) 99999-9999"
             />
 
             <InputSemBordaComLabel

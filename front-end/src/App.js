@@ -6,6 +6,7 @@ import LoggedRoute from './components/serviceComponents/LoggedRoute';
 import AuthenticatedRoute from './components/serviceComponents/AuthenticatedRoute';
 import { AuthProvider } from './services/AuthContext';
 import { NotificationProvider } from './services/NotificationContext';
+import { ValidationProvider } from './services/ValidationContext';
 
 // header e outros comuns a todas as paginas
 import Header from './components/organisms/Header';
@@ -24,26 +25,28 @@ function App() {
     <Router>
       <NotificationProvider>
         <AuthProvider>
-          <Header />
-          <Routes>
-            {/* Rotas públicas */}
-            <Route path='/login' element={<Login />} />
-            <Route path='/teste/:id/editar' element={<EdicaoUsuario />} />
+          <ValidationProvider>
+            <Header />
+            <Routes>
+              {/* Rotas públicas */}
+              <Route path='/login' element={<Login />} />
+              <Route path='/teste' element={<CadastroUsuario />} />
 
-            {/* Rotas protegidas por isLogged */}
-            <Route element={<LoggedRoute />}>
-              <Route path='/vinculos' element={<ListaVinculos />} />
-            </Route>
+              {/* Rotas protegidas por isLogged */}
+              <Route element={<LoggedRoute />}>
+                <Route path='/vinculos' element={<ListaVinculos />} />
+              </Route>
 
-            {/* Rotas protegidas por isAuthenticated */}
-            <Route element={<AuthenticatedRoute />}>
-              <Route path='/home' element={<Home />} />
-              <Route path='/teste' element={<Teste />} />
-              <Route path='/usuarios' element={<TabelaUsuarios />} />
-              <Route path='/usuarios/cadastrar' element={<CadastroUsuario />} />
-              <Route path='/usuarios/:id/editar' element={<EdicaoUsuario />} />
-            </Route>
-          </Routes>
+              {/* Rotas protegidas por isAuthenticated */}
+              <Route element={<AuthenticatedRoute />}>
+                <Route path='/home' element={<Home />} />
+                <Route path='/teste' element={<Teste />} />
+                <Route path='/usuarios' element={<TabelaUsuarios />} />
+                <Route path='/usuarios/cadastrar' element={<CadastroUsuario />} />
+                <Route path='/usuarios/:id/editar' element={<EdicaoUsuario />} />
+              </Route>
+            </Routes>
+          </ValidationProvider>
         </AuthProvider>
       </NotificationProvider>
     </Router>

@@ -10,13 +10,15 @@ const ModalVinculos = ({ visible, onCancelar, onSalvar }) => {
     const [selectedRole, setSelectedRole] = useState(null);
     const [filteredRoles, setFilteredRoles] = useState([]);
     const agroindustriaSelecionada = Form.useWatch('agroindustriaId', form);
+    console.log('🟡 agroindustriaSelecionada:', agroindustriaSelecionada);
+    console.log(userData.role)
 
     useEffect(() => {
         const filterRoles = () => {
             let roles = [
                 { value: 1, label: 'Administrador' },
-                { value: 2, label: 'Gestor de Agroindústria' },
-                { value: 3, label: 'Gestor de Granja' },
+                { value: 2, label: 'Gestor de Granja' },
+                { value: 3, label: 'Gestor de Agroindústria' },
                 { value: 4, label: 'Técnico' },
                 { value: 5, label: 'Visualizador' }
             ];
@@ -25,13 +27,17 @@ const ModalVinculos = ({ visible, onCancelar, onSalvar }) => {
                 roles = roles.filter(r => r.value !== 1);
             }
             else if (userData.role === 'GESTOR_GRANJA') {
-                roles = roles.filter(r => [3, 4, 5].includes(r.value));
+                roles = roles.filter(r => [2, 4, 5].includes(r.value));
             }
 
             setFilteredRoles(roles);
         };
         filterRoles();
     }, [userData.role]);
+
+    useEffect(() => {
+        console.log('🟢 agroindustriaSelecionada mudou:', agroindustriaSelecionada);
+    }, [agroindustriaSelecionada]);
 
     const handleCancel = () => {
         form.resetFields();
@@ -44,6 +50,8 @@ const ModalVinculos = ({ visible, onCancelar, onSalvar }) => {
             const values = await form.validateFields();
             let payload = { roleId: values.roleId };
 
+            console.log(values)
+
             if (userData.role === 'ADMIN') {
                 payload.agroindustriaId = values.agroindustriaId;
                 payload.granjaId = values.granjaId;
@@ -52,9 +60,9 @@ const ModalVinculos = ({ visible, onCancelar, onSalvar }) => {
                 payload.agroindustriaId = userData.agroindustriaId;
                 payload.granjaId = values.granjaId;
             }
-            else{
+            else {
                 payload.agroindustriaId = values.agroindustriaId;
-                payload.granjaId = values.granjaId;                
+                payload.granjaId = values.granjaId;
             }
 
             onSalvar(payload);
@@ -114,7 +122,7 @@ const ModalVinculos = ({ visible, onCancelar, onSalvar }) => {
                         </Form.Item>
 
                         {/* Campo Agroindústria */}
-                        {selectedRole && [2, 3, 4, 5].includes(selectedRole) &&  (
+                        {selectedRole && [2, 3, 4, 5].includes(selectedRole) && (
                             <Form.Item
                                 name="agroindustriaId"
                                 label="Agroindústria"
@@ -136,12 +144,12 @@ const ModalVinculos = ({ visible, onCancelar, onSalvar }) => {
                         )}
 
                         {/* Campo Granja */}
-                        {selectedRole && [3, 4, 5].includes(selectedRole) && agroindustriaSelecionada && (
+                        {selectedRole && [2, 4, 5].includes(selectedRole) && agroindustriaSelecionada && (
                             <Form.Item
                                 name="granjaId"
                                 label="Granja"
                                 rules={[{
-                                    required: [3, 4, 5].includes(selectedRole),
+                                    required: [2, 4, 5].includes(selectedRole),
                                     message: 'Selecione a granja'
                                 }]}
                             >
