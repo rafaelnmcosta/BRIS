@@ -385,7 +385,7 @@ namespace bris_API.Controllers
         /// <summary>
         /// Inativa um usuário, removendo todos os vínculos e criando um novo com role "INATIVO"
         /// </summary>
-        [Authorize(Policy = "GerenciaUsuarios")]
+        [Authorize(Policy = "VisualizaTotal")]
         [HttpPut("inativar/{id}")]
         public async Task<IActionResult> InativarUsuario(int id)
         {
@@ -426,10 +426,10 @@ namespace bris_API.Controllers
         }
 
         /// <summary>
-        /// Retorna a lista de usuários inativos (com vínculo com role "INATIVO"), aplicando filtros conforme a role do usuário autenticado.
+        /// Retorna a lista de usuários inativos (com vínculo com role "INATIVO").
         /// </summary>
         /// <returns>Lista de usuários inativos no formato GetUsuarioDTO.</returns>
-        [Authorize(Policy = "GerenciaUsuarios")]
+        [Authorize(Policy = "VisualizaTotal")]
         [HttpGet("inativos")]
         public async Task<IActionResult> GetUsuariosInativos()
         {
@@ -458,18 +458,6 @@ namespace bris_API.Controllers
                         .ThenInclude(v => v.Agroindustria)
                     .Where(u => u.Vinculos.Any(v => v.Role.Nome == "INATIVO"));
 
-                // Aplica filtro conforme a role do usuário autenticado
-                if (Role == "GESTOR_AGRO")
-                {
-                    usuariosInativosQuery = usuariosInativosQuery
-                        .Where(u => u.Vinculos.Any(v => v.AgroindustriaId == agroindustriaId));
-                }
-                else if (Role == "GESTOR_GRANJA")
-                {
-                    usuariosInativosQuery = usuariosInativosQuery
-                        .Where(u => u.Vinculos.Any(v => v.GranjaId == granjaId));
-                }
-
                 var usuariosInativos = await usuariosInativosQuery
                     .Select(u => new GetUsuarioDTO
                     {
@@ -477,10 +465,7 @@ namespace bris_API.Controllers
                         Email = u.Email,
                         CPF = u.CPF,
                         Vinculos = u.Vinculos
-                            .Where(v => v.Role.Nome == "INATIVO" &&
-                                    (Role == "ADMIN" ||
-                                        (Role == "GESTOR_AGRO" && v.AgroindustriaId == agroindustriaId) ||
-                                        (Role == "GESTOR_GRANJA" && v.GranjaId == granjaId)))
+                            .Where(v => v.Role.Nome == "INATIVO")
                             .Select(v => new GetVinculoDTO
                             {
                                 Id = v.Id,
@@ -505,7 +490,7 @@ namespace bris_API.Controllers
         /// <summary>
         /// Reativa um usuário inativo substituindo seu vínculo por novos vínculos
         /// </summary>
-        [Authorize(Policy = "GerenciaUsuarios")]
+        [Authorize(Policy = "VisualizaTotal")]
         [HttpPut("reativar/{id}")]
         public async Task<IActionResult> ReativarUsuarioInativo(int id, [FromBody] List<SetVinculoDTO> novosVinculos)
         {
@@ -546,19 +531,6 @@ namespace bris_API.Controllers
                 // Validar e adicionar novos vínculos
                 foreach (var setVinculoDto in novosVinculos)
                 {
-                    // Verificar permissões para cada vínculo
-                    /* if (role == "GESTOR_AGRO" &&
-                        setVinculoDto.AgroindustriaId != vinculoAutenticado.AgroindustriaId)
-                    {
-                        return Forbid("Você só pode associar à sua própria agroindústria");
-                    }
-
-                    if (role == "GESTOR_GRANJA" &&
-                        setVinculoDto.GranjaId != vinculoAutenticado.GranjaId)
-                    {
-                        return Forbid("Você só pode associar à sua própria granja");
-                    } */
-
                     _context.Vinculos.Add(new Vinculo
                     {
                         UsuarioId = usuario.Id,

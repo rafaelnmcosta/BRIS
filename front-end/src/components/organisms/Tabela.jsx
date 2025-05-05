@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Table, Button } from 'antd';
 import { EditOutlined, StopOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../services/AuthContext';
 import ModalConfirmacao from './ModalConfirmacao';
 import { usuarios } from '../../api/usuariosAPI';
 
@@ -9,6 +10,7 @@ const Tabela = ({ tipo, lista }) => {
   const navigate = useNavigate();
   const [showConfirmacao, setShowConfirmacao] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
+  const { userData } = useAuth();
 
   const handleEditar = (id) => {
     navigate(`/usuarios/${id}/editar`);
@@ -88,17 +90,19 @@ const Tabela = ({ tipo, lista }) => {
             aria-label="Editar"
             title="Editar"
           />
-          <Button
-            danger
-            icon={<StopOutlined />}
-            onClick={() => handleInativarConfirmacao(record.id)}
-            className="hover:bg-red-100"
-            aria-label="Inativar"
-            title="Inativar"
-          />
+          {!(tipo === 'Usuário' && userData.role !== 'ADMIN') && (
+            <Button
+              danger
+              icon={<StopOutlined />}
+              onClick={() => handleInativarConfirmacao(record.id)}
+              className="hover:bg-red-100"
+              aria-label="Inativar"
+              title="Inativar"
+            />
+          )}
         </div>
       )
-    });
+    });    
 
     return colunas;
   };
