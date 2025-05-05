@@ -17,8 +17,8 @@ const ModalVinculos = ({ visible, onCancelar, onSalvar }) => {
         const filterRoles = () => {
             let roles = [
                 { value: 1, label: 'Administrador' },
-                { value: 2, label: 'Gestor de Granja' },
-                { value: 3, label: 'Gestor de Agroindústria' },
+                { value: 2, label: 'Gestor de Agroindústria' },
+                { value: 3, label: 'Gestor de Granja' },
                 { value: 4, label: 'Técnico' },
                 { value: 5, label: 'Visualizador' }
             ];
@@ -27,7 +27,7 @@ const ModalVinculos = ({ visible, onCancelar, onSalvar }) => {
                 roles = roles.filter(r => r.value !== 1);
             }
             else if (userData.role === 'GESTOR_GRANJA') {
-                roles = roles.filter(r => [2, 4, 5].includes(r.value));
+                roles = roles.filter(r => [3, 4, 5].includes(r.value));
             }
 
             setFilteredRoles(roles);
@@ -144,12 +144,12 @@ const ModalVinculos = ({ visible, onCancelar, onSalvar }) => {
                         )}
 
                         {/* Campo Granja */}
-                        {selectedRole && [2, 4, 5].includes(selectedRole) && agroindustriaSelecionada && (
+                        {selectedRole && [3, 4, 5].includes(selectedRole) && agroindustriaSelecionada && (
                             <Form.Item
                                 name="granjaId"
                                 label="Granja"
                                 rules={[{
-                                    required: [2, 4, 5].includes(selectedRole),
+                                    required: [3, 4, 5].includes(selectedRole),
                                     message: 'Selecione a granja'
                                 }]}
                             >

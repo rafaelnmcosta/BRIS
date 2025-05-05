@@ -7,7 +7,7 @@
 namespace bris_API.Migrations
 {
     /// <inheritdoc />
-    public partial class AddPoliciesRoles : Migration
+    public partial class AddBase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,8 +34,8 @@ namespace bris_API.Migrations
                 values: new object[,]
                 {
                     { 1, "Administrador do sistema", "ADMIN" },
-                    { 2, "Gestor de granjas", "GESTOR_GRANJA" },
-                    { 3, "Gestor de agroindústrias", "GESTOR_AGRO" },
+                    { 2, "Gestor de agroindústrias", "GESTOR_AGRO" },
+                    { 3, "Gestor de granjas", "GESTOR_GRANJA" },
                     { 4, "Técnico da granja", "TECNICO" },
                     { 5, "Usuário com acesso somente de visualização ao sistema", "VISUALIZADOR" },
                     { 98, "Usuário pendente de ativação", "PENDENTE" },
@@ -49,7 +49,7 @@ namespace bris_API.Migrations
                 {
                     { 11, 1, 1 },
                     { 21, 2, 1 },
-                    { 23, 2, 3 },
+                    { 22, 2, 2 },
                     { 25, 2, 5 },
                     { 31, 3, 1 },
                     { 32, 3, 2 },
@@ -62,12 +62,12 @@ namespace bris_API.Migrations
                     { 45, 4, 5 },
                     { 51, 5, 1 },
                     { 61, 6, 1 },
-                    { 63, 6, 3 },
+                    { 62, 6, 2 },
                     { 71, 7, 1 },
                     { 72, 7, 2 },
                     { 73, 7, 3 },
                     { 81, 8, 1 },
-                    { 82, 8, 2 },
+                    { 83, 8, 3 },
                     { 84, 8, 4 },
                     { 91, 9, 1 },
                     { 92, 9, 2 },
@@ -93,7 +93,7 @@ namespace bris_API.Migrations
             migrationBuilder.DeleteData(
                 table: "PolicyRoles",
                 keyColumn: "Id",
-                keyValue: 23);
+                keyValue: 22);
 
             migrationBuilder.DeleteData(
                 table: "PolicyRoles",
@@ -158,7 +158,7 @@ namespace bris_API.Migrations
             migrationBuilder.DeleteData(
                 table: "PolicyRoles",
                 keyColumn: "Id",
-                keyValue: 63);
+                keyValue: 62);
 
             migrationBuilder.DeleteData(
                 table: "PolicyRoles",
@@ -183,7 +183,7 @@ namespace bris_API.Migrations
             migrationBuilder.DeleteData(
                 table: "PolicyRoles",
                 keyColumn: "Id",
-                keyValue: 82);
+                keyValue: 83);
 
             migrationBuilder.DeleteData(
                 table: "PolicyRoles",

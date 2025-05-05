@@ -7,8 +7,8 @@ namespace bris_API.Models
         public int Id { get; set; }
         /* Valores padrões de inserção no banco (vide PopulateDbService por via de duvidas):
             1: ADMIN
-            2: GESTOR_GRANJA
-            3: GESTOR_AGRO
+            2: GESTOR_AGRO
+            3: GESTOR_GRANJA
             4: TECNICO
             5: VISUALIZADOR
             98: PENDENTE

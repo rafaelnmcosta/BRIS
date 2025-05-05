@@ -15,19 +15,19 @@ namespace bris_API.Services
         public void SeedData(ModelBuilder modelBuilder)
         {
             SeedRoles(modelBuilder);
+            SeedPolicies(modelBuilder);
             SeedAgroindustrias(modelBuilder);
             SeedGranjas(modelBuilder);
             SeedUsers(modelBuilder);
             SeedVinculos(modelBuilder);
-            SeedPolicies(modelBuilder);
         }
 
         public void SeedRoles(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Role>().HasData(
                 new Role { Id = 1, Nome = "ADMIN", Descricao = "Administrador do sistema" },
-                new Role { Id = 2, Nome = "GESTOR_GRANJA", Descricao = "Gestor de granjas" },
-                new Role { Id = 3, Nome = "GESTOR_AGRO", Descricao = "Gestor de agroindústrias" },
+                new Role { Id = 2, Nome = "GESTOR_AGRO", Descricao = "Gestor de agroindústrias" },
+                new Role { Id = 3, Nome = "GESTOR_GRANJA", Descricao = "Gestor de granjas" },
                 new Role { Id = 4, Nome = "TECNICO", Descricao = "Técnico da granja" },
                 new Role { Id = 5, Nome = "VISUALIZADOR", Descricao = "Usuário com acesso somente de visualização ao sistema" },
                 new Role { Id = 98, Nome = "PENDENTE", Descricao = "Usuário pendente de ativação" },
@@ -38,8 +38,8 @@ namespace bris_API.Services
         public void SeedAgroindustrias(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Agroindustria>().HasData(
-                new Agroindustria { Id = 1, NomeFantasia = "Agroindustria Default", RazaoSocial = "Agroindustria Default", CNPJ = "00000000000100", Ativo = true },
-                new Agroindustria { Id = 2, NomeFantasia = "Agroindustria Nova", RazaoSocial = "Agroindustria Nova", CNPJ = "11111111000111", Ativo = true }
+                new Agroindustria { Id = 1, NomeFantasia = "Agroindustria Default", RazaoSocial = "Agroindustria Default", CNPJ = "00000000000101", Ativo = true },
+                new Agroindustria { Id = 2, NomeFantasia = "Agroindustria Nova", RazaoSocial = "Agroindustria Nova", CNPJ = "11111111000102", Ativo = true }
             );
         }
 
@@ -47,11 +47,11 @@ namespace bris_API.Services
         {
             modelBuilder.Entity<Granja>().HasData(
                 // Granjas para Agroindustria 1
-                new Granja { Id = 1, NomePropriedade = "Granja Teste 1", AgroindustriaId = 1, Endereco = "Rua teste 1", CNPJ = "99999999000199", Ativo = true },
-                new Granja { Id = 2, NomePropriedade = "Granja Teste 2", AgroindustriaId = 1, Endereco = "Rua teste 2", CNPJ = "99999999000122", Ativo = true },
+                new Granja { Id = 1, NomePropriedade = "Granja Teste 1", AgroindustriaId = 1, Endereco = "Rua teste 1", CNPJ = "99999999000111", Ativo = true },
+                new Granja { Id = 2, NomePropriedade = "Granja Teste 2", AgroindustriaId = 1, Endereco = "Rua teste 2", CNPJ = "99999999000112", Ativo = true },
                 // Granjas para Agroindustria 2
-                new Granja { Id = 3, NomePropriedade = "Granja Nova 1", AgroindustriaId = 2, Endereco = "Rua nova 1", CNPJ = "88888888000133", Ativo = true },
-                new Granja { Id = 4, NomePropriedade = "Granja Nova 2", AgroindustriaId = 2, Endereco = "Rua nova 2", CNPJ = "88888888000144", Ativo = true }
+                new Granja { Id = 3, NomePropriedade = "Granja Nova 1", AgroindustriaId = 2, Endereco = "Rua nova 1", CNPJ = "88888888000121", Ativo = true },
+                new Granja { Id = 4, NomePropriedade = "Granja Nova 2", AgroindustriaId = 2, Endereco = "Rua nova 2", CNPJ = "88888888000122", Ativo = true }
             );
         }
 
@@ -63,11 +63,11 @@ namespace bris_API.Services
 
             // Adiciona 5 usuários com roles correspondentes
             modelBuilder.Entity<Usuario>().HasData(
-                new Usuario { Id = 1, Nome = "Admin", Email = "admin@gmail.com", CPF = "00000000000", DataCadastro = DateTime.UtcNow },
-                new Usuario { Id = 2, Nome = "Gestor Granja", Email = "gestor_granja@gmail.com", CPF = "11111111111", DataCadastro = DateTime.UtcNow },
-                new Usuario { Id = 3, Nome = "Gestor Agro", Email = "gestor_agro@gmail.com", CPF = "22222222222", DataCadastro = DateTime.UtcNow },
-                new Usuario { Id = 4, Nome = "Tecnico", Email = "tecnico@gmail.com", CPF = "33333333333", DataCadastro = DateTime.UtcNow },
-                new Usuario { Id = 5, Nome = "Visualizador", Email = "visualizador@gmail.com", CPF = "44444444444", DataCadastro = DateTime.UtcNow }
+                new Usuario { Id = 1, Nome = "Admin", Email = "admin@gmail.com", CPF = "11111111111", DataCadastro = DateTime.UtcNow },
+                new Usuario { Id = 2, Nome = "Gestor Agro", Email = "gestor_agro@gmail.com", CPF = "22222222222", DataCadastro = DateTime.UtcNow },
+                new Usuario { Id = 3, Nome = "Gestor Granja", Email = "gestor_granja@gmail.com", CPF = "33333333333", DataCadastro = DateTime.UtcNow },
+                new Usuario { Id = 4, Nome = "Tecnico", Email = "tecnico@gmail.com", CPF = "44444444444", DataCadastro = DateTime.UtcNow },
+                new Usuario { Id = 5, Nome = "Visualizador", Email = "visualizador@gmail.com", CPF = "55555555555", DataCadastro = DateTime.UtcNow }
             );
 
             // Adiciona as senhas para os usuários
@@ -93,24 +93,24 @@ namespace bris_API.Services
                     AgroindustriaId = null
                 },
                 
-                // Gestor de Granja
+                // Gestor de Agroindústria
                 new Vinculo { 
                     Id = 2, 
                     UsuarioId = 2, 
                     RoleId = 2,
-                    GranjaId = 1,
-                    AgroindustriaId = 1
-                },
-                
-                // Gestor de Agroindústria
-                new Vinculo { 
-                    Id = 3, 
-                    UsuarioId = 3, 
-                    RoleId = 3,
                     GranjaId = null,
                     AgroindustriaId = 1
                 },
 
+                // Gestor de Granja
+                new Vinculo { 
+                    Id = 3, 
+                    UsuarioId = 3, 
+                    RoleId = 3,
+                    GranjaId = 1,
+                    AgroindustriaId = 1
+                },
+                
                 // Tecnico
                 new Vinculo { 
                     Id = 4, 
@@ -162,8 +162,8 @@ namespace bris_API.Services
                     int roleId = roleName switch
                     {
                         "ADMIN" => 1,
-                        "GESTOR_GRANJA" => 2,
-                        "GESTOR_AGRO" => 3,
+                        "GESTOR_AGRO" => 2,
+                        "GESTOR_GRANJA" => 3,
                         "TECNICO" => 4,
                         "VISUALIZADOR" => 5,
                         _ => throw new Exception($"Role não reconhecida: {roleName}")
