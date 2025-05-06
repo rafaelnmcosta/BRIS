@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { Table, Button } from 'antd';
-import { EditOutlined, StopOutlined, EyeOutlined } from '@ant-design/icons';
+import { EditOutlined, StopOutlined, EyeOutlined, CheckOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
 import ModalConfirmacao from './ModalConfirmacao';
 import { usuarios } from '../../api/usuariosAPI';
 import { agroindustrias } from '../../api/agroindustriasAPI';
 
-const Tabela = ({ tipo, lista }) => {
-  const navigate = useNavigate();
-  const [showConfirmacao, setShowConfirmacao] = useState(false);
+const Tabela = ({ tipo, lista, ativos, onAtualizar }) => {
   const [selectedId, setSelectedId] = useState(null);
+  const [showConfirmacao, setShowConfirmacao] = useState(false);
+  const [acaoConfirmacao, setAcaoConfirmacao] = useState(null); // 'inativar' ou 'ativar'
+  const navigate = useNavigate();
   const { userData } = useAuth();
 
   const handleEditar = (id) => {
@@ -45,23 +46,44 @@ const Tabela = ({ tipo, lista }) => {
 
   const handleInativarConfirmacao = (id) => {
     setSelectedId(id);
+    setAcaoConfirmacao('inativar');
     setShowConfirmacao(true);
   };
 
-  const handleInativar = async () => {
+  const handleAtivarConfirmacao = (id) => {
+    setSelectedId(id);
+    setAcaoConfirmacao('ativar');
+    setShowConfirmacao(true);
+  };
+
+
+  const handleConfirmacao = async () => {
     try {
       switch (tipo) {
         case 'Agroindústria':
-          await agroindustrias.desativarAgroindustria(selectedId);
+          if (acaoConfirmacao === 'inativar') {
+            await agroindustrias.desativarAgroindustria(selectedId);
+          } else {
+            await agroindustrias.ativarAgroindustria(selectedId);
+          }
           break;
         case 'Usuário':
-          await usuarios.inativarUsuario(selectedId);
+          if (acaoConfirmacao === 'inativar') {
+            await usuarios.inativarUsuario(selectedId);
+          } else {
+            await usuarios.ativarUsuario(selectedId);
+          }
           break;
         default:
-          console.warn(`Tipo "${tipo}" não possui lógica de inativação definida.`);
+          console.warn(`Tipo "${tipo}" não possui lógica para ${acaoConfirmacao}.`);
       }
+
+      if (onAtualizar) await onAtualizar();
+
     } finally {
       setShowConfirmacao(false);
+      setSelectedId(null);
+      setAcaoConfirmacao(null);
     }
   };
 
@@ -106,23 +128,37 @@ const Tabela = ({ tipo, lista }) => {
             aria-label="Ver detalhes"
             title="Ver detalhes"
           />
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
-            onClick={() => handleEditar(record.id)}
-            className="bg-green-dark hover:bg-green text-white"
-            aria-label="Editar"
-            title="Editar"
-          />
-          {!(tipo === 'Usuário' && userData.role !== 'ADMIN') && (
+          {ativos && (
             <Button
-              danger
-              icon={<StopOutlined />}
-              onClick={() => handleInativarConfirmacao(record.id)}
-              className="hover:bg-red-100"
-              aria-label="Inativar"
-              title="Inativar"
+              type="primary"
+              icon={<EditOutlined />}
+              onClick={() => handleEditar(record.id)}
+              className="bg-green-dark hover:bg-green text-white"
+              aria-label="Editar"
+              title="Editar"
             />
+          )}
+
+          {!(tipo === 'Usuário' && userData.role !== 'ADMIN') && (
+            ativos ? (
+              <Button
+                danger
+                icon={<StopOutlined />}
+                onClick={() => handleInativarConfirmacao(record.id)}
+                className="hover:bg-red-100"
+                aria-label="Inativar"
+                title="Inativar"
+              />
+            ) : (
+              <Button
+                type="default"
+                icon={<CheckOutlined />}
+                onClick={() => handleAtivarConfirmacao(record.id)}
+                className="hover:bg-green-100 border-green-500 text-green-dark"
+                aria-label="Ativar"
+                title="Ativar"
+              />
+            )
           )}
         </div>
       ),
@@ -142,12 +178,16 @@ const Tabela = ({ tipo, lista }) => {
 
       <ModalConfirmacao
         open={showConfirmacao}
-        onClose={() => setShowConfirmacao(false)}
-        onConfirm={handleInativar}
-        title="Confirmar Inativação"
-        content={`Tem certeza que deseja inativar esse/a ${tipo.toLowerCase()}?`}
-        okText="Inativar"
-        danger={true}
+        onClose={() => {
+          setShowConfirmacao(false);
+          setAcaoConfirmacao(null);
+          setSelectedId(null);
+        }}
+        onConfirm={handleConfirmacao}
+        title={`Confirmar ${acaoConfirmacao === 'ativar' ? 'Ativação' : 'Inativação'}`}
+        content={`Tem certeza que deseja ${acaoConfirmacao === 'ativar' ? 'ativar' : 'inativar'} esse/a ${tipo.toLowerCase()}?`}
+        okText={acaoConfirmacao === 'ativar' ? 'Ativar' : 'Inativar'}
+        danger={acaoConfirmacao !== 'ativar'}
       />
     </>
   );

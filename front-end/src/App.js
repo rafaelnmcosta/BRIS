@@ -21,7 +21,8 @@ import CadastroUsuario from './pages/CadastroUsuario';
 import EdicaoUsuario from './pages/EdicaoUsuario';
 import Perfil from './pages/Perfil';
 import EdicaoPerfil from './pages/EdicaoPerfil';
-import TabelaAgroindustria from './pages/TabelaAgroindustria';
+import TabelaAgroindustrias from './pages/TabelaAgroindustrias';
+import TabelaAgroindustriasInativas from './pages/TabelaAgroindustriasInativas';
 import CadastroAgroindustria from './pages/CadastroAgroindustria';
 
 function App() {
@@ -50,7 +51,8 @@ function App() {
                 <Route path='/usuarios/:id/editar' element={<EdicaoUsuario />} />
                 <Route path='/perfil' element={<Perfil />} />
                 <Route path='/perfil/editar' element={<EdicaoPerfil />} />
-                <Route path='/agroindustrias' element={<TabelaAgroindustria />} />
+                <Route path='/agroindustrias' element={<TabelaAgroindustrias />} />
+                <Route path='/agroindustrias/inativas' element={<TabelaAgroindustriasInativas />} />
                 <Route path='/agroindustrias/cadastrar' element={<CadastroAgroindustria />} />
               </Route>
             </Routes>
