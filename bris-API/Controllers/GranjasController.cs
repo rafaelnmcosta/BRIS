@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 using bris_API.Data;
 using bris_API.Models;
 using bris_API.DTOs;
@@ -45,6 +46,7 @@ namespace bris_API.Controllers
         /// <param name="id">ID da Agroindústria</param>
         /// <returns>Lista de granjas vinculadas com detalhes completos</returns>
         [HttpGet("agro/{id}")]
+        [Authorize(Policy = "VisualizaAgroindustria")]
         public async Task<IActionResult> GetGranjasPorAgroindustria(int id)
         {
             try
@@ -84,14 +86,27 @@ namespace bris_API.Controllers
         /// Obtém a lista de granjas inativas.
         /// </summary>
         /// <returns>Lista de granjas inativas.</returns>
-        [Authorize(Policy = "VisualizaTotal")]
+        [Authorize(Policy = "VisualizaAgroindustria")]
         [HttpGet("ativar")]
         public async Task<ActionResult<IEnumerable<Granja>>> GetGranjasInativas()
         {
-            // Filtra granjas cujo campo Ativo seja false e as retorna.
-            var granjas = await _context.Granjas
-                .Where(g => !g.Ativo)
-                .ToListAsync();
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            var agroindustriaIdClaim = User.FindFirst("AgroindustriaId")?.Value;
+
+            IQueryable<Granja> query = _context.Granjas.Where(g => !g.Ativo);
+
+            // Se não for ADMIN, filtra pela agroindústria do usuário
+            if (role != "ADMIN")
+            {
+                if (string.IsNullOrEmpty(agroindustriaIdClaim) || !int.TryParse(agroindustriaIdClaim, out var agroindustriaId))
+                {
+                    return Forbid(); // ou return BadRequest("Agroindústria inválida");
+                }
+
+                query = query.Where(g => g.AgroindustriaId == agroindustriaId);
+            }
+
+            var granjas = await query.ToListAsync();
             return Ok(granjas);
         }
 
@@ -100,11 +115,13 @@ namespace bris_API.Controllers
         /// </summary>
         /// <param name="id">ID da granja a ser ativada.</param>
         /// <returns>Mensagem de sucesso ou erro.</returns>
-        [Authorize(Policy = "GerenciaTotal")]
+        [Authorize(Policy = "GerenciaAgroindustria")]
         [HttpPut("ativar/{id}")]
         public async Task<IActionResult> AtivarGranja(int id)
         {
-            // Busca a granja pelo ID.
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            var agroindustriaIdClaim = User.FindFirst("AgroindustriaId")?.Value;
+
             var granja = await _context.Granjas
                 .Where(g => g.Id == id)
                 .FirstOrDefaultAsync();
@@ -119,10 +136,21 @@ namespace bris_API.Controllers
                 return BadRequest("Granja já está ativa.");
             }
 
-            // Define a propriedade Ativo como true para ativar a granja.
-            granja.Ativo = true;
+            // Se não for ADMIN, valida se a granja pertence à agroindústria do usuário
+            if (role != "ADMIN")
+            {
+                if (string.IsNullOrEmpty(agroindustriaIdClaim) || !int.TryParse(agroindustriaIdClaim, out var agroindustriaId))
+                {
+                    return Forbid();
+                }
 
-            // Atualiza o estado da granja no contexto e salva as alterações.
+                if (granja.AgroindustriaId != agroindustriaId)
+                {
+                    return Forbid("Você não tem permissão para ativar esta granja.");
+                }
+            }
+
+            granja.Ativo = true;
             _context.Entry(granja).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
@@ -134,11 +162,13 @@ namespace bris_API.Controllers
         /// </summary>
         /// <param name="id">ID da granja.</param>
         /// <returns>Dados da granja.</returns>
-        [Authorize(Policy = "VisualizaTotal")]
+        [Authorize(Policy = "VisualizaAgroindustria")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Granja>> GetGranja(int id)
         {
-            // Busca a granja pelo ID.
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            var agroindustriaIdClaim = User.FindFirst("AgroindustriaId")?.Value;
+
             var granja = await _context.Granjas
                 .Where(g => g.Id == id)
                 .FirstOrDefaultAsync();
@@ -148,8 +178,23 @@ namespace bris_API.Controllers
                 return NotFound("Granja não encontrada.");
             }
 
+            // Se não for ADMIN, verificar se pertence à mesma Agroindústria
+            if (role != "ADMIN")
+            {
+                if (string.IsNullOrEmpty(agroindustriaIdClaim) || !int.TryParse(agroindustriaIdClaim, out var agroindustriaId))
+                {
+                    return Forbid();
+                }
+
+                if (granja.AgroindustriaId != agroindustriaId)
+                {
+                    return Forbid("Você não tem permissão para visualizar esta granja.");
+                }
+            }
+
             return Ok(granja);
         }
+
 
         /// <summary>
         /// Atualiza os dados de uma granja existente.
@@ -157,11 +202,13 @@ namespace bris_API.Controllers
         /// <param name="id">ID da granja a ser editada.</param>
         /// <param name="modelGranja">Dados atualizados da granja.</param>
         /// <returns>Mensagem de sucesso ou erro.</returns>
-        [Authorize(Policy = "GerenciaTotal")]
+        [Authorize(Policy = "GerenciaAgroindustria")]
         [HttpPut("{id}/editar")]
         public async Task<IActionResult> PutGranja(int id, [FromBody] AdminEditaGranjaDto modelGranja)
         {
-            // Busca a granja a ser editada pelo ID.
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            var agroindustriaIdClaim = User.FindFirst("AgroindustriaId")?.Value;
+
             var granja = await _context.Granjas
                 .Where(g => g.Id == id)
                 .FirstOrDefaultAsync();
@@ -171,7 +218,21 @@ namespace bris_API.Controllers
                 return NotFound("Granja não encontrada.");
             }
 
-            // Atualiza os campos da granja com os valores fornecidos no DTO.
+            // Se não for ADMIN, verificar se pertence à mesma Agroindústria
+            if (role != "ADMIN")
+            {
+                if (string.IsNullOrEmpty(agroindustriaIdClaim) || !int.TryParse(agroindustriaIdClaim, out var agroindustriaId))
+                {
+                    return Forbid();
+                }
+
+                if (granja.AgroindustriaId != agroindustriaId)
+                {
+                    return Forbid("Você não tem permissão para editar esta granja.");
+                }
+            }
+
+            // Atualiza os campos da granja com os valores fornecidos no DTO
             granja.NomePropriedade = modelGranja.NomePropriedade;
             granja.Endereco = modelGranja.Endereco;
             granja.CNPJ = modelGranja.CNPJ;
@@ -182,16 +243,32 @@ namespace bris_API.Controllers
             return Ok(new { message = "Granja atualizada com sucesso!" });
         }
 
+
         /// <summary>
         /// Cadastra uma nova granja.
         /// </summary>
         /// <param name="modelGranja">Dados da nova granja.</param>
         /// <returns>Mensagem de sucesso ou erro.</returns>
-        [Authorize(Policy = "GerenciaTotal")]
+        [Authorize(Policy = "GerenciaAgroindustria")]
         [HttpPost("cadastrar")]
         public async Task<IActionResult> PostGranja([FromBody] AdminEditaGranjaDto modelGranja)
         {
-            // Cria uma nova instância de granja com os dados fornecidos.
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            var agroindustriaIdClaim = User.FindFirst("AgroindustriaId")?.Value;
+
+            if (role != "ADMIN")
+            {
+                if (string.IsNullOrEmpty(agroindustriaIdClaim) || !int.TryParse(agroindustriaIdClaim, out var agroindustriaId))
+                {
+                    return Forbid();
+                }
+
+                if (modelGranja.AgroindustriaId != agroindustriaId)
+                {
+                    return Forbid("Você não pode cadastrar granjas em outra agroindústria.");
+                }
+            }
+
             var novaGranja = new Granja
             {
                 NomePropriedade = modelGranja.NomePropriedade,
@@ -207,16 +284,19 @@ namespace bris_API.Controllers
             return Ok(new { message = "Granja cadastrada com sucesso!" });
         }
 
+
         /// <summary>
         /// Desativa uma granja.
         /// </summary>
         /// <param name="id">ID da granja a ser desativada.</param>
         /// <returns>Mensagem de sucesso ou erro.</returns>
-        [Authorize(Policy = "GerenciaTotal")]
+        [Authorize(Policy = "GerenciaAgroindustria")]
         [HttpDelete("{id}/desativar")]
         public async Task<IActionResult> DeleteGranja(int id)
         {
-            // Busca a granja pelo ID.
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            var agroindustriaIdClaim = User.FindFirst("AgroindustriaId")?.Value;
+
             var granja = await _context.Granjas
                 .Where(g => g.Id == id)
                 .FirstOrDefaultAsync();
@@ -226,12 +306,24 @@ namespace bris_API.Controllers
                 return NotFound("Granja não encontrada.");
             }
 
-            // Define a granja como inativa.
-            granja.Ativo = false;
+            if (role != "ADMIN")
+            {
+                if (string.IsNullOrEmpty(agroindustriaIdClaim) || !int.TryParse(agroindustriaIdClaim, out var agroindustriaId))
+                {
+                    return Forbid();
+                }
 
+                if (granja.AgroindustriaId != agroindustriaId)
+                {
+                    return Forbid("Você não tem permissão para desativar esta granja.");
+                }
+            }
+
+            granja.Ativo = false;
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Granja desativada com sucesso!" });
         }
+
     }
 }
