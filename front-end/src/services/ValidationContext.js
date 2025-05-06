@@ -11,6 +11,8 @@ export const ValidationProvider = ({ children }) => {
     return regex.test(email) ? '' : 'Email inválido';
   };
 
+  /* Essa aqui REALMENTE valida o CPF então só descomentar se for pra produção, teste não rola não
+
   const validarCPF = (cpf) => {
     const cleaned = cpf.replace(/\D/g, '');
     if (cleaned.length !== 11 || /^(\d)\1+$/.test(cleaned)) return 'CPF inválido';
@@ -29,13 +31,35 @@ export const ValidationProvider = ({ children }) => {
 
     return '';
   };
+  */
+  const validarCPF = (cpf) => {
+    const cleaned = cpf.replace(/\D/g, '');
+    if (cleaned.length !== 11 || /^(\d)\1+$/.test(cleaned)) return 'CPF inválido';
+  }
+
+  const validarTelefone = (telefone) => {
+    const apenasNumeros = telefone.replace(/\D/g, '');
+    return apenasNumeros.length >= 10
+      ? ''
+      : 'Telefone inválido';
+  };  
 
   const validarSenha = (senha) => {
     return senha.length >= 6 ? '' : 'A senha deve ter pelo menos 6 caracteres';
   };
 
+  const validarConfirmacaoSenha = (senha, confirmar) => {
+    return senha === confirmar ? '' : 'As senhas não coincidem';
+  };
+
   const validarCampoObrigatorio = (valor) => {
     return valor?.trim() ? '' : 'Campo obrigatório';
+  };
+
+  const validarVinculos = (vinculos) => {
+    return Array.isArray(vinculos) && vinculos.length > 0
+      ? ''
+      : 'Adicione pelo menos um vínculo';
   };
 
   return (
@@ -43,8 +67,11 @@ export const ValidationProvider = ({ children }) => {
       value={{
         validarEmail,
         validarCPF,
+        validarTelefone,
         validarSenha,
-        validarCampoObrigatorio
+        validarCampoObrigatorio,
+        validarConfirmacaoSenha,
+        validarVinculos
       }}
     >
       {children}

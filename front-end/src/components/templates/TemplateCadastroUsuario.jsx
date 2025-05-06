@@ -2,7 +2,7 @@ import React from 'react';
 import FormCadastroUsuario from '../organisms/FormCadastroUsuario';
 import ModalVinculos from '../organisms/ModalVinculos';
 
-const TemplateCadastroUsuario = ({ onSubmit, erros, vinculos, onAdicionarVinculo }) => {
+const TemplateCadastroUsuario = ({ onSubmit, vinculos, onAdicionarVinculo }) => {
     const [showModal, setShowModal] = React.useState(false);
 
     return (
@@ -13,7 +13,6 @@ const TemplateCadastroUsuario = ({ onSubmit, erros, vinculos, onAdicionarVinculo
             <div className="bg-white shadow-lg rounded-xl w-1/2 mx-auto py-12 mb-12 px-16 flex flex-col items-start">
                 <FormCadastroUsuario
                     onSubmit={onSubmit}
-                    erros={erros}
                     vinculos={vinculos}
                     onAbrirModal={() => setShowModal(true)}
                 />

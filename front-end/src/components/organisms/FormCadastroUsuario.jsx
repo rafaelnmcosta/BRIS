@@ -4,13 +4,8 @@ import BotaoPrimario from '../atoms/BotaoPrimario';
 import { UserOutlined, MailOutlined, IdcardOutlined, PhoneOutlined, LockOutlined, PlusOutlined } from '@ant-design/icons';
 import { useValidation } from '../../services/ValidationContext';
 
-const FormCadastroUsuario = ({
-    onSubmit,
-    erros,
-    vinculos,
-    onAbrirModal
-}) => {
-
+const FormCadastroUsuario = ({ onSubmit, vinculos, onAbrirModal }) => {
+    const [errors, setErrors] = React.useState({});
     const [formData, setFormData] = React.useState({
         nome: '',
         email: '',
@@ -20,24 +15,61 @@ const FormCadastroUsuario = ({
         confirmarSenha: ''
     });
 
+    const {
+        validarCampoObrigatorio,
+        validarEmail,
+        validarCPF,
+        validarTelefone,
+        validarSenha,
+        validarConfirmacaoSenha,
+        validarVinculos
+    } = useValidation();
+
+    const validarCampos = () => {
+        const novosErros = {};
+
+        const erroNome = validarCampoObrigatorio(formData.nome);
+        if (erroNome) novosErros.nome = erroNome;
+
+        const erroEmail = validarCampoObrigatorio(formData.email) || validarEmail(formData.email);
+        if (erroEmail) novosErros.email = erroEmail;
+
+        const erroCPF = validarCampoObrigatorio(formData.cpf) || validarCPF(formData.cpf);
+        if (erroCPF) novosErros.cpf = erroCPF;
+
+        const erroTelefone = validarTelefone(formData.telefone);
+        if (erroTelefone) novosErros.telefone = erroTelefone;
+
+
+        const erroSenha = validarCampoObrigatorio(formData.senha) || validarSenha(formData.senha);
+        if (erroSenha) novosErros.senha = erroSenha;
+
+        const erroConfirmarSenha = validarConfirmacaoSenha(formData.senha, formData.confirmarSenha);
+        if (erroConfirmarSenha) novosErros.confirmarSenha = erroConfirmarSenha;
+
+        const erroVinculos = validarVinculos(vinculos);
+        if (erroVinculos) novosErros.vinculos = erroVinculos;
+
+        return novosErros;
+    };
+
     const handleChange = (e) => {
         let { name, value } = e.target;
-      
-        // remove a máscara de campos específicos
-        if (['CPF', 'Telefone'].includes(name)) {
-          value = value.replace(/\D/g, '');
+
+        if (['cpf', 'telefone'].includes(name)) {
+            value = value.replace(/\D/g, '');
         }
-      
-        setFormData({ ...formData, [name]: value });
-      };
+
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (vinculos.length === 0) {
-            erros = (prev => ({ ...prev, vinculos: 'Adicione pelo menos um vínculo' }));
-            return;
-        }
+        const errosValidados = validarCampos();
+        setErrors(errosValidados);
+
+        if (Object.keys(errosValidados).length > 0) return;
 
         onSubmit({
             ...formData,
@@ -46,104 +78,100 @@ const FormCadastroUsuario = ({
     };
 
     return (
-        <>
-            <form className="w-full" onSubmit={handleSubmit}>
-                {/* Campos do formulário */}
-                <InputSemBordaComLabel
-                    label="Nome"
-                    name="nome"
-                    value={formData.nome}
-                    onChange={handleChange}
-                    placeholder="Nome completo"
-                    icone={<UserOutlined className="text-green-dark" />}
-                    erro={erros.nome}
-                />
+        <form className="w-full" onSubmit={handleSubmit}>
+            <InputSemBordaComLabel
+                label="Nome"
+                name="nome"
+                value={formData.nome}
+                onChange={handleChange}
+                placeholder="Nome completo"
+                icone={<UserOutlined className="text-green-dark" />}
+                error={errors.nome}
+            />
 
-                <InputSemBordaComLabel
-                    label="E-mail"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="exemplo@email.com"
-                    icone={<MailOutlined className="text-green-dark" />}
-                    erro={erros.email}
-                />
+            <InputSemBordaComLabel
+                label="E-mail"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="exemplo@email.com"
+                icone={<MailOutlined className="text-green-dark" />}
+                error={errors.email}
+            />
 
-                <InputSemBordaComLabel
-                    label="CPF"
-                    name="cpf"
-                    value={formData.cpf}
-                    onChange={handleChange}
-                    placeholder="XXX.XXX.XXX-XX"
-                    icone={<IdcardOutlined className="text-green-dark" />}
-                    erro={erros.cpf}
-                    mask="999.999.999-99"
-                />
+            <InputSemBordaComLabel
+                label="CPF"
+                name="cpf"
+                value={formData.cpf}
+                onChange={handleChange}
+                placeholder="XXX.XXX.XXX-XX"
+                icone={<IdcardOutlined className="text-green-dark" />}
+                error={errors.cpf}
+                mask="999.999.999-99"
+            />
 
-                <InputSemBordaComLabel
-                    label="Telefone"
-                    name="telefone"
-                    type="tel"
-                    value={formData.telefone}
-                    onChange={handleChange}
-                    placeholder="(XX) XXXXX-XXXX"
-                    icone={<PhoneOutlined className="text-green-dark" />}
-                    erro={erros.telefone}
-                    mask="(99) 99999-9999"
-                />
+            <InputSemBordaComLabel
+                label="Telefone"
+                name="telefone"
+                type="tel"
+                value={formData.telefone}
+                onChange={handleChange}
+                placeholder="(XX) XXXXX-XXXX"
+                icone={<PhoneOutlined className="text-green-dark" />}
+                error={errors.telefone}
+                mask="(99) 99999-9999"
+            />
 
-                <InputSemBordaComLabel
-                    label="Senha"
-                    name="senha"
-                    type="password"
-                    value={formData.senha}
-                    onChange={handleChange}
-                    placeholder="******"
-                    icone={<LockOutlined className="text-green-dark" />}
-                    erro={erros.senha}
-                />
+            <InputSemBordaComLabel
+                label="Senha"
+                name="senha"
+                type="password"
+                value={formData.senha}
+                onChange={handleChange}
+                placeholder="******"
+                icone={<LockOutlined className="text-green-dark" />}
+                error={errors.senha}
+            />
 
-                <InputSemBordaComLabel
-                    label="Confirme a senha"
-                    name="confirmarSenha"
-                    type="password"
-                    value={formData.confirmarSenha}
-                    onChange={handleChange}
-                    placeholder="******"
-                    icone={<LockOutlined className="text-green-dark" />}
-                    erro={erros.confirmarSenha}
-                />
+            <InputSemBordaComLabel
+                label="Confirme a senha"
+                name="confirmarSenha"
+                type="password"
+                value={formData.confirmarSenha}
+                onChange={handleChange}
+                placeholder="******"
+                icone={<LockOutlined className="text-green-dark" />}
+                error={errors.confirmarSenha}
+            />
 
-                {/* Seção de Vínculos */}
-                <div className="my-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-semibold">Vínculos</h3>
-                        <button
-                            type="button"
-                            onClick={onAbrirModal}
-                            className="flex items-center gap-2 text-green-dark hover:text-green"
-                        >
-                            <PlusOutlined /> Novo Vínculo
-                        </button>
+            <div className="my-6">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold">Vínculos</h3>
+                    <button
+                        type="button"
+                        onClick={onAbrirModal}
+                        className="flex items-center gap-2 text-green-dark hover:text-green"
+                    >
+                        <PlusOutlined /> Novo Vínculo
+                    </button>
+                </div>
+
+                {vinculos.map((vinculo, index) => (
+                    <div key={index} className="p-3 mb-2 border rounded-lg">
+                        <p>Perfil: {vinculo.roleId}</p>
+                        {vinculo.granjaId && <p>Granja: {vinculo.granjaId}</p>}
+                        {vinculo.agroindustriaId && <p>Agroindústria: {vinculo.agroindustriaId}</p>}
                     </div>
+                ))}
 
-                    {/* Listagem de vínculos */}
-                    {vinculos.map((vinculo, index) => (
-                        <div key={index} className="p-3 mb-2 border rounded-lg">
-                            <p>Perfil: {vinculo.roleId}</p>
-                            {vinculo.granjaId && <p>Granja: {vinculo.granjaId}</p>}
-                            {vinculo.agroindustriaId && <p>Agroindústria: {vinculo.agroindustriaId}</p>}
-                        </div>
-                    ))}
+                {errors.vinculos && <p className="text-red-500 text-sm">{errors.vinculos}</p>}
+            </div>
 
-                    {erros.vinculos && <p className="text-red-500 text-sm">{erros.vinculos}</p>}
-                </div>
-                <div className='w-1/2 mx-auto'>
-                    <BotaoPrimario texto="Cadastrar Usuário" type="submit" />
-                </div>
-            </form>
-        </>
+            <div className="w-1/2 mx-auto">
+                <BotaoPrimario texto="Cadastrar Usuário" type="submit" />
+            </div>
+        </form>
     );
 };
 
