@@ -6,6 +6,7 @@ namespace bris_API.DTOs
     {
         public required string Nome { get; set; }
         public required string Email { get; set; }
+        public string? Telefone { get; set; }
         public required string CPF { get; set; }
         public required string Role { get; set; }
         public  string? NomeAgroindustria { get; set; }

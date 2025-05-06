@@ -59,6 +59,7 @@ namespace bris_API.Controllers
                 {
                     Nome = vinculo.Usuario.Nome,
                     Email = vinculo.Usuario.Email,
+                    Telefone = vinculo.Usuario.Telefone,
                     CPF = vinculo.Usuario.CPF,
                     Role = vinculo.Role.Nome,
                     // Se a role do usuário for ADMIN, não há vínculo com Agroindústria; caso contrário, exibe o NomeFantasia
@@ -104,6 +105,7 @@ namespace bris_API.Controllers
                 // Se algum campo não for fornecido, mantém o valor anterior.
                 usuario.Nome = modelPerfil.Nome;
                 usuario.Email = modelPerfil.Email;
+                usuario.Telefone = modelPerfil.Telefone;
                 usuario.CPF = modelPerfil.CPF;
     
                 // Se uma nova senha for fornecida, gera novo salt e hash para atualizá-la.

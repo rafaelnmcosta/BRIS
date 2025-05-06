@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
           setUserData(null);
       }
     } catch (error) {
-      abrirNotificacao('error', 'Erro de autenticação', 'Não foi possível verificar a autenticação.');
+      abrirNotificacao('error', 'Erro de autenticação', 'Não foi possível verificar a autenticação:');
       setIsAuthenticated(false);
       setIsLogged(false);
       setUserData(null);
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await autenticacao.login({ email, senha });
       if (response.status === 200) {
-        abrirNotificacao('success', 'Login bem-sucedido!', 'Você foi autenticado com sucesso.');
+        //abrirNotificacao('success', 'Login bem-sucedido!', 'Você foi autenticado com sucesso.');
         await checkAuth();
         navigate('/vinculos');
       }
@@ -83,6 +83,7 @@ export const AuthProvider = ({ children }) => {
             abrirNotificacao('error', 'Erro de validação', mensagem);
           });
         });
+        // @todo -> Adicionar tratamento correto de erro com mensagens que façam sentido
       } else if (error.status === 400) {
         abrirNotificacao('error', 'Erro de validação', 'Verifique os campos e tente novamente.');
       } else {
@@ -95,7 +96,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await autenticacao.escolherVinculo(id);
       if (response.status === 200) {
-        abrirNotificacao('success', 'Vínculo selecionado!', 'Você escolheu seu vínculo com sucesso.');
+        //abrirNotificacao('success', 'Vínculo selecionado!', 'Você escolheu seu vínculo com sucesso.');
         await checkAuth();
         navigate('/home');
       }
@@ -108,7 +109,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await autenticacao.logout();
-      abrirNotificacao('success', 'Logout realizado', 'Você saiu do sistema com sucesso.');
+      //abrirNotificacao('success', 'Logout realizado', 'Você saiu do sistema com sucesso.');
       await checkAuth();
       navigate('/login');
     } catch (error) {

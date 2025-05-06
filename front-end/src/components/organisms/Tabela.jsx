@@ -71,7 +71,7 @@ const Tabela = ({ tipo, lista }) => {
     colunas.push({
       title: 'Ações',
       key: 'acoes',
-      width: 180,
+      width: 150,
       align: 'center',
       render: (_, record) => (
         <div className="flex gap-2 justify-center">

@@ -19,6 +19,8 @@ import Teste from './pages/Teste';
 import TabelaUsuarios from './pages/TabelaUsuarios';
 import CadastroUsuario from './pages/CadastroUsuario';
 import EdicaoUsuario from './pages/EdicaoUsuario';
+import Perfil from './pages/Perfil';
+import EdicaoPerfil from './pages/EdicaoPerfil';
 
 function App() {
   return (
@@ -44,6 +46,8 @@ function App() {
                 <Route path='/usuarios' element={<TabelaUsuarios />} />
                 <Route path='/usuarios/cadastrar' element={<CadastroUsuario />} />
                 <Route path='/usuarios/:id/editar' element={<EdicaoUsuario />} />
+                <Route path='/perfil' element={<Perfil />} />
+                <Route path='/perfil/editar' element={<EdicaoPerfil />} />
               </Route>
             </Routes>
           </ValidationProvider>
