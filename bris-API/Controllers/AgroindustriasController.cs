@@ -33,8 +33,10 @@ namespace bris_API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Agroindustria>>> GetAgroindustrias()
         {
-            // Busca todas as agroindústrias no banco de dados e retorna
-            var agroindustrias = await _context.Agroindustrias.ToListAsync();
+            // Busca todas as agroindústrias ativas no banco de dados e retorna
+            var agroindustrias = await _context.Agroindustrias
+                .Where(a => a.Ativo)
+                .ToListAsync();
             return Ok(agroindustrias);
         }
 
@@ -132,7 +134,6 @@ namespace bris_API.Controllers
             agroindustria.NomeFantasia = modelAgroindustria.NomeFantasia;
             agroindustria.RazaoSocial = modelAgroindustria.RazaoSocial;
             agroindustria.CNPJ = modelAgroindustria.CNPJ;
-            agroindustria.Ativo = modelAgroindustria.Ativo;
 
             // Marca a entidade como modificada e salva as alterações
             _context.Entry(agroindustria).State = EntityState.Modified;
@@ -156,7 +157,7 @@ namespace bris_API.Controllers
                 NomeFantasia = modelAgroindustria.NomeFantasia,
                 RazaoSocial = modelAgroindustria.RazaoSocial,
                 CNPJ = modelAgroindustria.CNPJ,
-                Ativo = modelAgroindustria.Ativo
+                Ativo = true
             };
 
             _context.Agroindustrias.Add(agroindustria);

@@ -52,7 +52,7 @@ const Tabela = ({ tipo, lista }) => {
     try {
       switch (tipo) {
         case 'Agroindústria':
-          await agroindustrias.inativarAgroindustria(selectedId);
+          await agroindustrias.desativarAgroindustria(selectedId);
           break;
         case 'Usuário':
           await usuarios.inativarUsuario(selectedId);

@@ -16,8 +16,5 @@ namespace bris_API.DTOs
         [StringLength(14, MinimumLength = 14, ErrorMessage = "O CNPJ deve ter 14 dígitos.")]
         [RegularExpression(@"^\d{14}$", ErrorMessage = "O CNPJ deve conter apenas números.")]
         public required string CNPJ { get; set; }
-
-        [Required(ErrorMessage = "O estado de ativação é obrigatório.")]
-        public required bool Ativo { get; set; }
     }
 }

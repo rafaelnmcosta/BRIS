@@ -15,7 +15,7 @@ const TemplateTabelaAgroindustria = ({ tipo, lista }) => {
 
         <div className="flex gap-4 w-fit">
           <BotaoPrimario
-            texto="Cadastrar novo"
+            texto="Cadastrar nova"
             onClick={() => navigate('/agroindustrias/cadastrar')}
           />
 
