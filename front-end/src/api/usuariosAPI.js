@@ -68,13 +68,14 @@ export const usuarios = {
 
   reativarUsuario: async (id, novosVinculos) => {
     try {
-      const response = await api.put(endpoints.usuarios.reativarUsuario(id), { novosVinculos });
+      const response = await api.put(endpoints.usuarios.reativarUsuario(id), novosVinculos);
       return response.data;
     } catch (error) {
       console.error('Erro ao reativar usuário:', error);
       throw error.response ? error.response.data : error;
     }
   },
+  
 
   listarVinculosUsuario: async (id) => {
     try {

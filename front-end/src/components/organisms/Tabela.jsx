@@ -71,7 +71,7 @@ const Tabela = ({ tipo, lista, ativos, onAtualizar }) => {
           if (acaoConfirmacao === 'inativar') {
             await usuarios.inativarUsuario(selectedId);
           } else {
-            await usuarios.ativarUsuario(selectedId);
+            navigate(`/usuarios/reativar/${selectedId}`);
           }
           break;
         default:

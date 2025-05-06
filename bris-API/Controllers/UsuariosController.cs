@@ -461,6 +461,7 @@ namespace bris_API.Controllers
                 var usuariosInativos = await usuariosInativosQuery
                     .Select(u => new GetUsuarioDTO
                     {
+                        Id = u.Id,
                         Nome = u.Nome,
                         Email = u.Email,
                         CPF = u.CPF,

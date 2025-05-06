@@ -10,8 +10,6 @@ const ModalVinculos = ({ visible, onCancelar, onSalvar }) => {
     const [selectedRole, setSelectedRole] = useState(null);
     const [filteredRoles, setFilteredRoles] = useState([]);
     const agroindustriaSelecionada = Form.useWatch('agroindustriaId', form);
-    console.log('🟡 agroindustriaSelecionada:', agroindustriaSelecionada);
-    console.log(userData.role)
 
     useEffect(() => {
         const filterRoles = () => {
@@ -36,7 +34,6 @@ const ModalVinculos = ({ visible, onCancelar, onSalvar }) => {
     }, [userData.role]);
 
     useEffect(() => {
-        console.log('🟢 agroindustriaSelecionada mudou:', agroindustriaSelecionada);
     }, [agroindustriaSelecionada]);
 
     const handleCancel = () => {

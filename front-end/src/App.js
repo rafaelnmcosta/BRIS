@@ -17,7 +17,9 @@ import ListaVinculos from './pages/ListaVinculos';
 import Home from './pages/Home';
 import Teste from './pages/Teste';
 import TabelaUsuarios from './pages/TabelaUsuarios';
+import TabelaUsuariosInativos from './pages/TabelaUsuariosInativos';
 import CadastroUsuario from './pages/CadastroUsuario';
+import AtivarUsuario from './pages/AtivarUsuario';
 import EdicaoUsuario from './pages/EdicaoUsuario';
 import Perfil from './pages/Perfil';
 import EdicaoPerfil from './pages/EdicaoPerfil';
@@ -47,7 +49,9 @@ function App() {
                 <Route path='/home' element={<Home />} />
                 <Route path='/teste' element={<Teste />} />
                 <Route path='/usuarios' element={<TabelaUsuarios />} />
+                <Route path='/usuarios/inativos' element={<TabelaUsuariosInativos />} />
                 <Route path='/usuarios/cadastrar' element={<CadastroUsuario />} />
+                <Route path="/usuarios/reativar/:id" element={<AtivarUsuario />} />
                 <Route path='/usuarios/:id/editar' element={<EdicaoUsuario />} />
                 <Route path='/perfil' element={<Perfil />} />
                 <Route path='/perfil/editar' element={<EdicaoPerfil />} />

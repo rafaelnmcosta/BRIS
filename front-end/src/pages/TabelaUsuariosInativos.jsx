@@ -3,7 +3,7 @@ import { usuarios } from '../api/usuariosAPI';
 import { useAuth } from '../services/AuthContext';
 import TemplateTabelaUsuarios from '../components/templates/TemplateTabelaUsuarios';
 
-const TabelaUsuarios = () => {
+const TabelaUsuariosInativos = () => {
     const [usuariosLista, setUsuariosLista] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -11,10 +11,10 @@ const TabelaUsuarios = () => {
 
     const carregarUsuarios = async () => {
         try {
-            const dados = await usuarios.listarUsuarios(); // lista apenas os ativos
+            const dados = await usuarios.listarUsuariosInativos();
             setUsuariosLista(dados);
         } catch (err) {
-            setError('Falha ao carregar lista de usuários');
+            setError('Falha ao carregar lista de usuários inativos');
         } finally {
             setLoading(false);
         }
@@ -27,7 +27,7 @@ const TabelaUsuarios = () => {
     }, [isAuthenticated]);
 
     if (loading) {
-        return <p>Carregando usuários...</p>;
+        return <p>Carregando usuários inativos...</p>;
     }
 
     if (error) {
@@ -38,10 +38,10 @@ const TabelaUsuarios = () => {
         <TemplateTabelaUsuarios
             tipo="Usuário"
             lista={usuariosLista}
-            ativos={true}
+            ativos={false}
             onAtualizar={carregarUsuarios}
         />
     );
 };
 
-export default TabelaUsuarios;
+export default TabelaUsuariosInativos;
