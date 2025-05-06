@@ -16,17 +16,22 @@ import Login from './pages/Login';
 import ListaVinculos from './pages/ListaVinculos';
 import Home from './pages/Home';
 import Teste from './pages/Teste';
+
 import TabelaUsuarios from './pages/TabelaUsuarios';
 import TabelaUsuariosInativos from './pages/TabelaUsuariosInativos';
 import CadastroUsuario from './pages/CadastroUsuario';
 import AtivarUsuario from './pages/AtivarUsuario';
 import EdicaoUsuario from './pages/EdicaoUsuario';
+
 import Perfil from './pages/Perfil';
 import EdicaoPerfil from './pages/EdicaoPerfil';
+
 import TabelaAgroindustrias from './pages/TabelaAgroindustrias';
 import TabelaAgroindustriasInativas from './pages/TabelaAgroindustriasInativas';
 import CadastroAgroindustria from './pages/CadastroAgroindustria';
 import EdicaoAgroindustria from './pages/EdicaoAgroindustria';
+
+import TabelaGranjas from './pages/TabelaGranjas';
 
 function App() {
   return (
@@ -60,6 +65,7 @@ function App() {
                 <Route path='/agroindustrias/inativas' element={<TabelaAgroindustriasInativas />} />
                 <Route path='/agroindustrias/cadastrar' element={<CadastroAgroindustria />} />
                 <Route path='/agroindustrias/:id/editar' element={<EdicaoAgroindustria />} />
+                <Route path='/granjas' element={<TabelaGranjas />} />
               </Route>
             </Routes>
           </ValidationProvider>

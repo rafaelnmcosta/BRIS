@@ -6,6 +6,7 @@ import { useAuth } from '../../services/AuthContext';
 import ModalConfirmacao from './ModalConfirmacao';
 import { usuarios } from '../../api/usuariosAPI';
 import { agroindustrias } from '../../api/agroindustriasAPI';
+import { granjas } from '../../api/granjasAPI';
 
 const Tabela = ({ tipo, lista, ativos, onAtualizar }) => {
   const [selectedId, setSelectedId] = useState(null);
@@ -19,6 +20,9 @@ const Tabela = ({ tipo, lista, ativos, onAtualizar }) => {
     switch (tipo) {
       case 'Agroindústria':
         rota = `/agroindustrias/${id}/editar`;
+        break;
+      case 'Granja':
+        rota = `/granjas/${id}/editar`;
         break;
       case 'Usuário':
         rota = `/usuarios/${id}/editar`;
@@ -34,6 +38,9 @@ const Tabela = ({ tipo, lista, ativos, onAtualizar }) => {
     switch (tipo) {
       case 'Agroindústria':
         rota = `/agroindustrias/${id}`;
+        break;
+      case 'Granja':
+        rota = `/granjas/${id}`;
         break;
       case 'Usuário':
         rota = `/usuarios/${id}`; break;
@@ -65,6 +72,13 @@ const Tabela = ({ tipo, lista, ativos, onAtualizar }) => {
             await agroindustrias.desativarAgroindustria(selectedId);
           } else {
             await agroindustrias.ativarAgroindustria(selectedId);
+          }
+          break;
+        case 'Granja':
+          if (acaoConfirmacao === 'inativar') {
+            await granjas.desativarGranja(selectedId);
+          } else {
+            await granjas.ativarGranja(selectedId);
           }
           break;
         case 'Usuário':
@@ -103,6 +117,13 @@ const Tabela = ({ tipo, lista, ativos, onAtualizar }) => {
       case 'Agroindústria':
         colunas = [
           { title: 'Nome Fantasia', dataIndex: 'nomeFantasia', key: 'nomeFantasia' },
+          { title: 'CNPJ', dataIndex: 'cnpj', key: 'cnpj' },
+        ];
+        break;
+
+      case 'Granja':
+        colunas = [
+          { title: 'Nome da propriedade', dataIndex: 'nomePropriedade', key: 'nomePropriedade' },
           { title: 'CNPJ', dataIndex: 'cnpj', key: 'cnpj' },
         ];
         break;

@@ -15,7 +15,7 @@ const TemplateHome = () => {
                     <>
                         <BotaoMenu texto="Gerenciar Usuários" onClick={() => navigate('/usuarios')} />
                         <BotaoMenu texto="Gerenciar Agroindústrias" onClick={() => navigate('/agroindustrias')} />
-                        <BotaoOff texto="Gerenciar Granjas" onClick={() => navigate('/granjas')} />
+                        <BotaoMenu texto="Gerenciar Granjas" onClick={() => navigate('/granjas')} />
                         <BotaoOff texto="Gerenciar Animais" onClick={() => navigate('/animais')} />
                         <BotaoOff texto="Gerenciar Doses" onClick={() => navigate('/doses')} />
                     </>
@@ -24,7 +24,7 @@ const TemplateHome = () => {
                 return (
                     <>
                         <BotaoMenu texto="Gerenciar Usuários" onClick={() => navigate('/usuarios')} />
-                        <BotaoOff texto="Gerenciar Granjas" onClick={() => navigate('/granjas')} />
+                        <BotaoMenu texto="Gerenciar Granjas" onClick={() => navigate('/granjas')} />
                         <BotaoOff texto="Gerenciar Animais" onClick={() => navigate('/animais')} />
                     </>
                 );
