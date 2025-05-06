@@ -134,6 +134,7 @@ namespace bris_API.Controllers
             agroindustria.NomeFantasia = modelAgroindustria.NomeFantasia;
             agroindustria.RazaoSocial = modelAgroindustria.RazaoSocial;
             agroindustria.CNPJ = modelAgroindustria.CNPJ;
+            agroindustria.Ativo = agroindustria.Ativo;
 
             // Marca a entidade como modificada e salva as alterações
             _context.Entry(agroindustria).State = EntityState.Modified;

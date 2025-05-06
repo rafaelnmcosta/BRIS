@@ -43,6 +43,7 @@ export const agroindustrias = {
   },
 
   editarAgroindustria: async (id, agroindustriaData) => {
+    console.log(agroindustriaData)
     try {
       const response = await api.put(endpoints.agroindustrias.editar(id), agroindustriaData);
       return response.data;

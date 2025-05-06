@@ -26,6 +26,7 @@ import EdicaoPerfil from './pages/EdicaoPerfil';
 import TabelaAgroindustrias from './pages/TabelaAgroindustrias';
 import TabelaAgroindustriasInativas from './pages/TabelaAgroindustriasInativas';
 import CadastroAgroindustria from './pages/CadastroAgroindustria';
+import EdicaoAgroindustria from './pages/EdicaoAgroindustria';
 
 function App() {
   return (
@@ -58,6 +59,7 @@ function App() {
                 <Route path='/agroindustrias' element={<TabelaAgroindustrias />} />
                 <Route path='/agroindustrias/inativas' element={<TabelaAgroindustriasInativas />} />
                 <Route path='/agroindustrias/cadastrar' element={<CadastroAgroindustria />} />
+                <Route path='/agroindustrias/:id/editar' element={<EdicaoAgroindustria />} />
               </Route>
             </Routes>
           </ValidationProvider>
