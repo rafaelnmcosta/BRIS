@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
 import ModalConfirmacao from './ModalConfirmacao';
 import { usuarios } from '../../api/usuariosAPI';
+import { agroindustrias } from '../../api/agroindustriasAPI';
 
 const Tabela = ({ tipo, lista }) => {
   const navigate = useNavigate();
@@ -13,58 +14,81 @@ const Tabela = ({ tipo, lista }) => {
   const { userData } = useAuth();
 
   const handleEditar = (id) => {
-    navigate(`/usuarios/${id}/editar`);
+    let rota;
+    switch (tipo) {
+      case 'Agroindústria':
+        rota = `/agroindustrias/${id}/editar`;
+        break;
+      case 'Usuário':
+        rota = `/usuarios/${id}/editar`;
+        break;
+      default:
+        rota = `/home`
+    }
+    navigate(rota);
   };
 
   const handleDetalhes = (id) => {
-    navigate(`/usuarios/${id}`);
-  }
+    let rota;
+    switch (tipo) {
+      case 'Agroindústria':
+        rota = `/agroindustrias/${id}`;
+        break;
+      case 'Usuário':
+        rota = `/usuarios/${id}`; break;
+      default:
+        rota = `/home`
+
+    }
+    navigate(rota);
+  };
 
   const handleInativarConfirmacao = (id) => {
     setSelectedId(id);
     setShowConfirmacao(true);
   };
 
-  const handleInativar = () => {
-    usuarios.inativarUsuario(selectedId)
-    setShowConfirmacao(false);
+  const handleInativar = async () => {
+    try {
+      switch (tipo) {
+        case 'Agroindústria':
+          await agroindustrias.inativarAgroindustria(selectedId);
+          break;
+        case 'Usuário':
+          await usuarios.inativarUsuario(selectedId);
+          break;
+        default:
+          console.warn(`Tipo "${tipo}" não possui lógica de inativação definida.`);
+      }
+    } finally {
+      setShowConfirmacao(false);
+    }
   };
 
+
   const gerarColunas = () => {
-    let colunas = []
+    let colunas = [];
+
     switch (tipo) {
       case 'Usuário':
         colunas = [
-          {
-            title: 'Nome',
-            dataIndex: 'nome',
-            key: 'nome',
-          },
-          {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
-          },
-          {
-            title: 'CPF',
-            dataIndex: 'cpf',
-            key: 'cpf',
-          }
+          { title: 'Nome', dataIndex: 'nome', key: 'nome' },
+          { title: 'Email', dataIndex: 'email', key: 'email' },
+          { title: 'CPF', dataIndex: 'cpf', key: 'cpf' },
         ];
         break;
-      // adicionar outros casos dpss
+
+      case 'Agroindústria':
+        colunas = [
+          { title: 'Nome Fantasia', dataIndex: 'nomeFantasia', key: 'nomeFantasia' },
+          { title: 'CNPJ', dataIndex: 'cnpj', key: 'cnpj' },
+        ];
+        break;
+
       default:
         colunas = [
-          {
-            title: 'Item',
-            dataIndex: 'nome',
-            key: 'nome',
-          },
-          {
-            title: 'Ações',
-            key: 'acoes',
-            render: () => 'Placeholder'
-          }
+          { title: 'Item', dataIndex: 'nome', key: 'nome' },
+          { title: 'Ações', key: 'acoes', render: () => 'Placeholder' },
         ];
     }
 
@@ -101,8 +125,8 @@ const Tabela = ({ tipo, lista }) => {
             />
           )}
         </div>
-      )
-    });    
+      ),
+    });
 
     return colunas;
   };
@@ -121,7 +145,7 @@ const Tabela = ({ tipo, lista }) => {
         onClose={() => setShowConfirmacao(false)}
         onConfirm={handleInativar}
         title="Confirmar Inativação"
-        content="Tem certeza que deseja inativar este usuário?"
+        content={`Tem certeza que deseja inativar esse/a ${tipo.toLowerCase()}?`}
         okText="Inativar"
         danger={true}
       />

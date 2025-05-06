@@ -3,7 +3,7 @@ import BotaoPrimario from '../atoms/BotaoPrimario';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
 
-const TemplateTabela = ({ tipo, lista }) => {
+const TemplateTabelaAgroindustria = ({ tipo, lista }) => {
   const { userData } = useAuth();
   const navigate = useNavigate();
 
@@ -16,16 +16,16 @@ const TemplateTabela = ({ tipo, lista }) => {
         <div className="flex gap-4 w-fit">
           <BotaoPrimario
             texto="Cadastrar novo"
-            onClick={() => navigate('/usuarios/cadastrar')}
+            onClick={() => navigate('/agroindustrias/cadastrar')}
           />
 
           {userData.role === 'ADMIN' && (
             <BotaoPrimario
-              texto="Listar inativos"
-              onClick={() => navigate('/usuarios/inativos')}
+              texto="Listar inativas"
+              onClick={() => navigate('/agroindustrias/inativas')}
             />
           )}
-          
+
         </div>
       </div>
 
@@ -35,4 +35,4 @@ const TemplateTabela = ({ tipo, lista }) => {
   );
 };
 
-export default TemplateTabela;
+export default TemplateTabelaAgroindustria;

@@ -21,6 +21,7 @@ import CadastroUsuario from './pages/CadastroUsuario';
 import EdicaoUsuario from './pages/EdicaoUsuario';
 import Perfil from './pages/Perfil';
 import EdicaoPerfil from './pages/EdicaoPerfil';
+import TabelaAgroindustria from './pages/TabelaAgroindustria';
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
                 <Route path='/usuarios/:id/editar' element={<EdicaoUsuario />} />
                 <Route path='/perfil' element={<Perfil />} />
                 <Route path='/perfil/editar' element={<EdicaoPerfil />} />
+                <Route path='/agroindustrias' element={<TabelaAgroindustria />} />
               </Route>
             </Routes>
           </ValidationProvider>

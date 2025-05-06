@@ -14,7 +14,7 @@ const TemplateHome = () => {
                 return (
                     <>
                         <BotaoMenu texto="Gerenciar Usuários" onClick={() => navigate('/usuarios')} />
-                        <BotaoOff texto="Gerenciar Agroindústrias" onClick={() => navigate('/agroindustrias')} />
+                        <BotaoMenu texto="Gerenciar Agroindústrias" onClick={() => navigate('/agroindustrias')} />
                         <BotaoOff texto="Gerenciar Granjas" onClick={() => navigate('/granjas')} />
                         <BotaoOff texto="Gerenciar Animais" onClick={() => navigate('/animais')} />
                         <BotaoOff texto="Gerenciar Doses" onClick={() => navigate('/doses')} />
