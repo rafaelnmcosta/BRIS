@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import InputSemBordaComLabel from '../molecules/InputSemBordaComLabel';
 import BotaoPrimario from '../atoms/BotaoPrimario';
+import { useValidation } from '../../services/ValidationContext';
 import {
     UserOutlined,
     MailOutlined,
@@ -10,6 +11,7 @@ import {
 } from '@ant-design/icons';
 
 const FormEdicaoPerfil = ({ onSubmit, erros, initialData = {} }) => {
+    const [errors, setErrors] = React.useState({});
     const [formData, setFormData] = useState({
         nome: '',
         email: '',
@@ -18,6 +20,15 @@ const FormEdicaoPerfil = ({ onSubmit, erros, initialData = {} }) => {
         senha: '',
         confirmarSenha: ''
     });
+
+    const {
+        validarCampoObrigatorio,
+        validarEmail,
+        validarCPF,
+        validarTelefone,
+        validarSenha,
+        validarConfirmacaoSenha,
+    } = useValidation();
 
     useEffect(() => {
         if (initialData) {
@@ -33,8 +44,40 @@ const FormEdicaoPerfil = ({ onSubmit, erros, initialData = {} }) => {
     }, [initialData]);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        let { name, value } = e.target;
+
+        if (['cpf', 'telefone'].includes(name)) {
+            value = value.replace(/\D/g, '');
+        }
+
+        setFormData((prev) => ({ ...prev, [name]: value }));
+
+        // Valida apenas o campo alterado
+        let erro = '';
+        switch (name) {
+            case 'nome':
+                erro = validarCampoObrigatorio(value);
+                break;
+            case 'email':
+                erro = validarCampoObrigatorio(value) || validarEmail(value);
+                break;
+            case 'cpf':
+                erro = validarCampoObrigatorio(value) || validarCPF(value);
+                break;
+            case 'telefone':
+                erro = validarTelefone(value);
+                break;
+            case 'senha':
+                erro = validarCampoObrigatorio(value) || validarSenha(value);
+                break;
+            case 'confirmarSenha':
+                erro = validarConfirmacaoSenha(formData.senha, value);
+                break;
+            default:
+                break;
+        }
+
+        setErrors((prevErros) => ({ ...prevErros, [name]: erro }));
     };
 
     const handleSubmit = (e) => {
@@ -91,7 +134,7 @@ const FormEdicaoPerfil = ({ onSubmit, erros, initialData = {} }) => {
             <InputSemBordaComLabel
                 label="Nova Senha (opcional)"
                 name="senha"
-                type="password"
+                type="passwordCadastro"
                 value={formData.senha}
                 onChange={handleChange}
                 placeholder="Deixe em branco para manter a atual"

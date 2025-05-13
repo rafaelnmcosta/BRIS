@@ -84,7 +84,7 @@ const InputSemBordaComLabel = ({
         return (
           <>
             <Input.Password {...commonProps} />
-            <PasswordStrengthMeter senha={value} />
+            {value && <PasswordStrengthMeter senha={value} />}
           </>
         );
       case 'password':

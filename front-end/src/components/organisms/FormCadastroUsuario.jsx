@@ -59,10 +59,36 @@ const FormCadastroUsuario = ({ onSubmit, vinculos, onAbrirModal }) => {
             value = value.replace(/\D/g, '');
         }
 
-        const errosValidados = validarCampos();
-        setErrors(errosValidados);
-
+        // Atualiza o campo alterado no formData
         setFormData((prev) => ({ ...prev, [name]: value }));
+
+        // Valida apenas o campo alterado
+        let erro = '';
+        switch (name) {
+            case 'nome':
+                erro = validarCampoObrigatorio(value);
+                break;
+            case 'email':
+                erro = validarCampoObrigatorio(value) || validarEmail(value);
+                break;
+            case 'cpf':
+                erro = validarCampoObrigatorio(value) || validarCPF(value);
+                break;
+            case 'telefone':
+                erro = validarTelefone(value);
+                break;
+            case 'senha':
+                erro = validarCampoObrigatorio(value) || validarSenha(value);
+                break;
+            case 'confirmarSenha':
+                erro = validarConfirmacaoSenha(formData.senha, value);
+                break;
+            default:
+                break;
+        }
+
+        // Atualiza o erro apenas para o campo específico
+        setErrors((prevErros) => ({ ...prevErros, [name]: erro }));
     };
 
     const handleSubmit = (e) => {

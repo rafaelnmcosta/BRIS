@@ -53,6 +53,33 @@ const FormEdicaoUsuario = ({ initialData, onSubmit, vinculos, onAbrirModal, onRe
         }
 
         setFormData((prev) => ({ ...prev, [name]: value }));
+
+        // Valida apenas o campo alterado
+        let erro = '';
+        switch (name) {
+            case 'nome':
+                erro = validarCampoObrigatorio(value);
+                break;
+            case 'email':
+                erro = validarCampoObrigatorio(value) || validarEmail(value);
+                break;
+            case 'cpf':
+                erro = validarCampoObrigatorio(value) || validarCPF(value);
+                break;
+            case 'telefone':
+                erro = validarTelefone(value);
+                break;
+            case 'senha':
+                erro = validarCampoObrigatorio(value) || validarSenha(value);
+                break;
+            case 'confirmarSenha':
+                erro = validarConfirmacaoSenha(formData.senha, value);
+                break;
+            default:
+                break;
+        }
+
+        setErrors((prevErros) => ({ ...prevErros, [name]: erro }));
     };
 
     const validarCampos = () => {
@@ -154,10 +181,10 @@ const FormEdicaoUsuario = ({ initialData, onSubmit, vinculos, onAbrirModal, onRe
             <InputSemBordaComLabel
                 label="Nova Senha (opcional)"
                 name="senha"
-                type="password"
+                type="passwordCadastro"
                 value={formData.senha}
                 onChange={handleChange}
-                placeholder="******"
+                placeholder="Deixe em branco para manter a atual"
                 icone={<LockOutlined className="text-green-dark" />}
                 error={errors.senha}
             />
@@ -168,7 +195,7 @@ const FormEdicaoUsuario = ({ initialData, onSubmit, vinculos, onAbrirModal, onRe
                 type="password"
                 value={formData.confirmarSenha}
                 onChange={handleChange}
-                placeholder="******"
+                placeholder="Repita a nova senha"
                 icone={<LockOutlined className="text-green-dark" />}
                 error={errors.confirmarSenha}
             />
