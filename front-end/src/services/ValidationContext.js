@@ -42,10 +42,18 @@ export const ValidationProvider = ({ children }) => {
     return apenasNumeros.length >= 10
       ? ''
       : 'Telefone inválido';
-  };  
+  };
 
   const validarSenha = (senha) => {
-    return senha.length >= 6 ? '' : 'A senha deve ter pelo menos 6 caracteres';
+    const erros = [];
+
+    if (senha.length < 8) erros.push("Mínimo de 8 caracteres");
+    if (!/[a-z]/.test(senha)) erros.push("Ao menos uma letra minúscula");
+    if (!/[A-Z]/.test(senha)) erros.push("Ao menos uma letra maiúscula");
+    if (!/[0-9]/.test(senha)) erros.push("Ao menos um número");
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(senha)) erros.push("Ao menos um caractere especial");
+
+    return erros.length > 0 ? erros.join(", ") : '';
   };
 
   const validarConfirmacaoSenha = (senha, confirmar) => {

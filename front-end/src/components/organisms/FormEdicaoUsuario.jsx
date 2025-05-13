@@ -1,29 +1,36 @@
-import React, { useState } from 'react';
+import React from 'react';
 import InputSemBordaComLabel from '../molecules/InputSemBordaComLabel';
 import BotaoPrimario from '../atoms/BotaoPrimario';
-import { UserOutlined, MailOutlined, IdcardOutlined, PhoneOutlined, LockOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import {
+    UserOutlined, MailOutlined, IdcardOutlined,
+    PhoneOutlined, LockOutlined, PlusOutlined, DeleteOutlined
+} from '@ant-design/icons';
+import { useValidation } from '../../services/ValidationContext';
 import ModalConfirmacao from './ModalConfirmacao';
 
-const FormEdicaoUsuario = ({
-    onSubmit,
-    erros,
-    onAbrirModal,
-    initialData = {},
-    vinculos,
-    onRemoverVinculo
-}) => {
-    
-    const [vinculoParaRemover, setVinculoParaRemover] = useState(null);
-    const [showRemoverVinculo, setShowRemoverVinculo] = useState(false);
-
+const FormEdicaoUsuario = ({ initialData, onSubmit, vinculos, onAbrirModal, onRemoverVinculo }) => {
     const [formData, setFormData] = React.useState({
-        nome: initialData.nome || '',
-        email: initialData.email || '',
-        cpf: initialData.cpf || '',
-        telefone: initialData.telefone || '',
+        nome: '',
+        email: '',
+        cpf: '',
+        telefone: '',
         senha: '',
         confirmarSenha: ''
     });
+
+    const [errors, setErrors] = React.useState({});
+    const [vinculoParaRemover, setVinculoParaRemover] = React.useState(null);
+    const [showModalRemover, setShowModalRemover] = React.useState(false);
+
+    const {
+        validarCampoObrigatorio,
+        validarEmail,
+        validarCPF,
+        validarTelefone,
+        validarSenha,
+        validarConfirmacaoSenha,
+        validarVinculos
+    } = useValidation();
 
     React.useEffect(() => {
         if (initialData) {
@@ -40,29 +47,62 @@ const FormEdicaoUsuario = ({
 
     const handleChange = (e) => {
         let { name, value } = e.target;
-      
-        // remove a máscara de campos específicos
-        if (['CPF', 'Telefone'].includes(name)) {
-          value = value.replace(/\D/g, '');
+
+        if (['cpf', 'telefone'].includes(name)) {
+            value = value.replace(/\D/g, '');
         }
-      
-        setFormData({ ...formData, [name]: value });
-      };
+
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const validarCampos = () => {
+        const novosErros = {};
+
+        const erroNome = validarCampoObrigatorio(formData.nome);
+        if (erroNome) novosErros.nome = erroNome;
+
+        const erroEmail = validarCampoObrigatorio(formData.email) || validarEmail(formData.email);
+        if (erroEmail) novosErros.email = erroEmail;
+
+        const erroCPF = validarCampoObrigatorio(formData.cpf) || validarCPF(formData.cpf);
+        if (erroCPF) novosErros.cpf = erroCPF;
+
+        const erroTelefone = validarTelefone(formData.telefone);
+        if (erroTelefone) novosErros.telefone = erroTelefone;
+
+        if (formData.senha) {
+            const erroSenha = validarSenha(formData.senha);
+            if (erroSenha) novosErros.senha = erroSenha;
+
+            const erroConfirmarSenha = validarConfirmacaoSenha(formData.senha, formData.confirmarSenha);
+            if (erroConfirmarSenha) novosErros.confirmarSenha = erroConfirmarSenha;
+        }
+
+        const erroVinculos = validarVinculos(vinculos);
+        if (erroVinculos) novosErros.vinculos = erroVinculos;
+
+        return novosErros;
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (vinculos.length === 0) {
-            erros = (prev => ({ ...prev, vinculos: 'É necessário pelo menos um vínculo' }));
-            return;
-        }
+        const errosValidados = validarCampos();
+        setErrors(errosValidados);
 
-        // Envia os dados atualizados mantendo o ID
-        onSubmit({
-            ...formData,
+        if (Object.keys(errosValidados).length > 0) return;
+
+        const dadosParaEnviar = {
             id: initialData.id,
+            nome: formData.nome,
+            email: formData.email,
+            cpf: formData.cpf,
+            telefone: formData.telefone,
+            senha: formData.senha || null,
             vinculos
-        });
+        };
+
+        onSubmit(dadosParaEnviar);
     };
 
     return (
@@ -74,7 +114,7 @@ const FormEdicaoUsuario = ({
                 onChange={handleChange}
                 placeholder="Nome completo"
                 icone={<UserOutlined className="text-green-dark" />}
-                erro={erros.nome}
+                error={errors.nome}
             />
 
             <InputSemBordaComLabel
@@ -85,7 +125,7 @@ const FormEdicaoUsuario = ({
                 onChange={handleChange}
                 placeholder="exemplo@email.com"
                 icone={<MailOutlined className="text-green-dark" />}
-                erro={erros.email}
+                error={errors.email}
             />
 
             <InputSemBordaComLabel
@@ -95,7 +135,7 @@ const FormEdicaoUsuario = ({
                 onChange={handleChange}
                 placeholder="XXX.XXX.XXX-XX"
                 icone={<IdcardOutlined className="text-green-dark" />}
-                erro={erros.cpf}
+                error={errors.cpf}
                 mask="999.999.999-99"
             />
 
@@ -107,7 +147,7 @@ const FormEdicaoUsuario = ({
                 onChange={handleChange}
                 placeholder="(XX) XXXXX-XXXX"
                 icone={<PhoneOutlined className="text-green-dark" />}
-                erro={erros.telefone}
+                error={errors.telefone}
                 mask="(99) 99999-9999"
             />
 
@@ -117,20 +157,20 @@ const FormEdicaoUsuario = ({
                 type="password"
                 value={formData.senha}
                 onChange={handleChange}
-                placeholder="Deixe em branco para manter a atual"
+                placeholder="******"
                 icone={<LockOutlined className="text-green-dark" />}
-                erro={erros.senha}
+                error={errors.senha}
             />
 
             <InputSemBordaComLabel
-                label="Confirme a Nova Senha"
+                label="Confirme a nova senha"
                 name="confirmarSenha"
                 type="password"
                 value={formData.confirmarSenha}
                 onChange={handleChange}
-                placeholder="Repita a nova senha"
+                placeholder="******"
                 icone={<LockOutlined className="text-green-dark" />}
-                erro={erros.confirmarSenha}
+                error={errors.confirmarSenha}
             />
 
             <div className="my-6">
@@ -145,8 +185,8 @@ const FormEdicaoUsuario = ({
                     </button>
                 </div>
 
-                {vinculos.map((vinculo) => (
-                    <div key={vinculo.id} className="p-3 mb-2 border rounded-lg flex justify-between items-center">
+                {vinculos.map((vinculo, index) => (
+                    <div key={index} className="p-3 mb-2 border rounded-lg flex justify-between items-center">
                         <div>
                             <p>Perfil: {vinculo.roleId}</p>
                             {vinculo.granjaId && <p>Granja: {vinculo.granjaId}</p>}
@@ -155,8 +195,8 @@ const FormEdicaoUsuario = ({
                         <button
                             type="button"
                             onClick={() => {
-                                setVinculoParaRemover(vinculo.id); // Armazena o ID do vínculo
-                                setShowRemoverVinculo(true);
+                                setVinculoParaRemover(vinculo.id);
+                                setShowModalRemover(true);
                             }}
                             className="text-red-500 hover:text-red-700 p-1"
                             aria-label="Remover vínculo"
@@ -166,25 +206,26 @@ const FormEdicaoUsuario = ({
                     </div>
                 ))}
 
-                <ModalConfirmacao
-                    open={showRemoverVinculo}
-                    onClose={() => {
-                        setShowRemoverVinculo(false);
-                        setVinculoParaRemover(null); // Limpa o ID ao cancelar
-                    }}
-                    onConfirm={() => {
-                        onRemoverVinculo(vinculoParaRemover); // Chama a função com o ID armazenado
-                        setShowRemoverVinculo(false);
-                        setVinculoParaRemover(null);
-                    }}
-                    title="Confirmar Remoção"
-                    content="Tem certeza que deseja remover este vínculo?"
-                    okText="Confirmar Remoção"
-                    danger={true}
-                />
+                {errors.vinculos && <p className="text-red-500 text-sm">{errors.vinculos}</p>}
             </div>
 
-            <div className='w-1/2 mx-auto'>
+            <ModalConfirmacao
+                open={showModalRemover}
+                onClose={() => {
+                    setVinculoParaRemover(null);
+                    setShowModalRemover(false);
+                }}
+                onConfirm={() => {
+                    onRemoverVinculo(vinculoParaRemover);
+                    setShowModalRemover(false);
+                }}
+                title="Confirmar remoção"
+                content="Deseja realmente remover este vínculo?"
+                okText="Confirmar remoção"
+                danger
+            />
+
+            <div className="w-1/2 mx-auto">
                 <BotaoPrimario texto="Salvar Alterações" type="submit" />
             </div>
         </form>

@@ -40,7 +40,6 @@ const FormCadastroUsuario = ({ onSubmit, vinculos, onAbrirModal }) => {
         const erroTelefone = validarTelefone(formData.telefone);
         if (erroTelefone) novosErros.telefone = erroTelefone;
 
-
         const erroSenha = validarCampoObrigatorio(formData.senha) || validarSenha(formData.senha);
         if (erroSenha) novosErros.senha = erroSenha;
 
@@ -59,6 +58,9 @@ const FormCadastroUsuario = ({ onSubmit, vinculos, onAbrirModal }) => {
         if (['cpf', 'telefone'].includes(name)) {
             value = value.replace(/\D/g, '');
         }
+
+        const errosValidados = validarCampos();
+        setErrors(errosValidados);
 
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
@@ -126,10 +128,10 @@ const FormCadastroUsuario = ({ onSubmit, vinculos, onAbrirModal }) => {
             <InputSemBordaComLabel
                 label="Senha"
                 name="senha"
-                type="password"
+                type="passwordCadastro"
                 value={formData.senha}
                 onChange={handleChange}
-                placeholder="******"
+                placeholder="********"
                 icone={<LockOutlined className="text-green-dark" />}
                 error={errors.senha}
             />
@@ -140,7 +142,7 @@ const FormCadastroUsuario = ({ onSubmit, vinculos, onAbrirModal }) => {
                 type="password"
                 value={formData.confirmarSenha}
                 onChange={handleChange}
-                placeholder="******"
+                placeholder="********"
                 icone={<LockOutlined className="text-green-dark" />}
                 error={errors.confirmarSenha}
             />

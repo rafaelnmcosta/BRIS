@@ -2,7 +2,7 @@ import React from 'react';
 import FormEdicaoUsuario from '../organisms/FormEdicaoUsuario';
 import ModalVinculos from '../organisms/ModalVinculos';
 
-const TemplateEdicaoUsuario = ({ onSubmit, erros, initialData, vinculos, onAdicionarVinculo, onRemoverVinculo }) => {
+const TemplateEdicaoUsuario = ({ onSubmit, initialData, vinculos, onAdicionarVinculo, onRemoverVinculo }) => {
     const [showModal, setShowModal] = React.useState(false);
     return (
         <div className="container mx-auto pt-8 h-fit">
@@ -13,7 +13,6 @@ const TemplateEdicaoUsuario = ({ onSubmit, erros, initialData, vinculos, onAdici
             <div className="bg-white shadow-lg rounded-xl w-1/2 mx-auto py-12 mb-12 px-16 flex flex-col items-start">
                 <FormEdicaoUsuario
                     onSubmit={onSubmit}
-                    erros={erros}
                     initialData={initialData}
                     vinculos={vinculos}
                     onAbrirModal={() => setShowModal(true)}

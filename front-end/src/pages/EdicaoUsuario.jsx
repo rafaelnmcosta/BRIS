@@ -6,7 +6,6 @@ import { usuarios } from '../api/usuariosAPI';
 const EdicaoUsuario = () => {
     const navigate = useNavigate();
     const { id } = useParams();
-    const [erros, setErros] = useState({});
     const [usuario, setUsuario] = useState(null);
     const [vinculos, setVinculos] = useState([]);
 
@@ -27,17 +26,6 @@ const EdicaoUsuario = () => {
     }, [id, navigate]);
 
     const handleSubmit = async (formData) => {
-        // Validação básica
-        const novosErros = {};
-        if (formData.senha && formData.senha !== formData.confirmarSenha) novosErros.confirmarSenha = 'Senhas não coincidem';
-        if (vinculos.length === 0) novosErros.vinculos = 'Pelo menos um vínculo é necessário';
-
-        if (Object.keys(novosErros).length > 0) {
-            setErros(novosErros);
-            return;
-        }
-
-        // Chamada API para atualização
         try {
             await usuarios.editarUsuario({
                 id: usuario.id,
@@ -55,7 +43,6 @@ const EdicaoUsuario = () => {
             navigate('/usuarios');
         } catch (error) {
             console.error('Erro na atualização:', error);
-            setErros(error.response?.data || { message: 'Erro ao atualizar usuário' });
         }
     };
 
@@ -74,7 +61,6 @@ const EdicaoUsuario = () => {
     return (
         <TemplateEdicaoUsuario
             onSubmit={handleSubmit}
-            erros={erros}
             initialData={usuario}
             vinculos={vinculos}
             onAdicionarVinculo={handleAdicionarVinculo}

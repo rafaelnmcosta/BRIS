@@ -1,6 +1,7 @@
 import React from 'react';
 import { Input } from 'antd';
 import InputMask from 'react-input-mask';
+import PasswordStrengthMeter from './PasswordStrengthMeter';
 
 const InputSemBordaComLabel = ({
   label,
@@ -79,6 +80,13 @@ const InputSemBordaComLabel = ({
 
   const renderField = () => {
     switch (type) {
+      case 'passwordCadastro':
+        return (
+          <>
+            <Input.Password {...commonProps} />
+            <PasswordStrengthMeter senha={value} />
+          </>
+        );
       case 'password':
         return <Input.Password {...commonProps} />;
       case 'textarea':
