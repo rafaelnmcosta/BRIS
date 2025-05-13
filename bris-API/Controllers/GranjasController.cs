@@ -58,8 +58,9 @@ namespace bris_API.Controllers
                     {
                         Id = g.Id,
                         NomePropriedade = g.NomePropriedade,
-                        Endereco = g.Endereco,
                         CNPJ = g.CNPJ,
+                        Telefone = g.Telefone,
+                        Email = g.Email,
                         DataCadastro = g.DataCadastro,
                         Ativo = g.Ativo,
                         Agroindustria = new GetAgroindustriaDTO
@@ -204,7 +205,7 @@ namespace bris_API.Controllers
         /// <returns>Mensagem de sucesso ou erro.</returns>
         [Authorize(Policy = "GerenciaAgroindustria")]
         [HttpPut("{id}/editar")]
-        public async Task<IActionResult> PutGranja(int id, [FromBody] AdminEditaGranjaDto modelGranja)
+        public async Task<IActionResult> PutGranja(int id, [FromBody] GranjaDTO modelGranja)
         {
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             var agroindustriaIdClaim = User.FindFirst("AgroindustriaId")?.Value;
@@ -238,9 +239,10 @@ namespace bris_API.Controllers
 
             // Atualiza os campos
             granja.NomePropriedade = modelGranja.NomePropriedade;
-            granja.Endereco = modelGranja.Endereco;
             granja.CNPJ = modelGranja.CNPJ;
-            granja.Ativo = modelGranja.Ativo;
+            granja.Telefone = modelGranja.Telefone;
+            granja.Email = modelGranja.Email;
+            granja.Ativo = granja.Ativo;
 
             await _context.SaveChangesAsync();
 
@@ -256,7 +258,7 @@ namespace bris_API.Controllers
         /// <returns>Mensagem de sucesso ou erro.</returns>
         [Authorize(Policy = "GerenciaAgroindustria")]
         [HttpPost("cadastrar")]
-        public async Task<IActionResult> PostGranja([FromBody] AdminEditaGranjaDto modelGranja)
+        public async Task<IActionResult> PostGranja([FromBody] GranjaDTO modelGranja)
         {
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             var agroindustriaIdClaim = User.FindFirst("AgroindustriaId")?.Value;
@@ -283,10 +285,11 @@ namespace bris_API.Controllers
             var novaGranja = new Granja
             {
                 NomePropriedade = modelGranja.NomePropriedade,
-                Endereco = modelGranja.Endereco,
                 CNPJ = modelGranja.CNPJ,
+                Telefone = modelGranja.Telefone,
+                Email = modelGranja.Email,
                 AgroindustriaId = modelGranja.AgroindustriaId,
-                Ativo = modelGranja.Ativo
+                Ativo = true
             };
 
             _context.Granjas.Add(novaGranja);

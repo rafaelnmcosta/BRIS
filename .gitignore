@@ -20,6 +20,7 @@ yarn-error.log*
 ### GITIGNORE PARA O DOTNET/WEBAPI
 # dotenv files
 .env
+/bris-API/Env.cs
 
 # User-specific files
 *.rsuser

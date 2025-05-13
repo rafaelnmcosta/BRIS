@@ -5,8 +5,9 @@ namespace bris_API.Models {
         public int AgroindustriaId { get; set; }
         public Agroindustria? Agroindustria { get; set; }
         public ICollection<Animal>? Animais { get; set; }
-        public string? Endereco { get; set; }
         public string? CNPJ { get; set; }
+        public string? Email { get; set; }
+        public string? Telefone { get; set; }
         public ICollection<Vinculo>? Vinculos { get; set; }
         public DateTime DataCadastro { get; set; } = DateTime.UtcNow;
         public bool Ativo { get; set; }
