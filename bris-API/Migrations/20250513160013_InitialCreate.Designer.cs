@@ -12,7 +12,7 @@ using bris_API.Data;
 namespace bris_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250505222528_InitialCreate")]
+    [Migration("20250513160013_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -42,13 +42,25 @@ namespace bris_API.Migrations
                     b.Property<DateTime>("DataCadastro")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Endereco")
+                        .HasColumnType("text");
+
                     b.Property<string>("NomeFantasia")
                         .HasColumnType("text");
 
                     b.Property<string>("RazaoSocial")
                         .HasColumnType("text");
 
+                    b.Property<string>("Telefone")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CNPJ")
+                        .IsUnique();
 
                     b.ToTable("Agroindustrias");
                 });
@@ -182,15 +194,21 @@ namespace bris_API.Migrations
                     b.Property<DateTime>("DataCadastro")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Endereco")
+                    b.Property<string>("Email")
                         .HasColumnType("text");
 
                     b.Property<string>("NomePropriedade")
                         .HasColumnType("text");
 
+                    b.Property<string>("Telefone")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AgroindustriaId");
+
+                    b.HasIndex("CNPJ")
+                        .IsUnique();
 
                     b.ToTable("Granjas");
                 });
@@ -332,6 +350,9 @@ namespace bris_API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CPF")
+                        .IsUnique();
 
                     b.ToTable("Usuarios");
                 });

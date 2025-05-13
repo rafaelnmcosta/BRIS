@@ -21,6 +21,9 @@ namespace bris_API.Migrations
                     NomeFantasia = table.Column<string>(type: "text", nullable: true),
                     RazaoSocial = table.Column<string>(type: "text", nullable: true),
                     CNPJ = table.Column<string>(type: "text", nullable: true),
+                    Endereco = table.Column<string>(type: "text", nullable: true),
+                    Email = table.Column<string>(type: "text", nullable: true),
+                    Telefone = table.Column<string>(type: "text", nullable: true),
                     DataCadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Ativo = table.Column<bool>(type: "boolean", nullable: false)
                 },
@@ -83,8 +86,9 @@ namespace bris_API.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     NomePropriedade = table.Column<string>(type: "text", nullable: true),
                     AgroindustriaId = table.Column<int>(type: "integer", nullable: false),
-                    Endereco = table.Column<string>(type: "text", nullable: true),
                     CNPJ = table.Column<string>(type: "text", nullable: true),
+                    Email = table.Column<string>(type: "text", nullable: true),
+                    Telefone = table.Column<string>(type: "text", nullable: true),
                     DataCadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Ativo = table.Column<bool>(type: "boolean", nullable: false)
                 },
@@ -292,6 +296,12 @@ namespace bris_API.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Agroindustrias_CNPJ",
+                table: "Agroindustrias",
+                column: "CNPJ",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Animais_GranjaId",
                 table: "Animais",
                 column: "GranjaId");
@@ -322,6 +332,12 @@ namespace bris_API.Migrations
                 column: "AgroindustriaId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Granjas_CNPJ",
+                table: "Granjas",
+                column: "CNPJ",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PolicyRoles_PolicyId",
                 table: "PolicyRoles",
                 column: "PolicyId");
@@ -340,6 +356,12 @@ namespace bris_API.Migrations
                 name: "IX_Senhas_UsuarioId",
                 table: "Senhas",
                 column: "UsuarioId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Usuarios_CPF",
+                table: "Usuarios",
+                column: "CPF",
                 unique: true);
 
             migrationBuilder.CreateIndex(

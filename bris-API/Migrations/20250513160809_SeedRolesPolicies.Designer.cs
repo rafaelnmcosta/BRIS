@@ -12,8 +12,8 @@ using bris_API.Data;
 namespace bris_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250505222714_AddBase")]
-    partial class AddBase
+    [Migration("20250513160809_SeedRolesPolicies")]
+    partial class SeedRolesPolicies
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,13 +42,25 @@ namespace bris_API.Migrations
                     b.Property<DateTime>("DataCadastro")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Endereco")
+                        .HasColumnType("text");
+
                     b.Property<string>("NomeFantasia")
                         .HasColumnType("text");
 
                     b.Property<string>("RazaoSocial")
                         .HasColumnType("text");
 
+                    b.Property<string>("Telefone")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CNPJ")
+                        .IsUnique();
 
                     b.ToTable("Agroindustrias");
                 });
@@ -182,15 +194,21 @@ namespace bris_API.Migrations
                     b.Property<DateTime>("DataCadastro")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Endereco")
+                    b.Property<string>("Email")
                         .HasColumnType("text");
 
                     b.Property<string>("NomePropriedade")
                         .HasColumnType("text");
 
+                    b.Property<string>("Telefone")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AgroindustriaId");
+
+                    b.HasIndex("CNPJ")
+                        .IsUnique();
 
                     b.ToTable("Granjas");
                 });
@@ -596,6 +614,9 @@ namespace bris_API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CPF")
+                        .IsUnique();
 
                     b.ToTable("Usuarios");
                 });

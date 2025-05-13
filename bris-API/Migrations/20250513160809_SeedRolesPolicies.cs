@@ -7,7 +7,7 @@
 namespace bris_API.Migrations
 {
     /// <inheritdoc />
-    public partial class AddBase : Migration
+    public partial class SeedRolesPolicies : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

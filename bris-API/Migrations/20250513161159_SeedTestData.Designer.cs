@@ -12,8 +12,8 @@ using bris_API.Data;
 namespace bris_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250505222815_SeedData")]
-    partial class SeedData
+    [Migration("20250513161159_SeedTestData")]
+    partial class SeedTestData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,13 +42,25 @@ namespace bris_API.Migrations
                     b.Property<DateTime>("DataCadastro")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Endereco")
+                        .HasColumnType("text");
+
                     b.Property<string>("NomeFantasia")
                         .HasColumnType("text");
 
                     b.Property<string>("RazaoSocial")
                         .HasColumnType("text");
 
+                    b.Property<string>("Telefone")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CNPJ")
+                        .IsUnique();
 
                     b.ToTable("Agroindustrias");
 
@@ -58,18 +70,24 @@ namespace bris_API.Migrations
                             Id = 1,
                             Ativo = true,
                             CNPJ = "00000000000101",
-                            DataCadastro = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(6813),
-                            NomeFantasia = "Agroindustria Default",
-                            RazaoSocial = "Agroindustria Default"
+                            DataCadastro = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(4504),
+                            Email = "agro_teste@gomail.com",
+                            Endereco = "Rua teste 1",
+                            NomeFantasia = "Agroindustria Teste",
+                            RazaoSocial = "Agroindustria Default",
+                            Telefone = "62999999911"
                         },
                         new
                         {
                             Id = 2,
                             Ativo = true,
                             CNPJ = "11111111000102",
-                            DataCadastro = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(6819),
+                            DataCadastro = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(4512),
+                            Email = "agro_nova@gomail.com",
+                            Endereco = "Rua teste 2",
                             NomeFantasia = "Agroindustria Nova",
-                            RazaoSocial = "Agroindustria Nova"
+                            RazaoSocial = "Agroindustria Nova",
+                            Telefone = "62999999911"
                         });
                 });
 
@@ -202,15 +220,21 @@ namespace bris_API.Migrations
                     b.Property<DateTime>("DataCadastro")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Endereco")
+                    b.Property<string>("Email")
                         .HasColumnType("text");
 
                     b.Property<string>("NomePropriedade")
                         .HasColumnType("text");
 
+                    b.Property<string>("Telefone")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AgroindustriaId");
+
+                    b.HasIndex("CNPJ")
+                        .IsUnique();
 
                     b.ToTable("Granjas");
 
@@ -221,9 +245,10 @@ namespace bris_API.Migrations
                             AgroindustriaId = 1,
                             Ativo = true,
                             CNPJ = "99999999000111",
-                            DataCadastro = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(6951),
-                            Endereco = "Rua teste 1",
-                            NomePropriedade = "Granja Teste 1"
+                            DataCadastro = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(4639),
+                            Email = "granja_teste1@gomail.com",
+                            NomePropriedade = "Granja Teste 1",
+                            Telefone = "62999999921"
                         },
                         new
                         {
@@ -231,9 +256,10 @@ namespace bris_API.Migrations
                             AgroindustriaId = 1,
                             Ativo = true,
                             CNPJ = "99999999000112",
-                            DataCadastro = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(6962),
-                            Endereco = "Rua teste 2",
-                            NomePropriedade = "Granja Teste 2"
+                            DataCadastro = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(4644),
+                            Email = "granja_teste2@gomail.com",
+                            NomePropriedade = "Granja Teste 2",
+                            Telefone = "62999999922"
                         },
                         new
                         {
@@ -241,9 +267,10 @@ namespace bris_API.Migrations
                             AgroindustriaId = 2,
                             Ativo = true,
                             CNPJ = "88888888000121",
-                            DataCadastro = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(6966),
-                            Endereco = "Rua nova 1",
-                            NomePropriedade = "Granja Nova 1"
+                            DataCadastro = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(4647),
+                            Email = "granja_nova1@gomail.com",
+                            NomePropriedade = "Granja Nova 1",
+                            Telefone = "62999999931"
                         },
                         new
                         {
@@ -251,9 +278,10 @@ namespace bris_API.Migrations
                             AgroindustriaId = 2,
                             Ativo = true,
                             CNPJ = "88888888000122",
-                            DataCadastro = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(6968),
-                            Endereco = "Rua nova 2",
-                            NomePropriedade = "Granja Nova 2"
+                            DataCadastro = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(4650),
+                            Email = "granja_nova2@gomail.com",
+                            NomePropriedade = "Granja Nova 2",
+                            Telefone = "62999999932"
                         });
                 });
 
@@ -634,36 +662,36 @@ namespace bris_API.Migrations
                         new
                         {
                             Id = 1,
-                            Salt = "mKR6COKLqCcjQurdit5B4A==",
-                            SenhaHash = "z6ys+XBlveRcAia/roCULcK4767pYr6mzh1/VS7VQ90=",
+                            Salt = "k9OPqqPqqNebyi+17uH3Pg==",
+                            SenhaHash = "InC+6axnxVbVlVk1BdF9Mn1vGlfhsh0gzB6Mi35vRHc=",
                             UsuarioId = 1
                         },
                         new
                         {
                             Id = 2,
-                            Salt = "mKR6COKLqCcjQurdit5B4A==",
-                            SenhaHash = "z6ys+XBlveRcAia/roCULcK4767pYr6mzh1/VS7VQ90=",
+                            Salt = "grBDbVdlfIi1dcxHmbQkPA==",
+                            SenhaHash = "f+DmjXMUCnBUtLPJedpWLMlwYOLASKcPuDoLU7vOZK4=",
                             UsuarioId = 2
                         },
                         new
                         {
                             Id = 3,
-                            Salt = "mKR6COKLqCcjQurdit5B4A==",
-                            SenhaHash = "z6ys+XBlveRcAia/roCULcK4767pYr6mzh1/VS7VQ90=",
+                            Salt = "I+lhpCPV7AXgA+M0CLPSpw==",
+                            SenhaHash = "YSdAQq/U1g18QvS2pJdqXnFdwgIo5eC3uDqmeAR/RDE=",
                             UsuarioId = 3
                         },
                         new
                         {
                             Id = 4,
-                            Salt = "mKR6COKLqCcjQurdit5B4A==",
-                            SenhaHash = "z6ys+XBlveRcAia/roCULcK4767pYr6mzh1/VS7VQ90=",
+                            Salt = "d56K7xBokBNFC9TBZ9FKbQ==",
+                            SenhaHash = "NhOXWS9FzbSdFXrO6bqMc5tPAzbrHtJE6q/ZZOzWhSk=",
                             UsuarioId = 4
                         },
                         new
                         {
                             Id = 5,
-                            Salt = "mKR6COKLqCcjQurdit5B4A==",
-                            SenhaHash = "z6ys+XBlveRcAia/roCULcK4767pYr6mzh1/VS7VQ90=",
+                            Salt = "ObLMi+gdZkSRoTZNl79WYQ==",
+                            SenhaHash = "fwojFUmlJv95R5K58x0+btX7LBjnkjbdCu5aEzsr3O4=",
                             UsuarioId = 5
                         });
                 });
@@ -696,6 +724,9 @@ namespace bris_API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CPF")
+                        .IsUnique();
+
                     b.ToTable("Usuarios");
 
                     b.HasData(
@@ -703,41 +734,46 @@ namespace bris_API.Migrations
                         {
                             Id = 1,
                             CPF = "11111111111",
-                            DataCadastro = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(8479),
-                            Email = "admin@gmail.com",
-                            Nome = "Admin"
+                            DataCadastro = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(4716),
+                            Email = "admin@gomail.com",
+                            Nome = "Admin",
+                            Telefone = "62999999901"
                         },
                         new
                         {
                             Id = 2,
                             CPF = "22222222222",
-                            DataCadastro = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(8485),
-                            Email = "gestor_agro@gmail.com",
-                            Nome = "Gestor Agro"
+                            DataCadastro = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(4721),
+                            Email = "gestor_agro@gomail.com",
+                            Nome = "Gestor Agro",
+                            Telefone = "62999999902"
                         },
                         new
                         {
                             Id = 3,
                             CPF = "33333333333",
-                            DataCadastro = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(8488),
-                            Email = "gestor_granja@gmail.com",
-                            Nome = "Gestor Granja"
+                            DataCadastro = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(4724),
+                            Email = "gestor_granja@gomail.com",
+                            Nome = "Gestor Granja",
+                            Telefone = "62999999903"
                         },
                         new
                         {
                             Id = 4,
                             CPF = "44444444444",
-                            DataCadastro = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(8491),
-                            Email = "tecnico@gmail.com",
-                            Nome = "Tecnico"
+                            DataCadastro = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(4728),
+                            Email = "tecnico@gomail.com",
+                            Nome = "Tecnico",
+                            Telefone = "62999999904"
                         },
                         new
                         {
                             Id = 5,
                             CPF = "55555555555",
-                            DataCadastro = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(8494),
-                            Email = "visualizador@gmail.com",
-                            Nome = "Visualizador"
+                            DataCadastro = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(4731),
+                            Email = "visualizador@gomail.com",
+                            Nome = "Visualizador",
+                            Telefone = "62999999905"
                         });
                 });
 
@@ -780,7 +816,7 @@ namespace bris_API.Migrations
                         new
                         {
                             Id = 1,
-                            DataCriacao = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(8807),
+                            DataCriacao = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(6147),
                             RoleId = 1,
                             UsuarioId = 1
                         },
@@ -788,7 +824,7 @@ namespace bris_API.Migrations
                         {
                             Id = 2,
                             AgroindustriaId = 1,
-                            DataCriacao = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(8812),
+                            DataCriacao = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(6154),
                             RoleId = 2,
                             UsuarioId = 2
                         },
@@ -796,7 +832,7 @@ namespace bris_API.Migrations
                         {
                             Id = 3,
                             AgroindustriaId = 1,
-                            DataCriacao = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(8816),
+                            DataCriacao = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(6157),
                             GranjaId = 1,
                             RoleId = 3,
                             UsuarioId = 3
@@ -805,7 +841,7 @@ namespace bris_API.Migrations
                         {
                             Id = 4,
                             AgroindustriaId = 1,
-                            DataCriacao = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(8819),
+                            DataCriacao = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(6159),
                             GranjaId = 1,
                             RoleId = 4,
                             UsuarioId = 4
@@ -814,7 +850,7 @@ namespace bris_API.Migrations
                         {
                             Id = 5,
                             AgroindustriaId = 1,
-                            DataCriacao = new DateTime(2025, 5, 5, 22, 28, 13, 634, DateTimeKind.Utc).AddTicks(8822),
+                            DataCriacao = new DateTime(2025, 5, 13, 16, 11, 57, 116, DateTimeKind.Utc).AddTicks(6162),
                             GranjaId = 1,
                             RoleId = 5,
                             UsuarioId = 5
