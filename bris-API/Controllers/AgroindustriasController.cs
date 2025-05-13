@@ -122,7 +122,6 @@ namespace bris_API.Controllers
                 return BadRequest("ID inválido.");
             }
 
-            // Busca a agroindústria a ser editada
             var agroindustria = await _context.Agroindustrias.FindAsync(id);
 
             if (agroindustria == null)
@@ -130,13 +129,17 @@ namespace bris_API.Controllers
                 return NotFound("Agroindústria não encontrada.");
             }
 
-            // Atualiza os campos da agroindústria conforme os dados recebidos
+            // Verifica duplicidade de CNPJ (excluindo a agroindústria em questão)
+            if (await _context.Agroindustrias.AnyAsync(a => a.CNPJ == modelAgroindustria.CNPJ && a.Id != id))
+            {
+                return BadRequest("Já existe uma agroindústria com esse CNPJ cadastrado!");
+            }
+            
             agroindustria.NomeFantasia = modelAgroindustria.NomeFantasia;
             agroindustria.RazaoSocial = modelAgroindustria.RazaoSocial;
             agroindustria.CNPJ = modelAgroindustria.CNPJ;
             agroindustria.Ativo = agroindustria.Ativo;
 
-            // Marca a entidade como modificada e salva as alterações
             _context.Entry(agroindustria).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
@@ -152,7 +155,12 @@ namespace bris_API.Controllers
         [HttpPost("cadastrar")]
         public async Task<ActionResult<Agroindustria>> PostAgroindustria([FromBody] AgroindustriaDTO modelAgroindustria)
         {
-            // Cria uma nova instância de Agroindustria com os dados fornecidos
+            // Verifica duplicidade de CNPJ
+            if (await _context.Agroindustrias.AnyAsync(a => a.CNPJ == modelAgroindustria.CNPJ))
+            {
+                return BadRequest("Já existe uma agroindústria com esse CNPJ cadastrado!");
+            }
+
             var agroindustria = new Agroindustria
             {
                 NomeFantasia = modelAgroindustria.NomeFantasia,
@@ -164,9 +172,9 @@ namespace bris_API.Controllers
             _context.Agroindustrias.Add(agroindustria);
             await _context.SaveChangesAsync();
 
-            // Retorna status 201 Created com os dados da agroindústria recém-cadastrada
             return CreatedAtAction(nameof(GetAgroindustria), new { id = agroindustria.Id }, agroindustria);
         }
+
 
         /// <summary>
         /// Desativa uma agroindústria.

@@ -209,9 +209,7 @@ namespace bris_API.Controllers
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             var agroindustriaIdClaim = User.FindFirst("AgroindustriaId")?.Value;
 
-            var granja = await _context.Granjas
-                .Where(g => g.Id == id)
-                .FirstOrDefaultAsync();
+            var granja = await _context.Granjas.FirstOrDefaultAsync(g => g.Id == id);
 
             if (granja == null)
             {
@@ -232,7 +230,13 @@ namespace bris_API.Controllers
                 }
             }
 
-            // Atualiza os campos da granja com os valores fornecidos no DTO
+            // Verifica duplicidade de CNPJ (excluindo a granja em questão)
+            if (await _context.Granjas.AnyAsync(g => g.CNPJ == modelGranja.CNPJ && g.Id != id))
+            {
+                return BadRequest("Já existe uma granja com esse CNPJ cadastrado!");
+            }
+
+            // Atualiza os campos
             granja.NomePropriedade = modelGranja.NomePropriedade;
             granja.Endereco = modelGranja.Endereco;
             granja.CNPJ = modelGranja.CNPJ;
@@ -242,6 +246,7 @@ namespace bris_API.Controllers
 
             return Ok(new { message = "Granja atualizada com sucesso!" });
         }
+
 
 
         /// <summary>
@@ -267,6 +272,12 @@ namespace bris_API.Controllers
                 {
                     return Forbid("Você não pode cadastrar granjas em outra agroindústria.");
                 }
+            }
+
+            // Verifica duplicidade de CNPJ
+            if (await _context.Granjas.AnyAsync(g => g.CNPJ == modelGranja.CNPJ))
+            {
+                return BadRequest("Já existe uma granja com esse CNPJ cadastrado!");
             }
 
             var novaGranja = new Granja

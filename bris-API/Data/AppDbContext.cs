@@ -6,10 +6,10 @@ namespace bris_API.Data
 {
     public class AppDbContext : DbContext
     {
-        
+
         private readonly IPopulateDbService _populateDbService;
 
-        public AppDbContext(DbContextOptions<AppDbContext> options, IPopulateDbService populateDbService) 
+        public AppDbContext(DbContextOptions<AppDbContext> options, IPopulateDbService populateDbService)
             : base(options)
         {
             _populateDbService = populateDbService;
@@ -35,7 +35,7 @@ namespace bris_API.Data
                 .HasOne(u => u.Senha)
                 .WithOne(s => s.Usuario)
                 .HasForeignKey<Senha>(s => s.UsuarioId);
-            
+
             // Relação 1-N Agroindustria-Granja
             modelBuilder.Entity<Granja>()
                 .HasOne(g => g.Agroindustria)
@@ -98,7 +98,7 @@ namespace bris_API.Data
                 .HasOne(v => v.Agroindustria)
                 .WithMany(a => a.Vinculos)
                 .HasForeignKey(v => v.AgroindustriaId);
-            
+
             // Relação N-N Policy-Roles
             modelBuilder.Entity<PolicyRole>()
                 .HasOne(pr => pr.Policy)
@@ -109,6 +109,21 @@ namespace bris_API.Data
                 .HasOne(pr => pr.Role)
                 .WithMany(r => r.PolicyRoles)
                 .HasForeignKey(pr => pr.RoleId);
+
+            // CPF único para o usuário
+            modelBuilder.Entity<Usuario>()
+            .HasIndex(u => u.CPF)
+            .IsUnique();
+
+            // CNPJ único para agronidústria
+            modelBuilder.Entity<Agroindustria>()
+                .HasIndex(a => a.CNPJ)
+                .IsUnique();
+
+            //CNPJ único para granja
+            modelBuilder.Entity<Granja>()
+                .HasIndex(g => g.CNPJ)
+                .IsUnique();
 
             // Insere informações diretamente no banco de dados
             _populateDbService.SeedData(modelBuilder);
