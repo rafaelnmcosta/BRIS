@@ -62,7 +62,8 @@ export const AuthProvider = ({ children }) => {
   }, [checkAuth]); // Executa apenas na montagem do componente
 
   useEffect(() => {
-    if (isLogged && !isAuthenticated) navigate('/vinculos');
+    if (!isLogged) navigate('/login');
+    else if (!isAuthenticated) navigate('/vinculos');
   }, [isAuthenticated, isLogged, navigate]);
   
   const login = async ({ email, senha }) => {
