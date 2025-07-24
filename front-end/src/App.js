@@ -10,6 +10,7 @@ import { ValidationProvider } from './services/ValidationContext';
 
 // header e outros comuns a todas as paginas
 import Header from './components/organisms/Header';
+import BotaoVoltarGlobal from './components/atoms/BotaoVoltarGlobal';
 
 // imports de paginas
 import Login from './pages/Login';
@@ -40,6 +41,7 @@ function App() {
         <AuthProvider>
           <ValidationProvider>
             <Header />
+            <BotaoVoltarGlobal />
             <Routes>
               {/* Rotas públicas */}
               <Route path='/login' element={<Login />} />
