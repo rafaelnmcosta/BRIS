@@ -1,5 +1,6 @@
 import api from './index';
 import endpoints from '../services/Endpoints';
+import { message } from 'antd';
 
 export const usuarios = {
   listarUsuarios: async () => {
@@ -7,8 +8,9 @@ export const usuarios = {
       const response = await api.get(endpoints.usuarios.listarUsuarios);
       return response.data;
     } catch (error) {
-      console.error('Erro ao listar usuários:', error);
-      throw error.response ? error.response.data : error;
+      const mensagem = error.response?.data || 'Erro ao listar usuários';
+      message.error(mensagem);
+      throw mensagem;
     }
   },
 
@@ -17,8 +19,9 @@ export const usuarios = {
       const response = await api.post(endpoints.usuarios.cadastrarUsuario, userData);
       return response.data;
     } catch (error) {
-      console.error('Erro ao cadastrar usuário:', error);
-      throw error.response ? error.response.data : error;
+      const mensagem = error.response?.data || 'Erro ao cadastrar usuário';
+      message.error(mensagem);
+      throw mensagem;
     }
   },
 
@@ -27,12 +30,13 @@ export const usuarios = {
       const response = await api.get(endpoints.usuarios.detalhesUsuario(id));
       return response.data;
     } catch (error) {
-      console.error('Erro ao buscar detalhes do usuário:', error);
-      throw error.response ? error.response.data : error;
+      const mensagem = error.response?.data || 'Erro ao buscar detalhes do usuário';
+      message.error(mensagem);
+      throw mensagem;
     }
   },
 
-  editarUsuario: async (userData) => { 
+  editarUsuario: async (userData) => {
     try {
       const response = await api.put(
         endpoints.usuarios.editarUsuario(userData.id),
@@ -41,9 +45,9 @@ export const usuarios = {
           Email: userData.email,
           CPF: userData.cpf,
           Telefone: userData.telefone,
-          Senha: userData.senha || undefined, 
+          Senha: userData.senha || undefined,
           Vinculos: userData.vinculos?.map(v => ({
-            RoleId: v.roleId, 
+            RoleId: v.roleId,
             GranjaId: v.granjaId || null,
             AgroindustriaId: v.agroindustriaId || null
           }))
@@ -51,8 +55,9 @@ export const usuarios = {
       );
       return response.data;
     } catch (error) {
-      console.error('Erro ao editar usuário:', error);
-      throw error.response ? error.response.data : error;
+      const mensagem = error.response?.data || 'Erro ao editar usuário';
+      message.error(mensagem);
+      throw mensagem;
     }
   },
 
@@ -61,8 +66,9 @@ export const usuarios = {
       const response = await api.get(endpoints.usuarios.listarUsuariosInativos);
       return response.data;
     } catch (error) {
-      console.error('Erro ao listar usuários inativos:', error);
-      throw error.response ? error.response.data : error;
+      const mensagem = error.response?.data || 'Erro ao listar usuários inativos';
+      message.error(mensagem);
+      throw mensagem;
     }
   },
 
@@ -71,19 +77,20 @@ export const usuarios = {
       const response = await api.put(endpoints.usuarios.reativarUsuario(id), novosVinculos);
       return response.data;
     } catch (error) {
-      console.error('Erro ao reativar usuário:', error);
-      throw error.response ? error.response.data : error;
+      const mensagem = error.response?.data || 'Erro ao reativar usuário';
+      message.error(mensagem);
+      throw mensagem;
     }
   },
-  
 
   listarVinculosUsuario: async (id) => {
     try {
       const response = await api.get(endpoints.usuarios.listarVinculosUsuario(id));
       return response.data;
     } catch (error) {
-      console.error('Erro ao listar vínculos do usuário:', error);
-      throw error.response ? error.response.data : error;
+      const mensagem = error.response?.data || 'Erro ao listar vínculos do usuário';
+      message.error(mensagem);
+      throw mensagem;
     }
   },
 
@@ -92,8 +99,9 @@ export const usuarios = {
       const response = await api.put(endpoints.usuarios.inativarUsuario(id));
       return response.data;
     } catch (error) {
-      console.error('Erro ao inativar usuário:', error);
-      throw error.response ? error.response.data : error;
+      const mensagem = error.response?.data || 'Erro ao inativar usuário';
+      message.error(mensagem);
+      throw mensagem;
     }
   }
 };

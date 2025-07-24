@@ -51,6 +51,8 @@ const FormCadastroUsuario = ({ onSubmit, vinculos, onAbrirModal }) => {
 
         return novosErros;
     };
+    
+    // @todo = adicionar handleBlur para campos sem ser senha 
 
     const handleChange = (e) => {
         let { name, value } = e.target;

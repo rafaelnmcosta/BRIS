@@ -1,5 +1,6 @@
 import api from './index';
 import endpoints from '../services/Endpoints';
+import { message } from 'antd';
 
 export const agroindustrias = {
   listarAgroindustrias: async () => {
@@ -7,8 +8,9 @@ export const agroindustrias = {
       const response = await api.get(endpoints.agroindustrias.listar);
       return response.data;
     } catch (error) {
-      console.error('Erro ao listar agroindústrias:', error);
-      throw error.response ? error.response.data : error;
+      const mensagem = error.response.data || 'Erro ao listar agroindústrias';
+      message.error(mensagem);
+      throw mensagem;
     }
   },
 
@@ -17,8 +19,9 @@ export const agroindustrias = {
       const response = await api.get(endpoints.agroindustrias.listarInativas);
       return response.data;
     } catch (error) {
-      console.error('Erro ao listar agroindústrias inativas:', error);
-      throw error.response ? error.response.data : error;
+      const mensagem = error.response.data || 'Erro ao listar agroindústrias inativas';
+      message.error(mensagem);
+      throw mensagem;
     }
   },
 
@@ -27,8 +30,9 @@ export const agroindustrias = {
       const response = await api.put(endpoints.agroindustrias.ativar(id));
       return response.data;
     } catch (error) {
-      console.error('Erro ao ativar agroindústria:', error);
-      throw error.response ? error.response.data : error;
+      const mensagem = error.response.data || 'Erro ao ativar agroindústria';
+      message.error(mensagem);
+      throw mensagem;
     }
   },
 
@@ -37,8 +41,9 @@ export const agroindustrias = {
       const response = await api.get(endpoints.agroindustrias.detalhes(id));
       return response.data;
     } catch (error) {
-      console.error('Erro ao buscar detalhes da agroindústria:', error);
-      throw error.response ? error.response.data : error;
+      const mensagem = error.response.data || 'Erro ao buscar detalhes da agroindústria';
+      message.error(mensagem);
+      throw mensagem;
     }
   },
 
@@ -48,8 +53,9 @@ export const agroindustrias = {
       const response = await api.put(endpoints.agroindustrias.editar(id), agroindustriaData);
       return response.data;
     } catch (error) {
-      console.error('Erro ao editar agroindústria:', error);
-      throw error.response ? error.response.data : error;
+      const mensagem = error.response.data || 'Erro ao editar agroindústria';
+      message.error(mensagem);
+      throw mensagem;
     }
   },
 
@@ -58,8 +64,9 @@ export const agroindustrias = {
       const response = await api.post(endpoints.agroindustrias.cadastrar, agroindustriaData);
       return response.data;
     } catch (error) {
-      console.error('Erro ao cadastrar agroindústria:', error);
-      throw error.response ? error.response.data : error;
+      const mensagem = error.response.data || 'Erro ao cadastrar agroindústria';
+      message.error(mensagem);
+      throw mensagem;
     }
   },
 
@@ -68,8 +75,9 @@ export const agroindustrias = {
       const response = await api.delete(endpoints.agroindustrias.desativar(id));
       return response.data;
     } catch (error) {
-      console.error('Erro ao desativar agroindústria:', error);
-      throw error.response ? error.response.data : error;
+      const mensagem = error.response.data || 'Erro ao desativar agroindústria';
+      message.error(mensagem);
+      throw mensagem;
     }
   }
 };
