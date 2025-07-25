@@ -13,10 +13,6 @@ const TemplateLogin = ({ handleLogin }) => {
         <p className="text-lg mb-8">
         O Boar Reproductive Identifier Software (BRIS) é um software que que tem como objetivo facilitar o processo de classificação e seleção de reprodutores suínos com maior sensibilidade ao resfriamento da dose inseminante. Esta análise é feita de acordo com a metodologia adaptada de Reis (2002) através da análise do Percentual de Motilidade Progressiva (PMP), e é fundamental para evitar a perda de doses inseminantes ao identificar possíveis animais com tendência à sensibilidade ao resfriamento.
         </p>
-        <p className="text-green-dark mb-4">
-          Ainda não possui uma conta? <span className="text-green-dark">Pode se cadastrar </span>
-          <a className="font-bold text-green-dark hover:text-green" href="/cadastro">aqui!</a>
-        </p>
         <div className="flex gap-4 mt-4 pb-10">
           <img src={logoUfg} alt="Logo UFG" className="h-16" />
           <img src={logoEvz} alt="Logo EVZ" className="h-16" />

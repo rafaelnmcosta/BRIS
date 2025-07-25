@@ -5,7 +5,6 @@ namespace bris_API.Controllers
 {
     public interface IAutenticacaoController
     {
-        Task<IActionResult> Cadastro(AutoCadastroDTO modelUsuario);
         Task<IActionResult> Login(LoginDto modelLogin);
         IActionResult Logout();
         Task<IActionResult> GetVinculos();

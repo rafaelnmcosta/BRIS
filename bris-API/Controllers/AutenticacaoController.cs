@@ -37,65 +37,6 @@ namespace bris_API.Controllers
         }
 
         /// <summary>
-        /// Endpoint para cadastro de um novo usuário.
-        /// Cria um novo registro de usuário, gera a senha com hash e salt, e cria um vínculo com a role "PENDENTE".
-        /// </summary>
-        /// <param name="modelUsuario">Dados para cadastro do usuário.</param>
-        /// <returns>Mensagem de sucesso ou erro.</returns>
-        [HttpPost("cadastro")]
-        public async Task<IActionResult> Cadastro([FromBody] AutoCadastroDTO modelUsuario)
-        {
-            try
-            {
-                // Verifica se já existe um usuário com o mesmo email
-                if (await _context.Usuarios.AnyAsync(u => u.Email == modelUsuario.Email))
-                    return BadRequest("Já existe um usuário com esse email!");
-
-                // Cria o objeto de usuário com os dados fornecidos
-                var usuario = new Usuario
-                {
-                    Nome = modelUsuario.Nome,
-                    Email = modelUsuario.Email,
-                    CPF = modelUsuario.CPF,
-                };
-
-                _context.Usuarios.Add(usuario);
-                await _context.SaveChangesAsync();
-
-                // Gera salt e hash para a senha fornecida
-                var salt = _passwordService.GenerateSalt();
-                var hash = _passwordService.HashPassword(modelUsuario.Senha, salt);
-
-                // Cria o registro de senha para o usuário
-                var senha = new Senha
-                {
-                    UsuarioId = usuario.Id,
-                    SenhaHash = hash,
-                    Salt = salt
-                };
-                _context.Senhas.Add(senha);
-
-                // Cria um vínculo inicial com a role "PENDENTE" (RoleId 98)
-                var novoAcesso = new Vinculo
-                {
-                    UsuarioId = usuario.Id,
-                    GranjaId = null,
-                    AgroindustriaId = null,
-                    RoleId = 98
-                };
-                _context.Vinculos.Add(novoAcesso);
-
-                await _context.SaveChangesAsync();
-
-                return Ok(new { message = "Usuário registrado com sucesso! (Conta precisa de ativação)" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Erro ao realizar cadastro: " + ex.Message);
-            }
-        }
-
-        /// <summary>
         /// Endpoint para login de usuário.
         /// Verifica as credenciais do usuário e, se corretas, gera um token Jwt e configura um cookie HTTP-Only com o token.
         /// </summary>

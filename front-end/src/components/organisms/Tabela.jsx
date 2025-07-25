@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Table, Button } from 'antd';
 import { EditOutlined, StopOutlined, EyeOutlined, CheckOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { formatarCPF, formatarCNPJ } from '../../services/Formatter';
 import { useAuth } from '../../services/AuthContext';
 import ModalConfirmacao from './ModalConfirmacao';
 import { usuarios } from '../../api/usuariosAPI';
@@ -110,21 +111,21 @@ const Tabela = ({ tipo, lista, ativos, onAtualizar }) => {
         colunas = [
           { title: 'Nome', dataIndex: 'nome', key: 'nome' },
           { title: 'Email', dataIndex: 'email', key: 'email' },
-          { title: 'CPF', dataIndex: 'cpf', key: 'cpf' },
+          { title: 'CPF', dataIndex: 'cpf', key: 'cpf', render: (cpf) => formatarCPF(cpf) || 'Não informado' }
         ];
         break;
 
       case 'Agroindústria':
         colunas = [
           { title: 'Nome Fantasia', dataIndex: 'nomeFantasia', key: 'nomeFantasia' },
-          { title: 'CNPJ', dataIndex: 'cnpj', key: 'cnpj' },
+          { title: 'CNPJ', dataIndex: 'cnpj', key: 'cnpj', render: (cnpj) => formatarCNPJ(cnpj) || 'Não informado' },
         ];
         break;
 
       case 'Granja':
         colunas = [
           { title: 'Nome da propriedade', dataIndex: 'nomePropriedade', key: 'nomePropriedade' },
-          { title: 'CNPJ', dataIndex: 'cnpj', key: 'cnpj' },
+          { title: 'CNPJ', dataIndex: 'cnpj', key: 'cnpj', render: (cnpj) => formatarCNPJ(cnpj) || 'Não informado' },
         ];
         break;
 
