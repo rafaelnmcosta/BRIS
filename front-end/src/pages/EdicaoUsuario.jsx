@@ -31,7 +31,7 @@ const EdicaoUsuario = () => {
                 id: usuario.id,
                 nome: formData.nome,
                 email: formData.email,
-                cpf: usuario.cpf,
+                cpf: formData.cpf,
                 telefone: formData.telefone,
                 senha: formData.senha || undefined, // Envia undefined se não mudar
                 vinculos: vinculos.map(v => ({

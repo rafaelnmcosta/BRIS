@@ -118,8 +118,11 @@ namespace bris_API.Controllers
         public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioDTO modelUsuario)
         {
             // Verifica duplicidade
-            if (await _context.Usuarios.AnyAsync(u => u.Email == modelUsuario.Email || u.CPF == modelUsuario.CPF))
-                return BadRequest("Já existe um usuário com esse email ou CPF cadastrado!");
+            if (await _context.Usuarios.AnyAsync(u => u.Email == modelUsuario.Email))
+                return BadRequest("Já existe um usuário com esse email cadastrado!");
+
+            if (await _context.Usuarios.AnyAsync(u => u.CPF == modelUsuario.CPF))
+                return BadRequest("Já existe um usuário com esse CPF cadastrado!");
 
             using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -272,6 +275,13 @@ namespace bris_API.Controllers
         [HttpPut("editar/{id}")]
         public async Task<IActionResult> EditarUsuario(int id, [FromBody] EditarUsuarioDTO modelUsuario)
         {
+            // Verifica duplicidade
+            if (await _context.Usuarios.AnyAsync(u => u.Email == modelUsuario.Email && u.Id != id))
+                return BadRequest("Já existe um usuário com esse email cadastrado!");
+
+            if (await _context.Usuarios.AnyAsync(u => u.CPF == modelUsuario.CPF && u.Id != id))
+                return BadRequest("Já existe um usuário com esse CPF cadastrado!");
+
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
