@@ -69,6 +69,9 @@ namespace bris_API.Controllers
                             NomeFantasia = g.Agroindustria.NomeFantasia,
                             RazaoSocial = g.Agroindustria.RazaoSocial,
                             CNPJ = g.Agroindustria.CNPJ,
+                            Email = g.Agroindustria.Email,
+                            Telefone = g.Agroindustria.Telefone,
+                            Endereco = g.Agroindustria.Endereco,
                             DataCadastro = g.Agroindustria.DataCadastro,
                             Ativo = g.Agroindustria.Ativo
                         }

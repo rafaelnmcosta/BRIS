@@ -94,17 +94,30 @@ namespace bris_API.Controllers
         /// <returns>Dados da agroindústria.</returns>
         [Authorize(Policy = "VisualizaTotal")]
         [HttpGet("{id}")]
-        public async Task<ActionResult<Agroindustria>> GetAgroindustria(int id)
+        public async Task<ActionResult<GetAgroindustriaDTO>> GetAgroindustria(int id)
         {
-            // Busca a agroindústria pelo ID
-            var agroindustria = await _context.Agroindustrias.FindAsync(id);
+            var dto = await _context.Agroindustrias
+                .Where(a => a.Id == id)
+                .Select(a => new GetAgroindustriaDTO
+                {
+                    Id = a.Id,
+                    NomeFantasia = a.NomeFantasia,
+                    RazaoSocial = a.RazaoSocial,
+                    CNPJ = a.CNPJ,
+                    Endereco = a.Endereco,
+                    Email = a.Email,
+                    Telefone = a.Telefone,
+                    DataCadastro = a.DataCadastro,
+                    Ativo = a.Ativo
+                })
+                .FirstOrDefaultAsync();
 
-            if (agroindustria == null)
+            if (dto == null)
             {
                 return NotFound("Agroindústria não encontrada.");
             }
 
-            return Ok(agroindustria);
+            return Ok(dto);
         }
 
         /// <summary>

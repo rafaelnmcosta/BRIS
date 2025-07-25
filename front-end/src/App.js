@@ -31,11 +31,12 @@ import TabelaAgroindustrias from './pages/TabelaAgroindustrias';
 import TabelaAgroindustriasInativas from './pages/TabelaAgroindustriasInativas';
 import CadastroAgroindustria from './pages/CadastroAgroindustria';
 import EdicaoAgroindustria from './pages/EdicaoAgroindustria';
+import DetalhesAgroindustria from './pages/DetalhesAgroindustria';
 
 import TabelaGranjas from './pages/TabelaGranjas';
 
 
-import { Spin } from 'antd'; // opcional, se quiser um spinner pronto
+import { Spin } from 'antd';
 
 function AppContent() {
   const { loading } = useAuth();
@@ -76,6 +77,7 @@ function AppContent() {
           <Route path="/agroindustrias" element={<TabelaAgroindustrias />} />
           <Route path="/agroindustrias/inativas" element={<TabelaAgroindustriasInativas />} />
           <Route path="/agroindustrias/cadastrar" element={<CadastroAgroindustria />} />
+          <Route path="/agroindustrias/:id" element={<DetalhesAgroindustria />} />
           <Route path="/agroindustrias/:id/editar" element={<EdicaoAgroindustria />} />
           <Route path="/granjas" element={<TabelaGranjas />} />
         </Route>

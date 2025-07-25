@@ -2,21 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
 import BotaoPrimario from '../atoms/BotaoPrimario';
+import { formatarCPF, formatarTelefone } from '../../services/Formatter'
 
 const TemplatePerfil = ({ dadosPerfil }) => {
     const { userData } = useAuth();
     const navigate = useNavigate();
-
-    const formatarCPF = (cpf) => {
-        if (!cpf) return '';
-        return cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
-    };
-
-    const formatarTelefone = (telefone) => {
-        if (!telefone) return '';
-        return telefone.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
-    };
-
     return (
         <div className="container mx-auto pt-8 h-fit">
             <div className="flex justify-between items-center mb-6">
