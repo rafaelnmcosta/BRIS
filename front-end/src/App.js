@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // imports de componentes de funcionamento
 import LoggedRoute from './components/serviceComponents/LoggedRoute';
 import AuthenticatedRoute from './components/serviceComponents/AuthenticatedRoute';
-import { AuthProvider } from './services/AuthContext';
+import { AuthProvider, useAuth } from './services/AuthContext';
 import { NotificationProvider } from './services/NotificationContext';
 import { ValidationProvider } from './services/ValidationContext';
 
@@ -34,48 +34,68 @@ import EdicaoAgroindustria from './pages/EdicaoAgroindustria';
 
 import TabelaGranjas from './pages/TabelaGranjas';
 
+
+import { Spin } from 'antd'; // opcional, se quiser um spinner pronto
+
+function AppContent() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Spin size="large" tip="Carregando dados do usuário..." />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Header />
+      <BotaoVoltarGlobal />
+      <Routes>
+        {/* Rotas públicas */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/teste" element={<CadastroUsuario />} />
+
+        {/* Rotas protegidas por isLogged */}
+        <Route element={<LoggedRoute />}>
+          <Route path="/vinculos" element={<ListaVinculos />} />
+        </Route>
+
+        {/* Rotas protegidas por isAuthenticated */}
+        <Route element={<AuthenticatedRoute />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/teste" element={<Teste />} />
+          <Route path="/usuarios" element={<TabelaUsuarios />} />
+          <Route path="/usuarios/inativos" element={<TabelaUsuariosInativos />} />
+          <Route path="/usuarios/cadastrar" element={<CadastroUsuario />} />
+          <Route path="/usuarios/reativar/:id" element={<AtivarUsuario />} />
+          <Route path="/usuarios/:id/editar" element={<EdicaoUsuario />} />
+          <Route path="/perfil" element={<Perfil />} />
+          <Route path="/perfil/editar" element={<EdicaoPerfil />} />
+          <Route path="/agroindustrias" element={<TabelaAgroindustrias />} />
+          <Route path="/agroindustrias/inativas" element={<TabelaAgroindustriasInativas />} />
+          <Route path="/agroindustrias/cadastrar" element={<CadastroAgroindustria />} />
+          <Route path="/agroindustrias/:id/editar" element={<EdicaoAgroindustria />} />
+          <Route path="/granjas" element={<TabelaGranjas />} />
+        </Route>
+      </Routes>
+    </>
+  );
+}
+
 function App() {
   return (
     <Router>
       <NotificationProvider>
         <AuthProvider>
           <ValidationProvider>
-            <Header />
-            <BotaoVoltarGlobal />
-            <Routes>
-              {/* Rotas públicas */}
-              <Route path='/login' element={<Login />} />
-              <Route path='/teste' element={<CadastroUsuario />} />
-
-              {/* Rotas protegidas por isLogged */}
-              <Route element={<LoggedRoute />}>
-                <Route path='/vinculos' element={<ListaVinculos />} />
-              </Route>
-
-              {/* Rotas protegidas por isAuthenticated */}
-              <Route element={<AuthenticatedRoute />}>
-                <Route path='/home' element={<Home />} />
-                <Route path='/teste' element={<Teste />} />
-                <Route path='/usuarios' element={<TabelaUsuarios />} />
-                <Route path='/usuarios/inativos' element={<TabelaUsuariosInativos />} />
-                <Route path='/usuarios/cadastrar' element={<CadastroUsuario />} />
-                <Route path="/usuarios/reativar/:id" element={<AtivarUsuario />} />
-                <Route path='/usuarios/:id/editar' element={<EdicaoUsuario />} />
-                <Route path='/perfil' element={<Perfil />} />
-                <Route path='/perfil/editar' element={<EdicaoPerfil />} />
-                <Route path='/agroindustrias' element={<TabelaAgroindustrias />} />
-                <Route path='/agroindustrias/inativas' element={<TabelaAgroindustriasInativas />} />
-                <Route path='/agroindustrias/cadastrar' element={<CadastroAgroindustria />} />
-                <Route path='/agroindustrias/:id/editar' element={<EdicaoAgroindustria />} />
-                <Route path='/granjas' element={<TabelaGranjas />} />
-              </Route>
-            </Routes>
+            <AppContent />
           </ValidationProvider>
         </AuthProvider>
       </NotificationProvider>
     </Router>
   );
 }
-
 
 export default App;
