@@ -41,6 +41,12 @@ import CadastroGranja from './pages/CadastroGranja';
 import EdicaoGranja from './pages/EdicaoGranja';
 import DetalhesGranja from './pages/DetalhesGranja';
 
+import TabelaAnimais from './pages/TabelaAnimais';
+import TabelaAnimaisInativos from './pages/TabelaAnimaisInativos';
+import CadastroAnimal from './pages/CadastroAnimal';
+import EdicaoAnimal from './pages/EdicaoAnimal';
+import DetalhesAnimal from './pages/DetalhesAnimal';
+
 function AppContent() {
   const { loading } = useAuth();
 
@@ -92,6 +98,12 @@ function AppContent() {
           <Route path="/granjas/cadastrar" element={<CadastroGranja />} />
           <Route path="/granjas/:id" element={<DetalhesGranja />} />
           <Route path="/granjas/:id/editar" element={<EdicaoGranja />} />
+          {/* Rotas de animais */}
+          <Route path="/animais" element={<TabelaAnimais />} />
+          <Route path="/animais/inativos" element={<TabelaAnimaisInativos />} />
+          <Route path="/animais/cadastrar" element={<CadastroAnimal />} />
+          <Route path="/animais/:id" element={<DetalhesAnimal />} />
+          <Route path="/animais/:id/editar" element={<EdicaoAnimal />} />
         </Route>
       </Routes>
     </>
