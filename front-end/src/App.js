@@ -1,5 +1,7 @@
+// imports de bibliotecas externas
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Spin } from 'antd';
 
 // imports de componentes de funcionamento
 import LoggedRoute from './components/serviceComponents/LoggedRoute';
@@ -34,9 +36,10 @@ import EdicaoAgroindustria from './pages/EdicaoAgroindustria';
 import DetalhesAgroindustria from './pages/DetalhesAgroindustria';
 
 import TabelaGranjas from './pages/TabelaGranjas';
-
-
-import { Spin } from 'antd';
+import TabelaGranjasInativas from './pages/TabelaGranjasInativas';
+import CadastroGranja from './pages/CadastroGranja';
+import EdicaoGranja from './pages/EdicaoGranja';
+import DetalhesGranja from './pages/DetalhesGranja';
 
 function AppContent() {
   const { loading } = useAuth();
@@ -65,21 +68,30 @@ function AppContent() {
 
         {/* Rotas protegidas por isAuthenticated */}
         <Route element={<AuthenticatedRoute />}>
+          {/* Rotas de navegação */}
           <Route path="/home" element={<Home />} />
           <Route path="/teste" element={<Teste />} />
+          {/* Rotas de usuários */}
           <Route path="/usuarios" element={<TabelaUsuarios />} />
           <Route path="/usuarios/inativos" element={<TabelaUsuariosInativos />} />
           <Route path="/usuarios/cadastrar" element={<CadastroUsuario />} />
           <Route path="/usuarios/reativar/:id" element={<AtivarUsuario />} />
           <Route path="/usuarios/:id/editar" element={<EdicaoUsuario />} />
+          {/* Rotas de perfil */}
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/perfil/editar" element={<EdicaoPerfil />} />
+          {/* Rotas de agroindústrias */}
           <Route path="/agroindustrias" element={<TabelaAgroindustrias />} />
           <Route path="/agroindustrias/inativas" element={<TabelaAgroindustriasInativas />} />
           <Route path="/agroindustrias/cadastrar" element={<CadastroAgroindustria />} />
           <Route path="/agroindustrias/:id" element={<DetalhesAgroindustria />} />
           <Route path="/agroindustrias/:id/editar" element={<EdicaoAgroindustria />} />
+          {/* Rotas de granjas */}
           <Route path="/granjas" element={<TabelaGranjas />} />
+          <Route path="/granjas/inativas" element={<TabelaGranjasInativas />} />
+          <Route path="/granjas/cadastrar" element={<CadastroGranja />} />
+          <Route path="/granjas/:id" element={<DetalhesGranja />} />
+          <Route path="/granjas/:id/editar" element={<EdicaoGranja />} />
         </Route>
       </Routes>
     </>

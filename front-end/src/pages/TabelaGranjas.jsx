@@ -4,17 +4,16 @@ import { useAuth } from '../services/AuthContext';
 import TemplateTabelaGranjas from '../components/templates/TemplateTabelaGranjas';
 
 const TabelaGranjas = () => {
-    const [agroLista, setAgroLista] = useState([]);
+    const [granjaLista, setGranjaLista] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { isAuthenticated, userData } = useAuth();
-    console.log(userData)
 
     const carregarGranjas = async () => {
         if (userData.role === 'ADMIN'){
             try {
                 const dados = await granjas.listarGranjas();
-                setAgroLista(dados);
+                setGranjaLista(dados);
             } catch (err) {
                 setError('Falha ao carregar lista de granjas');
             } finally {
@@ -24,7 +23,7 @@ const TabelaGranjas = () => {
         else{
             try {
                 const dados = await granjas.listarPorAgroindustria(userData.agroindustriaId);
-                setAgroLista(dados);
+                setGranjaLista(dados);
             } catch (err) {
                 setError('Falha ao carregar lista de granjas');
             } finally {
@@ -48,7 +47,7 @@ const TabelaGranjas = () => {
         return <p className="text-red-500">{error}</p>;
     }
 
-    return <TemplateTabelaGranjas tipo="Granja" lista={agroLista} ativos={true} onAtualizar={carregarGranjas}/>;
+    return <TemplateTabelaGranjas tipo="Granja" lista={granjaLista} ativos={true} onAtualizar={carregarGranjas}/>;
 };
 
 export default TabelaGranjas;

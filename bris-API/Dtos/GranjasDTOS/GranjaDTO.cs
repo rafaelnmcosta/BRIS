@@ -8,9 +8,6 @@ namespace bris_API.DTOs
         [StringLength(100, ErrorMessage = "O nome deve ter no máximo 100 caracteres.")]
         public required string NomePropriedade { get; set; }
 
-        [Required(ErrorMessage = "O endereço é obrigatório.")]
-        [StringLength(300, ErrorMessage = "O endereço deve ter no máximo 300 caracteres.")]
-        public required string Endereco { get; set; }
 
         [Required(ErrorMessage = "O id da agroindustria é obrigatório.")]
         [Range(1, int.MaxValue, ErrorMessage = "O id da agroindustria deve ser um valor positivo.")]

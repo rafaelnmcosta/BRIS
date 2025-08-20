@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import BotaoPrimario from '../atoms/BotaoPrimario';
 import { formatarCNPJ, formatarTelefone, formatarData } from '../../services/Formatter';
+import { agroindustrias } from '../../api/agroindustriasAPI';
 
 const TemplateDetalhesAgroindustria = ({ dados }) => {
   const navigate = useNavigate();
@@ -20,13 +21,18 @@ const TemplateDetalhesAgroindustria = ({ dados }) => {
           />
           <BotaoPrimario
             texto={dados.ativo ? 'Inativar' : 'Ativar'}
-            onClick={() =>
-              navigate(
-                dados.ativo
-                  ? `/agroindustrias/inativas`
-                  : `/agroindustrias`
-              )
-            }
+            onClick={async () => {
+              try {
+                if (dados.ativo) {
+                  await agroindustrias.desativarAgroindustria(dados.id);
+                } else {
+                  await agroindustrias.ativarAgroindustria(dados.id);
+                }
+                navigate(dados.ativo ? `/agroindustrias/inativas` : `/agroindustrias`);
+              } catch (error) {
+                console.error('Erro ao alterar status da agroindústria:', error);
+              }
+            }}
           />
         </div>
       </div>

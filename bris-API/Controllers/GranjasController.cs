@@ -28,16 +28,17 @@ namespace bris_API.Controllers
         }
 
         /// <summary>
-        /// Obtém a lista de todas as granjas.
+        /// Obtém a lista de todas as granjas ativas.
         /// </summary>
-        /// <returns>Lista de granjas.</returns>
+        /// <returns>Lista de granjas ativas.</returns>
         [Authorize(Policy = "VisualizaTotal")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Granja>>> GetGranjas()
+        public async Task<ActionResult<IEnumerable<Granja>>> GetGranjasAtivas()
         {
-            // Busca todas as granjas e as retorna.
-            var granjas = await _context.Granjas.ToListAsync();
-            return Ok(granjas);
+            var granjasAtivas = await _context.Granjas
+                .Where(g => g.Ativo)
+                .ToListAsync();
+            return Ok(granjasAtivas);
         }
 
         /// <summary>
@@ -104,7 +105,7 @@ namespace bris_API.Controllers
             {
                 if (string.IsNullOrEmpty(agroindustriaIdClaim) || !int.TryParse(agroindustriaIdClaim, out var agroindustriaId))
                 {
-                    return Forbid(); // ou return BadRequest("Agroindústria inválida");
+                    return BadRequest("Agroindústria inválida");
                 }
 
                 query = query.Where(g => g.AgroindustriaId == agroindustriaId);
@@ -145,7 +146,7 @@ namespace bris_API.Controllers
             {
                 if (string.IsNullOrEmpty(agroindustriaIdClaim) || !int.TryParse(agroindustriaIdClaim, out var agroindustriaId))
                 {
-                    return Forbid();
+                    return BadRequest("Agroindústria inválida");
                 }
 
                 if (granja.AgroindustriaId != agroindustriaId)
@@ -168,13 +169,35 @@ namespace bris_API.Controllers
         /// <returns>Dados da granja.</returns>
         [Authorize(Policy = "VisualizaAgroindustria")]
         [HttpGet("{id}")]
-        public async Task<ActionResult<Granja>> GetGranja(int id)
+        public async Task<ActionResult<GetGranjaDTO>> GetGranja(int id)
         {
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             var agroindustriaIdClaim = User.FindFirst("AgroindustriaId")?.Value;
 
             var granja = await _context.Granjas
                 .Where(g => g.Id == id)
+                .Select(g => new GetGranjaDTO
+                {
+                    Id = g.Id,
+                    NomePropriedade = g.NomePropriedade,
+                    CNPJ = g.CNPJ,
+                    Telefone = g.Telefone,
+                    Email = g.Email,
+                    DataCadastro = g.DataCadastro,
+                    Ativo = g.Ativo,
+                    Agroindustria = new GetAgroindustriaDTO
+                        {
+                            Id = g.Agroindustria.Id,
+                            NomeFantasia = g.Agroindustria.NomeFantasia,
+                            RazaoSocial = g.Agroindustria.RazaoSocial,
+                            CNPJ = g.Agroindustria.CNPJ,
+                            Email = g.Agroindustria.Email,
+                            Telefone = g.Agroindustria.Telefone,
+                            Endereco = g.Agroindustria.Endereco,
+                            DataCadastro = g.Agroindustria.DataCadastro,
+                            Ativo = g.Agroindustria.Ativo
+                        }
+                })
                 .FirstOrDefaultAsync();
 
             if (granja == null)
@@ -190,7 +213,13 @@ namespace bris_API.Controllers
                     return Forbid();
                 }
 
-                if (granja.AgroindustriaId != agroindustriaId)
+                // Precisa buscar o AgroindustriaId da granja real
+                var agroIdGranja = await _context.Granjas
+                    .Where(g => g.Id == id)
+                    .Select(g => g.AgroindustriaId)
+                    .FirstOrDefaultAsync();
+
+                if (agroIdGranja != agroindustriaId)
                 {
                     return Forbid("Você não tem permissão para visualizar esta granja.");
                 }
