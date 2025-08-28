@@ -12,7 +12,7 @@ const TemplateTabelaAgroindustrias = ({ tipo, lista, ativos, onAtualizar }) => {
             {/* Header com título e botões */}
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-green-dark">
-                    Lista de {tipo}s {ativos ? '' : 'inativas'}
+                    Lista de agroindústrias {ativos ? '' : 'inativas'}
                 </h1>
 
                 <div className="flex gap-4 w-fit">

@@ -102,7 +102,6 @@ const Tabela = ({ tipo, lista, ativos, onAtualizar }) => {
     }
   };
 
-
   const gerarColunas = () => {
     let colunas = [];
 
@@ -111,7 +110,7 @@ const Tabela = ({ tipo, lista, ativos, onAtualizar }) => {
         colunas = [
           { title: 'Nome', dataIndex: 'nome', key: 'nome' },
           { title: 'Email', dataIndex: 'email', key: 'email' },
-          { title: 'CPF', dataIndex: 'cpf', key: 'cpf', render: (cpf) => formatarCPF(cpf) || 'Não informado' }
+          { title: 'CPF', dataIndex: 'cpf', key: 'cpf', render: (cpf) => formatarCPF(cpf) || 'Não informado' },
         ];
         break;
 
@@ -126,6 +125,25 @@ const Tabela = ({ tipo, lista, ativos, onAtualizar }) => {
         colunas = [
           { title: 'Nome da propriedade', dataIndex: 'nomePropriedade', key: 'nomePropriedade' },
           { title: 'CNPJ', dataIndex: 'cnpj', key: 'cnpj', render: (cnpj) => formatarCNPJ(cnpj) || 'Não informado' },
+        ];
+        break;
+
+      case 'Animal':
+        colunas = [
+          { title: 'Linhagem', dataIndex: 'linhagem', key: 'linhagem' },
+          { 
+            title: 'Status', 
+            dataIndex: 'status', 
+            key: 'status', 
+            render: (status) => 
+              status === null ? 'Aguardando avaliação' : status ? 'Aprovado' : 'Reprovado'
+          },
+          { 
+            title: 'Responsável', 
+            dataIndex: ['usuarioResponsavel', 'nome'], 
+            key: 'usuarioResponsavel', 
+            render: (nome) => nome || 'Não informado' 
+          },
         ];
         break;
 

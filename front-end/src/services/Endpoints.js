@@ -11,8 +11,12 @@ const endpoints = {
     desativar: (id) => `${API_BASE_URL}/agroindustrias/${id}/desativar`
   },
   animais: {
-    listar: `${API_BASE_URL}/animais`,
-    listarInativos: `${API_BASE_URL}/animais/ativar`,
+    listarAtivos: `${API_BASE_URL}/animais/ativos`,
+    listarAtivosPorGranja: `${API_BASE_URL}/animais/ativos/granja`,
+    listarAtivosPorAgroindustria: `${API_BASE_URL}/animais/ativos/agroindustria`,
+    listarInativos: `${API_BASE_URL}/animais/inativos`,
+    listarInativosPorGranja: `${API_BASE_URL}/animais/inativos/granja`,
+    listarInativosPorAgroindustria: `${API_BASE_URL}/animais/inativos/agroindustria`,
     ativar: (id) => `${API_BASE_URL}/animais/ativar/${id}`,
     detalhes: (id) => `${API_BASE_URL}/animais/${id}`,
     editar: (id) => `${API_BASE_URL}/animais/${id}/editar`,

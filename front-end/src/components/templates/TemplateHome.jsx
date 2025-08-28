@@ -16,7 +16,7 @@ const TemplateHome = () => {
                         <BotaoMenu texto="Gerenciar Usuários" onClick={() => navigate('/usuarios')} />
                         <BotaoMenu texto="Gerenciar Agroindústrias" onClick={() => navigate('/agroindustrias')} />
                         <BotaoMenu texto="Gerenciar Granjas" onClick={() => navigate('/granjas')} />
-                        <BotaoOff texto="Gerenciar Animais" onClick={() => navigate('/animais')} />
+                        <BotaoMenu texto="Gerenciar Animais" onClick={() => navigate('/animais')} />
                         <BotaoOff texto="Gerenciar Doses" onClick={() => navigate('/doses')} />
                     </>
                 );
@@ -25,21 +25,21 @@ const TemplateHome = () => {
                     <>
                         <BotaoMenu texto="Gerenciar Usuários" onClick={() => navigate('/usuarios')} />
                         <BotaoMenu texto="Gerenciar Granjas" onClick={() => navigate('/granjas')} />
-                        <BotaoOff texto="Gerenciar Animais" onClick={() => navigate('/animais')} />
+                        <BotaoMenu texto="Gerenciar Animais" onClick={() => navigate('/animais')} />
                     </>
                 );
             case 'GESTOR_GRANJA':
                 return (
                     <>
                         <BotaoMenu texto="Gerenciar Usuários" onClick={() => navigate('/usuarios')} />
-                        <BotaoOff texto="Gerenciar Animais" onClick={() => navigate('/animais')} />
+                        <BotaoMenu texto="Gerenciar Animais" onClick={() => navigate('/animais')} />
                         <BotaoOff texto="Gerenciar Doses" onClick={() => navigate('/doses')} />
                     </>
                 );
             case 'TECNICO':
                 return (
                     <>
-                        <BotaoOff texto="Gerenciar Animais" onClick={() => navigate('/animais')} />
+                        <BotaoMenu texto="Gerenciar Animais" onClick={() => navigate('/animais')} />
                         <BotaoOff texto="Gerenciar Doses" onClick={() => navigate('/doses')} />
                     </>
                 );

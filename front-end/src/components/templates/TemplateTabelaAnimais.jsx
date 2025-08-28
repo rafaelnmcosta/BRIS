@@ -3,7 +3,7 @@ import BotaoPrimario from '../atoms/BotaoPrimario';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
 
-const TemplateTabelaGranjas = ({ tipo, lista, ativos, onAtualizar }) => {
+const TemplateTabelaAnimais = ({ tipo, lista, ativos, onAtualizar }) => {
     const { userData } = useAuth();
     const navigate = useNavigate();
 
@@ -12,30 +12,30 @@ const TemplateTabelaGranjas = ({ tipo, lista, ativos, onAtualizar }) => {
             {/* Header com título e botões */}
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-green-dark">
-                    Lista de granjas {ativos ? '' : 'inativas'}
+                    Lista de animais {ativos ? '' : 'inativos'}
                 </h1>
 
                 <div className="flex gap-4 w-fit">
                     {ativos && (
                         <BotaoPrimario
-                            texto="Cadastrar nova"
-                            onClick={() => navigate('/granjas/cadastrar')}
+                            texto="Cadastrar novo"
+                            onClick={() => navigate('/animais/cadastrar')}
                         />
                     )}
 
                     {(ativos ? (
                         <BotaoPrimario
-                            texto="Listar inativas"
+                            texto="Listar inativos"
                             onClick={() => {
-                                navigate('/granjas/inativas');
+                                navigate('/animais/inativos');
                                 onAtualizar();
                             }}
                         />
                     ) : (
                         <BotaoPrimario
-                            texto="Listar ativas"
+                            texto="Listar ativos"
                             onClick={() => {
-                                navigate('/granjas');
+                                navigate('/animais');
                                 onAtualizar();
                             }}
                         />
@@ -50,4 +50,4 @@ const TemplateTabelaGranjas = ({ tipo, lista, ativos, onAtualizar }) => {
     );
 };
 
-export default TemplateTabelaGranjas;
+export default TemplateTabelaAnimais;

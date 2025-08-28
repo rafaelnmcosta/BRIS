@@ -12,7 +12,7 @@ const TemplateTabelaUsuarios = ({ tipo, lista, ativos, onAtualizar }) => {
       {/* Header com título e botões */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-green-dark">
-          Lista de {tipo}s {ativos ? '' : 'inativos'}
+          Lista de usuários {ativos ? '' : 'inativos'}
         </h1>
 
         <div className="flex gap-4 w-fit">
