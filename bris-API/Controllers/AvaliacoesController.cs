@@ -38,20 +38,20 @@ namespace bris_API.Controllers
         public async Task<ActionResult<IEnumerable<GetAvaliacaoDTO>>> GetAvaliacoesPorGranja(int granjaId)
         {
             // Claims do usuário
-            var userRole = User.FindFirst("Role")?.Value ?? string.Empty;
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
             var agroIdClaim = int.TryParse(User.FindFirst("AgroindustriaId")?.Value, out var agroId) ? agroId : (int?)null;
             var granjaIdClaim = int.TryParse(User.FindFirst("GranjaId")?.Value, out var granjaIdUser) ? granjaIdUser : (int?)null;
 
             // Valida permissões
-            if (userRole is "GESTOR_GRANJA" or "TECNICO")
+            if (role is "GESTOR_GRANJA" or "TECNICO")
             {
                 if (granjaIdClaim == null || granjaIdClaim != granjaId)
-                    return Forbid();
+                    return StatusCode(StatusCodes.Status403Forbidden, "Você não tem permissão para acessar avaliações desta granja.");
             }
-            else if (userRole == "GESTOR_AGRO")
+            else if (role == "GESTOR_AGRO")
             {
                 if (agroIdClaim == null)
-                    return Forbid();
+                    return StatusCode(StatusCodes.Status403Forbidden, "Agroindústria do usuário não identificada.");
 
                 var granja = await _context.Granjas
                     .AsNoTracking()
@@ -61,11 +61,11 @@ namespace bris_API.Controllers
                     return NotFound("Granja não encontrada.");
 
                 if (granja.AgroindustriaId != agroIdClaim)
-                    return Forbid();
+                    return StatusCode(StatusCodes.Status403Forbidden, "Você não tem permissão para acessar avaliações desta granja.");
             }
-            else if (userRole != "ADMIN")
+            else if (role != "ADMIN")
             {
-                return Forbid();
+                return StatusCode(StatusCodes.Status403Forbidden, "Você não tem permissão para acessar estas avaliações.");
             }
 
             // Busca otimizada: pega só os campos necessários
@@ -105,7 +105,7 @@ namespace bris_API.Controllers
             // Busca avaliações interrompidas (StatusAvaliacao == 3)
             var avaliacoesInterrompidas = await _context.Avaliacoes
                 .Include(a => a.Animal)
-                .Where(a => a.Animal.Granja.Id == int.Parse(granjaId) && a.StatusAvaliacao == 3)
+                .Where(a => a.Animal.GranjaId == int.Parse(granjaId) && a.StatusAvaliacao == 3)
                 .ToListAsync();
 
             return Ok(avaliacoesInterrompidas);
@@ -122,7 +122,7 @@ namespace bris_API.Controllers
         public async Task<ActionResult<GetAvaliacaoDetalhadaDTO>> GetAvaliacao(int id)
         {
             // Claims do usuário
-            var userRole = User.FindFirst("Role")?.Value ?? string.Empty;
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
             var agroIdClaim = User.FindFirst("AgroindustriaId")?.Value;
             var granjaIdClaim = User.FindFirst("GranjaId")?.Value;
 
@@ -139,23 +139,24 @@ namespace bris_API.Controllers
                 return NotFound("Avaliação não encontrada.");
 
             // Validações por role
-            if (userRole == "GESTOR_GRANJA" || userRole == "TECNICO")
+            if (role == "GESTOR_GRANJA" || role == "TECNICO")
             {
                 if (string.IsNullOrEmpty(granjaIdClaim) || avaliacao.Animal.GranjaId != int.Parse(granjaIdClaim))
-                    return Forbid("Você não tem permissão para acessar esta avaliação.");
+                    return StatusCode(403, "Você não tem permissão para acessar esta avaliação.");
             }
-            else if (userRole == "GESTOR_AGRO")
+            else if (role == "GESTOR_AGRO")
             {
                 if (string.IsNullOrEmpty(agroIdClaim))
-                    return Forbid("Agroindústria do usuário não identificada.");
+                    return StatusCode(403, "Agroindústria do usuário não identificada.");
 
                 if (avaliacao.Animal.Granja.AgroindustriaId != int.Parse(agroIdClaim))
-                    return Forbid("Esta avaliação não pertence à sua agroindústria.");
+                    return StatusCode(403, "Esta avaliação não pertence à sua agroindústria.");
             }
-            else if (userRole != "ADMIN")
+            else if (role != "ADMIN")
             {
-                return Forbid("Você não tem permissão para acessar esta avaliação.");
+                return StatusCode(403, $"caiu no if de admin: {role}");
             }
+
 
             // Mapeamento para DTO detalhado
             var avaliacaoDTO = new GetAvaliacaoDetalhadaDTO
@@ -204,7 +205,7 @@ namespace bris_API.Controllers
         [HttpPost("nova/{id}")]
         public async Task<ActionResult> NovaAvaliacao(int id)
         {
-            var userRole = User.FindFirst("Role")?.Value ?? string.Empty;
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
             var granjaIdClaim = User.FindFirst("GranjaId")?.Value;
             var agroIdClaim = User.FindFirst("AgroindustriaId")?.Value;
             var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -224,15 +225,15 @@ namespace bris_API.Controllers
                 return NotFound("Animal não encontrado.");
 
             // Validações de acesso
-            if (userRole == "GESTOR_GRANJA" || userRole == "TECNICO")
+            if (role == "GESTOR_GRANJA" || role == "TECNICO")
             {
                 if (string.IsNullOrEmpty(granjaIdClaim) || animal.GranjaId != int.Parse(granjaIdClaim))
-                    return Forbid("Você não tem permissão para criar avaliação para este animal.");
+                    return StatusCode(403, "Você não tem permissão para criar avaliação para este animal.");
             }
-            else if (userRole == "GESTOR_AGRO")
+            else if (role == "GESTOR_AGRO")
             {
                 if (string.IsNullOrEmpty(agroIdClaim) || animal.Granja.AgroindustriaId != int.Parse(agroIdClaim))
-                    return Forbid("Este animal não pertence à sua agroindústria.");
+                    return StatusCode(403, "Este animal não pertence à sua agroindústria.");
             }
             // ADMIN não precisa de validação
 
@@ -298,10 +299,10 @@ namespace bris_API.Controllers
                 return BadRequest(new { status = "error", message = "Valor registrado é obrigatório." });
 
             // Parse seguro das claims
-            var userRole = User.FindFirst("Role")?.Value ?? string.Empty;
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
             var granjaIdClaim = User.FindFirst("GranjaId")?.Value;
             int? granjaIdUser = int.TryParse(granjaIdClaim, out var tmpGranja) ? tmpGranja : (int?)null;
-            var usuarioIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(usuarioIdClaim, out var usuarioId))
                 return Unauthorized(new { status = "error", message = "Usuário não identificado." });
 
@@ -316,27 +317,27 @@ namespace bris_API.Controllers
             if (avaliacao == null)
                 return NotFound(new { status = "error", message = "Avaliação não encontrada." });
 
-            if (userRole == "GESTOR_GRANJA" || userRole == "TECNICO")
+            if (role == "GESTOR_GRANJA" || role == "TECNICO")
             {
                 if (granjaIdUser == null || avaliacao.Animal.GranjaId != granjaIdUser.Value)
-                    return Forbid();
+                    return StatusCode(StatusCodes.Status403Forbidden, "Você não tem permissão para registrar doses nesta avaliação.");
             }
-            else if (userRole == "GESTOR_AGRO")
+            else if (role == "GESTOR_AGRO")
             {
                 var agroIdClaim = User.FindFirst("AgroindustriaId")?.Value;
                 if (!int.TryParse(agroIdClaim, out var agroIdUser))
-                    return Forbid();
+                    return StatusCode(StatusCodes.Status403Forbidden, "Agroindústria do usuário não identificada.");
 
                 // certificar que a granja do animal pertence à agro do gestor
                 var granjaDoAnimal = await _context.Granjas
                     .AsNoTracking()
                     .FirstOrDefaultAsync(g => g.Id == avaliacao.Animal.GranjaId);
                 if (granjaDoAnimal == null || granjaDoAnimal.AgroindustriaId != agroIdUser)
-                    return Forbid();
+                    return StatusCode(StatusCodes.Status403Forbidden, "Você não tem permissão para registrar doses nesta avaliação.");
             }
-            else if (userRole != "ADMIN")
+            else if (role != "ADMIN")
             {
-                return Forbid();
+                return StatusCode(StatusCodes.Status403Forbidden, "Sua role não permite registrar doses.");
             }
 
             // Só autoriza operações em avaliações abertas (status == 1)
@@ -401,7 +402,7 @@ namespace bris_API.Controllers
         [HttpPut("finaliza/{id}")]
         public async Task<ActionResult> FinalizaAvaliacao(int id)
         {
-            var usuarioRole = User.FindFirst("Role")?.Value;
+            var usuarioRole = User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
             var granjaIdClaim = User.FindFirst("GranjaId")?.Value;
             var agroIdClaim = User.FindFirst("AgroindustriaId")?.Value;
 
@@ -418,23 +419,24 @@ namespace bris_API.Controllers
             // Controle de acesso baseado em role
             switch (usuarioRole)
             {
-                case "admin":
+                case "ADMIN":
                     // Admin tem acesso total, não valida nada
                     break;
 
-                case "gestor_agro":
+                case "GESTOR_AGRO":
                     if (agroIdClaim == null || avaliacao.Animal.Granja.AgroindustriaId != int.Parse(agroIdClaim))
-                        return Forbid("Você não tem permissão para finalizar avaliações dessa agroindústria.");
+                        return StatusCode(StatusCodes.Status403Forbidden, "Você não tem permissão para finalizar avaliações dessa agroindústria.");
+
                     break;
 
-                case "gestor_granja":
-                case "tecnico":
+                case "GESTOR_GRANJA":
+                case "TECNICO":
                     if (granjaIdClaim == null || avaliacao.Animal.GranjaId != int.Parse(granjaIdClaim))
-                        return Forbid("Você não tem permissão para finalizar avaliações desta granja.");
+                        return StatusCode(StatusCodes.Status403Forbidden, "Você não tem permissão para finalizar avaliações desta granja.");
                     break;
 
                 default:
-                    return Forbid("Sua role não permite finalizar avaliações.");
+                    return StatusCode(StatusCodes.Status403Forbidden, "Sua role não permite finalizar avaliações.");
             }
 
             // Verifica se já está finalizada
@@ -458,28 +460,47 @@ namespace bris_API.Controllers
         [HttpPut("interrompe/{id}")]
         public async Task<ActionResult> InterrompeAvaliacao(int id)
         {
-            var granjaId = User.FindFirst("GranjaId")?.Value;
-            if (granjaId == null)
-            {
-                return Unauthorized("Claims de granja não encontradas.");
-            }
+            // normalizar role e claims
+            var role = User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+            var granjaIdClaim = User.FindFirst("GranjaId")?.Value;
+            var agroIdClaim = User.FindFirst("AgroindustriaId")?.Value;
 
-            // Busca a avaliação, incluindo o animal, garantindo que pertence à granja do usuário autenticado
+            // Busca a avaliação incluindo Animal -> Granja -> Agroindustria (precisa da agro para validar gestor_agro)
             var avaliacao = await _context.Avaliacoes
                 .Include(a => a.Animal)
-                .FirstOrDefaultAsync(a => a.Id == id && a.Animal.Granja.Id == int.Parse(granjaId));
+                    .ThenInclude(an => an.Granja)
+                        .ThenInclude(g => g.Agroindustria)
+                .FirstOrDefaultAsync(a => a.Id == id);
 
             if (avaliacao == null)
+                return NotFound($"Avaliação não encontrada: id passado:{id}");
+
+            // Controle de acesso baseado em role (mesma lógica do FinalizaAvaliacao)
+            switch (role)
             {
-                return NotFound("Avaliação não encontrada ou não pertence à sua granja.");
+                case "ADMIN":
+                    // access total
+                    break;
+
+                case "GESTOR_AGRO":
+                    if (string.IsNullOrEmpty(agroIdClaim) || avaliacao.Animal.Granja.AgroindustriaId != int.Parse(agroIdClaim))
+                        return StatusCode(StatusCodes.Status403Forbidden, "Você não tem permissão para interromper avaliações dessa agroindústria.");
+                    break;
+
+                case "GESTOR_GRANJA":
+                case "TECNICO":
+                    if (string.IsNullOrEmpty(granjaIdClaim) || avaliacao.Animal.GranjaId != int.Parse(granjaIdClaim))
+                        return StatusCode(StatusCodes.Status403Forbidden, "Você não tem permissão para interromper avaliações desta granja.");
+                    break;
+
+                default:
+                    return StatusCode(StatusCodes.Status403Forbidden, "Sua role não permite interromper avaliações.");
             }
 
+            // Validação de estado atual
             if (avaliacao.StatusAvaliacao == 2 || avaliacao.StatusAvaliacao == 3)
-            {
                 return BadRequest("Avaliação já está interrompida ou finalizada.");
-            }
 
-            // Altera o status da avaliação para 3 (interrompida/finalizada)
             avaliacao.StatusAvaliacao = 3;
             await _context.SaveChangesAsync();
 
@@ -496,32 +517,52 @@ namespace bris_API.Controllers
         [HttpPut("{id}/reativar")]
         public async Task<ActionResult> ReativaAvaliacao(int id)
         {
-            var granjaId = User.FindFirst("GranjaId")?.Value;
-            if (granjaId == null)
-            {
-                return Unauthorized("Claims de granja não encontradas.");
-            }
+            // normalizar role e claims
+            var role = User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+            var granjaIdClaim = User.FindFirst("GranjaId")?.Value;
+            var agroIdClaim = User.FindFirst("AgroindustriaId")?.Value;
 
-            // Busca a avaliação, incluindo o animal, garantindo que pertence à granja do usuário autenticado
+            // Busca a avaliação incluindo Animal -> Granja -> Agroindustria
             var avaliacao = await _context.Avaliacoes
                 .Include(a => a.Animal)
-                .FirstOrDefaultAsync(a => a.Id == id && a.Animal.Granja.Id == int.Parse(granjaId));
+                    .ThenInclude(an => an.Granja)
+                        .ThenInclude(g => g.Agroindustria)
+                .FirstOrDefaultAsync(a => a.Id == id);
 
             if (avaliacao == null)
+                return NotFound("Avaliação não encontrada.");
+
+            // Controle de acesso baseado em role (mesma lógica do FinalizaAvaliacao)
+            switch (role)
             {
-                return NotFound("Avaliação não encontrada ou não pertence à sua granja.");
+                case "ADMIN":
+                    // access total
+                    break;
+
+                case "GESTOR_AGRO":
+                    if (string.IsNullOrEmpty(agroIdClaim) || avaliacao.Animal.Granja.AgroindustriaId != int.Parse(agroIdClaim))
+                        return StatusCode(StatusCodes.Status403Forbidden, "Você não tem permissão para reativar avaliações dessa agroindústria.");
+                    break;
+
+                case "GESTOR_GRANJA":
+                case "TECNICO":
+                    if (string.IsNullOrEmpty(granjaIdClaim) || avaliacao.Animal.GranjaId != int.Parse(granjaIdClaim))
+                        return StatusCode(StatusCodes.Status403Forbidden, "Você não tem permissão para reativar avaliações desta granja.");
+                    break;
+
+                default:
+                    return StatusCode(StatusCodes.Status403Forbidden, "Sua role não permite reativar avaliações.");
             }
 
-            if (avaliacao.StatusAvaliacao == 2 || avaliacao.StatusAvaliacao == 3)
-            {
-                return BadRequest("Avaliação já está interrompida ou finalizada.");
-            }
+            // só permite reativar se estiver interrompida (3)
+            if (avaliacao.StatusAvaliacao != 3)
+                return BadRequest("Apenas avaliações interrompidas podem ser reativadas.");
 
-            // Altera o status para 1, reativando a avaliação
             avaliacao.StatusAvaliacao = 1;
             await _context.SaveChangesAsync();
 
             return Ok("Avaliação reativada com sucesso.");
         }
+
     }
 }
