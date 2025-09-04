@@ -65,7 +65,7 @@ function AppContent() {
       <Routes>
         {/* Rotas públicas */}
         <Route path="/login" element={<Login />} />
-        <Route path="/teste" element={<CadastroUsuario />} />
+        <Route path="/teste" element={<Teste />} />
 
         {/* Rotas protegidas por isLogged */}
         <Route element={<LoggedRoute />}>

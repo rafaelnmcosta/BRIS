@@ -34,7 +34,7 @@ const endpoints = {
     checarStatus: `${API_BASE_URL}/auth/check`
   },
   avaliacoes: {
-    listar: `${API_BASE_URL}/avalicoes`,
+    listarPorGranja: (id) => `${API_BASE_URL}/avaliacoes/granja/${id}`,
     listarInterrompidas: `${API_BASE_URL}/avaliacoes/interrompidas`,
     detalhes: (id) => `${API_BASE_URL}/avaliacoes/${id}`,
     novaAvaliacao: (id) => `${API_BASE_URL}/avaliacoes/nova/${id}`,
