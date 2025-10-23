@@ -165,7 +165,7 @@ namespace bris_API.Controllers
                 AnimalId = avaliacao.AnimalId,
                 Linhagem = avaliacao.Animal.Linhagem,
                 DataInicioAvaliacao = avaliacao.DataInicioAvaliacao,
-                StatusAvaliacao = avaliacao.StatusAvaliacao.ToString(),
+                StatusAvaliacao = avaliacao.StatusAvaliacao,
                 ResultadoFinal = avaliacao.ResultadoFinal.HasValue ? avaliacao.ResultadoFinal.ToString() : null,
                 Semanas = avaliacao.Semanas.Select(s => new GetSemanaDTO
                 {

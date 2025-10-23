@@ -6,7 +6,7 @@ namespace bris_API.DTOs
         public int AnimalId { get; set; }
         public string Linhagem { get; set; } = string.Empty;
         public DateTime DataInicioAvaliacao { get; set; }
-        public string StatusAvaliacao { get; set; } = string.Empty;
+        public int StatusAvaliacao { get; set; }
         public string? ResultadoFinal { get; set; }
 
         // Semanas da avaliação
