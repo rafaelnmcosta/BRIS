@@ -47,6 +47,8 @@ import CadastroAnimal from './pages/CadastroAnimal';
 import EdicaoAnimal from './pages/EdicaoAnimal';
 import DetalhesAnimal from './pages/DetalhesAnimal';
 
+import Avaliacao from './pages/Avaliacao';
+
 function AppContent() {
   const { loading } = useAuth();
 
@@ -104,6 +106,8 @@ function AppContent() {
           <Route path="/animais/cadastrar" element={<CadastroAnimal />} />
           <Route path="/animais/:id" element={<DetalhesAnimal />} />
           <Route path="/animais/:id/editar" element={<EdicaoAnimal />} />
+          {/* Rota de avaliação */}
+          <Route path="/avaliacoes/:id" element={<Avaliacao />} />
         </Route>
       </Routes>
     </>
